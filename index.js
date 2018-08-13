@@ -21,7 +21,7 @@ app.use(express.static(__dirname + '/public'));
 // const {Pool, Client} = require('pg');
 
 // if (!process.env.PORT)console.log("listening on 8080");
-console.log(process)
+//console.log(process)
 app.listen(process.env.PORT || 8080);
 
 // app.get("/", function(req, res){ 
