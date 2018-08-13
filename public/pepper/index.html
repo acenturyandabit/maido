@@ -1,0 +1,136 @@
+<html>
+	<head>
+		<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
+		<script src="../jquery.min.js"></script>
+		<script>
+			var config = {
+				apiKey: "AIzaSyA-sH4oDS4FNyaKX48PSpb1kboGxZsw9BQ",
+				authDomain: "backbits-567dd.firebaseapp.com",
+				databaseURL: "https://backbits-567dd.firebaseio.com",
+				projectId: "backbits-567dd",
+				storageBucket: "backbits-567dd.appspot.com",
+				messagingSenderId: "894862693076"
+			};
+			firebase.initializeApp(config);
+			// Initialize Cloud Firestore through Firebase
+			var db = firebase.firestore();
+			//for now just loading pep - will handle fake queries later 
+			
+			$(document).ready(()=>{
+				let addr=window.location.href;
+				if (k=RegExp("/\?discussion\=([^&]+)").exec(addr) && k[1]){
+					
+				}else{
+					//show splash
+					$("#splash").show();
+				}
+				
+				
+				
+			})
+			
+			db.collection
+			
+		</script>
+		<style>
+			body{
+			margin:0;
+			display:flex;
+			flex-direction:column;
+			}
+			
+			#body{
+			display:flex;
+			flex:1 0 auto;
+			flex-direction:row;
+			}
+			
+			#issues, #solutions{
+			flex: 1 0 auto;
+			display:flex;
+			flex-direction: column;
+			
+			}
+			
+			h1{
+			border-bottom: solid 1px;
+			}
+			
+			#issues{
+			background-color:#ffaaaa;
+			}
+			
+			#issues>.addbutton{
+		background-color: #ff5555;
+		}
+		
+		#solutions{
+		flex: 1 0 auto;
+		display:flex;
+		background-color:#aaaaff;
+		}
+		
+		#solutions>.addbutton{
+		background-color:#5555ff;
+		}
+		
+		.listbox{
+		flex: 1 0 auto;
+		}
+		.addbutton{
+		flex:0 1 5%;
+		border:dotted;
+		}
+		
+		#divider{
+		flex: 0 1 5%;
+		background-color:grey;
+		}
+		
+		#header{
+		width: 100%;
+		}
+		#header>span:first-child{
+		font-size:3em;
+		padding-left:0.5em;
+		}
+		
+		#splash{
+			position:absolute;
+			width:100%;
+			height:100%;
+			top:0;
+			left:0;
+			background:rgba(5,5,5,0.7);
+		}
+		
+		</style>
+	</head>
+	<body>
+		<div id="header">
+			<span>PEPPER  </span><span>goes well with salt</span>
+			<hr>
+		</div>
+		<div id="body">
+			<div id="issues">
+				<h1>Issues</h1>
+				<div class="listbox"></div>
+				<div class="addbutton">+: Enter a new issue</div>
+			</div>
+			<div id="divider">
+				
+			</div>
+			<div id="solutions">
+				<h1>Recommendations</h1>
+				<div class="listbox"></div>
+				<div class="addbutton">+: Enter a new recommendation</div>
+			</div>
+		</div>
+		<div id="splash">
+				<span>Welcome to PEPPER</span>
+				<span>A platform for constructive problem solving</span>
+				<span>To get started, enter a discussion code below; or start a new discussion.</span>
+		</div>
+	</body>
+</html>

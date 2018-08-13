@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+		<title>WaveLab SL-18</title>
+		<style>
+			body { margin: 0; overflow:hidden;}
+			canvas { width: 100%; height: 100% }
+			#controls{
+			top:0;
+			left:0;
+			position:absolute; 
+			z-index:2;
+			background-color:white;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="jquery.min.js"></script>
+		<script src="three.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			
+			
+			
+			//camera
+			var camRad=5;
+			var camPolAng=0;
+			var camEqAng=0;
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			var mpX;
+			var mpY;
+			
+			//mouse events
+			document.addEventListener('mousemove',movCam);
+			$(document).ready(()=>{
+				$("#controls").on("mousemove",(e)=>{e.stopPropagation();});	
+				var c = document.getElementById("controls");
+				c.addEventListener("touchstart",(e)=>{e.stopPropagation();});
+				c.addEventListener("touchcancel",(e)=>{e.stopPropagation();});
+				c.addEventListener("touchmove",(e)=>{e.stopPropagation();});
+				c.addEventListener("touchend",(e)=>{e.stopPropagation();});
+			});
+			rFactor=0.1;
+			function movCam(e){
+				if (e.buttons){
+					camPolAng+=(e.clientX-mpX)*rFactor;
+					mpX=e.clientX;
+					camEqAng+=(e.clientY-mpY)*rFactor;
+					mpY=e.clientY;
+					/*camera.position.z=camRad*Math.sin(camPolAng*0.01);
+					camera.position.x=camRad*Math.cos(camPolAng*0.01)*Math.cos(camEqAng*0.01);
+					camera.position.y=camRad*Math.cos(camPolAng*0.01)*Math.sin(camEqAng*0.01);
+					camera.lookAt(scene.position);*/
+				}
+			}
+			document.addEventListener('mousedown',storpos);
+			function storpos(e){
+				mpX=e.clientX;
+				mpY=e.clientY;
+			}
+			document.addEventListener('wheel',zoom);
+			function zoom(e){
+				camRad+=e.deltaY/100;
+				/*camera.position.z=camRad*Math.sin(camPolAng*0.01);
+				camera.position.x=camRad*Math.cos(camPolAng*0.01)*Math.cos(camEqAng*0.01);
+				camera.position.y=camRad*Math.cos(camPolAng*0.01)*Math.sin(camEqAng*0.01);
+				camera.lookAt(scene.position);*/
+			}
+			
+			//touchscreen events
+			var touchList=[];
+			var touchMode=0;
+			document.addEventListener("touchstart",handleStart);
+			document.addEventListener("touchend",handleEnd);
+			document.addEventListener("touchmove",handleMove);
+			document.addEventListener("touchcancel",handleEnd);
+			function handleStart(e){
+				var touches=e.changedTouches;
+				for (var i=0;i<touches.length;i++){
+					touchList.push(copyTouch(touches[i]));
+					touchMode=3;
+					if (touchList.length>1)touchMode=4;
+				}
+				event.preventDefault();
+			}
+			var preDist=0;
+			function handleMove(e){
+				var touches=e.changedTouches;
+				for (var i=0;i<touches.length;i++){
+					if (touchMode==3){
+						touchList=[];
+						touchList.push(copyTouch(touches[i]));
+						touchMode=1;
+					}else if (touchMode==1){ //drag
+						camPolAng+=(touches[0].pageX-touchList[0].pageX)*rFactor;
+						camEqAng+=(touches[0].pageY-touchList[0].pageY)*rFactor;
+					}else if (touchMode==4 || touchMode==2){// zoom events
+						//just copy the touches to the list; we'll post-process.
+						var tid=idx(touches[i].identifier);
+						touchList[tid].pageX=touches[i].pageX;
+						touchList[tid].pageY=touches[i].pageY;
+					}
+				}
+				//for zoom events
+				 if (touchMode==4 || touchMode==2){
+				//calculate average distance
+					var dist=0;
+					var dcount=0;
+					for (var j=0;j<touchList.length;j++){
+						for (var i=j+1;i<touchList.length;i++){
+							dcount++;
+							dist += Math.sqrt((touchList[i].pageX-touchList[j].pageX)*(touchList[i].pageX-touchList[j].pageX)+(touchList[i].pageY-touchList[j].pageY)*(touchList[i].pageY-touchList[j].pageY));
+						}
+					}
+					dist/=dcount;
+					if (touchMode==2){
+						camRad+=dist-preDist;
+					}else{
+						touchMode=2;
+					}
+					preDist=dist;
+				 }
+				 event.preventDefault();
+			}
+			
+			function handleEnd(e){
+				var touches=e.changedTouches;
+				for (var i=0;i<touches.length;i++){
+					touchList.splice(idx(touches[i].identifier),1);
+					if (touchList.length==1){
+						//rehash the remaining touches at the next opportunity
+						touchMode=3;
+					}else if (touchList.length>1)touchMode=4;
+					else touchMode=0;//no remaining touches
+				}
+				event.preventDefault();
+			}
+			
+			function idx(id){
+				for (var i=0;i<touchList.length;i++){
+					if (id==touchList[i].identifier)return i;
+				}
+			}
+			
+			function copyTouch(touch) {
+				return { identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY };
+			}
+			
+			
+			
+			
+			
+			
+			//centreline and ends
+			var halfLen=30;
+			var endHeight=10;
+			var clG=new THREE.Geometry();
+			var clMat=new THREE.LineBasicMaterial( { color: 0xffff00, linewidth:2 } );
+			clG.vertices.push(new THREE.Vector3(-halfLen,endHeight,endHeight));
+			clG.vertices.push(new THREE.Vector3(-halfLen,endHeight,-endHeight));
+			clG.vertices.push(new THREE.Vector3(-halfLen,-endHeight,-endHeight));
+			clG.vertices.push(new THREE.Vector3(-halfLen,-endHeight,endHeight));
+			clG.vertices.push(new THREE.Vector3(-halfLen,endHeight,endHeight));
+			//cross
+			clG.vertices.push(new THREE.Vector3(-halfLen,endHeight,0));
+			clG.vertices.push(new THREE.Vector3(-halfLen,-endHeight,0));
+			clG.vertices.push(new THREE.Vector3(-halfLen,0,0));
+			clG.vertices.push(new THREE.Vector3(-halfLen,0,endHeight));
+			clG.vertices.push(new THREE.Vector3(-halfLen,0,-endHeight));
+			clG.vertices.push(new THREE.Vector3(-halfLen,0,0));
+			//positive side
+			clG.vertices.push(new THREE.Vector3(halfLen,0,0));
+			clG.vertices.push(new THREE.Vector3(halfLen,0,endHeight));
+			clG.vertices.push(new THREE.Vector3(halfLen,endHeight,endHeight));
+			clG.vertices.push(new THREE.Vector3(halfLen,endHeight,-endHeight));
+			clG.vertices.push(new THREE.Vector3(halfLen,-endHeight,-endHeight));
+			clG.vertices.push(new THREE.Vector3(halfLen,-endHeight,endHeight));
+			clG.vertices.push(new THREE.Vector3(halfLen,endHeight,endHeight));
+			//cross
+			clG.vertices.push(new THREE.Vector3(halfLen,endHeight,0));
+			clG.vertices.push(new THREE.Vector3(halfLen,-endHeight,0));
+			clG.vertices.push(new THREE.Vector3(halfLen,0,0));
+			clG.vertices.push(new THREE.Vector3(halfLen,0,endHeight));
+			clG.vertices.push(new THREE.Vector3(halfLen,0,-endHeight));
+			var clLine=new THREE.Line(clG,clMat);
+			scene.add(clLine);
+			var t=0;
+			
+			//initial camera setup
+			camera.position.z=camRad*Math.sin(camPolAng*0.01);
+			camera.position.x=camRad*Math.cos(camPolAng*0.01)*Math.cos(camEqAng*0.01);
+			camera.position.y=camRad*Math.cos(camPolAng*0.01)*Math.sin(camEqAng*0.01);
+			camera.lookAt(scene.position);
+			
+		</script>
+		<script src="wave.js"></script>
+		<script>
+			function animate() {
+				camera.position.z=camRad*Math.sin(camPolAng*0.01);
+				camera.position.x=camRad*Math.cos(camPolAng*0.01)*Math.cos(camEqAng*0.01);
+				camera.position.y=camRad*Math.cos(camPolAng*0.01)*Math.sin(camEqAng*0.01);
+				camera.lookAt(scene.position);
+				t++;
+				for (var wn=0;wn<waves.length;wn++){
+					waves[wn].update();
+				}
+				requestAnimationFrame( animate );
+				renderer.render( scene, camera );
+			}
+			animate();
+			
+			
+			
+			//controls
+			$(document).ready(linkControls);
+			function linkControls(){
+				$(".wav_ctrl").on('input',(e)=>{
+					var wavnum=e.target.classList.item(1).split("_")[1];
+					var prop=e.target.classList.item(1).split("_")[0];
+					waves[wavnum][prop]=e.target.value;
+					$("."+e.target.classList.item(1)).each((i,t)=>{t.value=e.target.value});
+				});
+				$(".polBtn").on('click',(e)=>{
+					var wavnum=e.target.id.split("_")[1];
+					cwav=allowed_pols.indexOf(e.target.innerHTML);
+					cwav++;
+					if (cwav>=allowed_pols.length)cwav=0;
+					waves[wavnum].waveType=allowed_pols[cwav];
+					e.target.innerHTML=allowed_pols[cwav];
+				});
+				$(".showbox").on('change',(e)=>{
+					var wavnum=e.target.id.split("_")[1];
+					waves[wavnum].line.visible=e.target.checked;
+				});
+				$(".back").on('change',(e)=>{
+					var wavnum=e.target.classList.item(1).split("_")[1];
+					waves[wavnum].back=e.target.checked;
+				});
+			}
+			//document.addEventListener('contextmenu', event => event.preventDefault());
+			var allowed_pols=['Horizontal','Vertical','Clockwise','Anticlockwise'];//,'clockwise','anticlockwise'];
+			
+			
+		</script>
+		<div id="controls">
+			<div>
+				<input type="checkbox" class="showbox" id="show_0" checked>Wave 1</input><br>
+				<span>Amplitude:</span><input type="range" min="1" max="10" value="1" class="wav_ctrl amp_0"/><input type="number" min="1" max="10" value="1" class="wav_ctrl amp_0"/><br>
+				<span>Frequency:</span><input type="range" min="1" max="10" value="1" class="wav_ctrl freq_0"/><input type="number" min="1" max="10" value="1" class="wav_ctrl freq_0"/><br>
+				<span>Wavelength:</span><input type="range" min="1" max="10" value="1" class="wav_ctrl wln_0"/><input type="number" min="1" max="10" value="1" class="wav_ctrl wln_0"/><br>
+				<span>Polarisation</span><button class="polBtn" id="pol_0">Vertical</button>
+			</div>
+			<div>
+				<input type="checkbox" class="showbox" id="show_1" checked>Wave 2</input><br>
+				<span>Amplitude:</span><input type="range" min="1" max="10" value="1" class="wav_ctrl amp_1"/><input type="number" min="1" max="10" value="1" class="wav_ctrl amp_1"/><br>
+				<span>Frequency:</span><input type="range" min="1" max="10" value="1" class="wav_ctrl freq_1"/><input type="number" min="1" max="10" value="1" class="wav_ctrl freq_1"/><br>
+				<span>Wavelength:</span><input type="range" min="1" max="10" value="1" class="wav_ctrl wln_1"/><input type="number" min="1" max="10" value="1" class="wav_ctrl wln_1"/><br>
+				<span>Phase shift:</span><input type="range" min="-90" max="180" value="1" class="wav_ctrl phi_1"/><input type="number" min="1" max="10" value="1" class="wav_ctrl phi_1"/><br>
+				<span>Polarisation</span><button class="polBtn" id="pol_1">Horizontal</button>
+				<input type="checkbox" class="back back_1">Swap direction</input><br>
+			</div>
+			<div>
+				<input type="checkbox" class="showbox" id="show_2" checked>Sum wave</input><br>
+			</div>
+		</div>
+	</body>
+</html>

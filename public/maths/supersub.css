@@ -1,0 +1,52 @@
+.supsub {
+    display: inline-block;
+}
+
+.supsub sup,
+.supsub sub {
+    position: relative;
+    display: block;
+    font-size: .7em;
+    line-height: 1.2;
+}
+
+.supsub sub {
+    top: .3em;
+}
+
+.frac {
+    display: inline-block;
+}
+
+.frac>sup,
+.frac>sub {
+    position: relative;
+    display: block;
+    font-size: .5em;
+    line-height: 1.0;
+	text-align: center;
+}
+
+.frac>sup {
+    border-bottom-style:solid;
+	border-bottom-width:1px;
+}
+
+.frac>sub {
+    top: .2em;
+}
+
+
+a{
+	color:blue;
+	text-decoration:underline;
+	cursor:pointer;
+}
+
+.subcat{
+	margin-left:10px;
+}
+
+.bigIntegralSign{
+	font-size:2em;
+}

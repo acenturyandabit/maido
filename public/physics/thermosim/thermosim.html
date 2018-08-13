@@ -1,0 +1,193 @@
+<html>
+	<head>
+		<title>Thermocycler: Thermodynamic Cycle Simulator</title>
+		<meta name="description" content="A simulator for thermodynamic cycles."/>
+		<script src="../jquery.min.js"></script>
+		<style>
+		body, div{
+			display:flex;
+		}
+		#maincontainer{
+			flex: 1 1 auto;
+		}
+		#slidbox{
+			display:block;
+		}
+		body, .sidecont{
+			flex-direction:column;
+		}
+		.sidecont{
+			flex: 1 1 50%;
+		}
+		.panel{
+			flex-direction:column;
+			flex: 1 1 10%;
+			box-shadow: 0 0 0 2px blue; 
+			padding: 2px;
+		}
+		p{
+			margin:0;
+		}
+		canvas{
+			flex: 1 1 100%;
+		}
+		</style>
+		<script src="sim.js"></script>
+		<script src="cycles.js"></script>
+		<script src="container.js"></script>
+		<script>
+			var pvtsctx;
+			$(document).ready(()=>{
+			
+				//initialise 
+				setInterval(iterate,1);
+				$("#PVTS")[0].width=$("#PVTS")[0].clientWidth;
+				$("#PVTS")[0].height=$("#PVTS")[0].clientHeight;
+				pvtsctx=$("#PVTS")[0].getContext('2d');
+				pvtsctx.fillStyle="black";
+				pvtsctx.fillRect(0,0,1000,1000);
+				//initialise control panel
+				var cc=$("#cycsel")[0];
+				for (var i=0;i<cycles.length;i++){
+					cel=document.createElement("option");
+					cel.value=i;
+					cel.innerHTML=cycles[i].name;
+					cc.appendChild(cel);	
+				}
+				cc.addEventListener("change",onChangeSim);
+				changeSim(0);
+			});
+			function onChangeSim(e){
+				changeSim(e.target.value);
+				//load new sim controls
+				//rescale the PV graph
+				
+			}
+			function changeSim(num){
+				state.path_number=0;
+				state.path_percent=0;
+				state.e=0;
+				state.dE=0;
+				state.dV=0;
+				state.q=0;
+				state.w=0;
+				cycleType=num;
+				getBounds(cycles[num]);
+				for(var i=0;i<50;i++)parts[i]=new proto_part();
+				pvtsctx.fillStyle="rgba(0,0,0,1)";
+				pvtsctx.fillRect(0,0,$("#PVTS")[0].width,$("#PVTS")[0].height);
+				//release the sliders!
+				$("#slidbox").empty();
+				sb=$("#slidbox")[0];
+				for (var i in cycles[cycleType].vars){
+					var amp=document.createElement("input");
+					var pp=document.createElement("p");
+					amp.type="range";
+					amp.min="10";
+					amp.max="1000";
+					amp.step="1";
+					pp.innerHTML=i+":"+cycles[cycleType].vars[i];
+					pp.id="lbl_"+i;
+					amp.id="sl_"+i;
+					amp.value=cycles[cycleType].vars[i];
+					amp.addEventListener("change",changeCond);
+					sb.appendChild(pp);
+					sb.appendChild(amp);
+				}
+				
+			}
+			
+			function changeCond(e){
+				sli=e.currentTarget;
+				var k=sli.id.substring(3);
+				cycles[cycleType].vars[k]=Number(sli.value);
+				$("#lbl_"+k)[0].innerText=k+":"+sli.value;
+				//reset everything but the sliders
+				state.path_number=0;
+				state.path_percent=0;
+				state.e=0;
+				state.dE=0;
+				state.dV=0;
+				state.q=0;
+				state.w=0;
+				getBounds(cycles[cycleType]);
+				for(var i=0;i<50;i++)parts[i]=new proto_part();
+				pvtsctx.fillStyle="rgba(0,0,0,1)";
+				pvtsctx.fillRect(0,0,$("#PVTS")[0].width,$("#PVTS")[0].height);
+				
+			}
+			
+			function iterate(){
+				updateState();
+				drawPVTS();
+			}
+			
+			function drawPVTS(){
+				//update the logger
+				$("#disp_P").text("Pressure: "+state.p.toFixed(2));
+				$("#disp_V").text("Volume: "+state.v.toFixed(2));
+				$("#disp_T").text("Temperature: "+state.t.toFixed(2));
+				$("#disp_Q").text("Heat in: "+state.iq.toFixed(2));
+				$("#disp_dE").text("Energy change: "+(state.e-state.dE).toFixed(2));
+				$("#disp_E").text("Internal energy: "+state.e.toFixed(2));
+				$("#disp_Eff").text("Efficiency: "+Math.abs(state.w/state.iq).toFixed(2));
+				$("#disp_W").text("Total work: "+state.w.toFixed(2));
+				//draw the PV/TS diagram
+				var bbsize=200;
+				pvtsctx.fillStyle="rgba(0,0,0,0.01)";
+				pvtsctx.fillRect(0,0,$("#PVTS")[0].width,$("#PVTS")[0].height);
+				pvtsctx.fillStyle="white";
+				pvtsctx.fillRect((state.v-bounds.vMin)/(bounds.vMax-bounds.vMin)*bbsize,bbsize-(state.p-bounds.pMin)/(bounds.pMax-bounds.pMin)*bbsize,2,2);	
+				
+				//draw the virtual container
+				//LHS: hot temperature sink
+				//RHS: cold temperature sink
+				//center: particle box
+				//plunger for volume
+				//arrow for pressure
+				//a number of little particles with their velocities determined by temperature
+			}
+		</script>
+	</head>
+	<body>
+		<div id="version">thermoCycler: V0.1. Copyright Steven Liu 2018</div>	
+		<div id="maincontainer">
+			
+		
+		
+			<div class="sidecont">
+				<div id="PVTSContainer" class="panel">
+					<p>P-V diagram</p>
+					<canvas id="PVTS"></canvas>
+				</div>	
+				<div id="log" class="panel">
+					<p id="disp_P">Pressure: </p>
+					<p id="disp_V">Volume: </p>
+					<p id="disp_T">Temperature: </p>
+					<p id="disp_E">Internal energy: </p>
+					<p id="disp_dE">Energy change: </p>
+					<p id="disp_W">Total work: </p>
+					<p id="disp_Q">Total heat: </p>
+					<p id="disp_Eff">Efficiency: </p>
+				</div>
+			</div>
+			<div class="sidecont">
+				<div id="partboxContainer" class="panel">
+					<p>Container</p>
+					<canvas id="partbox"></canvas>
+				</div>	
+				<div id="settings" class="panel">
+					<!-- in future these should be procedurally generated -->
+					<p>Cycle to visualise</p>
+					<select id="cycsel">	
+					</select>
+					<div id="slidbox">
+					
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</body>
+	
+</html>

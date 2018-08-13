@@ -1,0 +1,98 @@
+<html>
+	<head>
+		<link href="supersub.css" rel="stylesheet" type="text/css">
+		<script src="../jquery.min.js"></script>
+		<script src="utils/xpass.js"></script>
+		<script src="utils/mathfx.js"></script>
+		<script src="utils/uifx.js"></script>
+		
+		<script src="qsheets.js"></script>
+		<script src="utils/setfx.js"></script>
+		<script src="categories.js"></script>
+		<!-- new question sheets go here -->
+		<script src="sets/productrule.js"></script>
+		<script src="sets/trigIntegrate.js"></script> 
+		<script src="sets/trigExactVals.js"></script>
+		<script src="sets/integral_fractions.js"></script>
+		<script src="sets/absolute_vals.js"></script>
+		<script src="sets/drawgraphs.js"></script>
+		<!--See 'sets/template.js' for a template-->
+		<script src="README.js"></script>
+		<!--Todo:
+		- seeded rng
+		- In-set changing of difficulty.
+		- Answer generator for trigIntegrate
+			- make a function which multiplies the pi numbers for you.
+		- Move to heroku or sth
+		- Local save progress (and login?)
+		
+		- student management console
+		
+		- nothing found for search
+		- Test generator
+			- A single question generator for simple single questions
+		- par times
+		- Separate answer sheets.
+		- Nice titles, SEO
+		- Advertisment
+		
+		-->
+		
+	</head>
+	<body>
+		<div id="buttons">
+			<h1>Welcome to QSheets!</h1>
+			<p>Developed and maintained by Steven L, 2018 - present</p>
+			<p>Xianda - I've laid out basically the entire 2U syllabus here but I haven't made many question sets yet. You can use the search bar to find the ones we've gone through so far - search for 'product rule' and 'trigonometry'.</p>
+			<a id="showOpts">Show advanced options</a>
+			<div id="options" style="display:none">
+				<h3>Difficulty</h3>
+				<p>Difficulty means different things for different problem sets. It might take some experimentation to get to the level you want.</p>
+				<label for="mindiff">Minimum difficulty</label>
+				<input type="range" name="mindiff" min="0" max="1" step="0.01" value="0"></input>
+				<br>
+				<label for="maxdiff">Maximum difficulty</label>
+				<input type="range" name="maxdiff" min="0" max="1" step="0.01" value="1"></input>
+				<br>
+				<input type="radio" name="diffrad" id="diffrad_R" value="RANDOM" checked></input>
+				<label for="diffrad_R">Random difficulty</label>
+				<br>
+				<input type="radio" name="diffrad" id="diffrad_F" value="FIXED"></input>
+				<label for="diffrad_F">Fixed difficulty (max slider value)</label>
+				<br>
+				<input type="radio" name="diffrad" id="diffrad_I" value="INCREASING"></input>
+				<label for="diffrad_I">Increasing difficulty (throughout the sheet)</label>
+				<br>
+				<h3>Questions</h3>
+				<input type="text" name="qCount" id="qCountTextbox" value="10"></input>
+				<label for="qCountTextbox">Number of questions</label>
+				<h3>Answers</h3>
+				<input type="radio" name="answShow" id="answShow_I" value="INLINE" checked></input>
+				<label for="answShow_I">Inline answers</label>
+				<br>
+				<input type="radio" name="answShow" id="answShow_E" value="AT_END"></input>
+				<label for="answShow_E">Display all answers at the end</label>
+				<br>
+				<input type="checkbox" name="answMin" id="answ_min" checked></input>
+				<label for="answ_min">Minimal answers</label>
+				<br>
+				<input type="checkbox" name="answMax" id="answ_full" checked></input>
+				<label for="answ_full">Full answers</label>
+			</div>
+			<p>Explore the available topics below.</p>
+			<input type="text" placeholder="Search" id="searchBox"></input>
+			<br>
+			<div id="searchResults" style="display:none"></div>
+			<div id="primaryList"></div>
+		</div>
+		<div id="contentButtons" style="display:none">
+			<button id="reset">Back</button>
+			<button id="regen">Generate More questions</button>
+		</div>
+		<div id="contentDiv">
+			
+			
+		</div>
+		
+	</body>
+</html>

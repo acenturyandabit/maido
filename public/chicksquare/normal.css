@@ -1,0 +1,248 @@
+
+html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0;
+  background-color:yellow;
+}
+div{
+	display:none;
+}
+.mydiv{
+	display:block;
+}
+.nestbox{
+	height:46%;
+	display:inline-block;
+	width:32%;
+}
+
+.badge{
+	height:30%;
+	display:inline-block;
+	width:32%;
+}
+
+.badge img{
+	height:100%;
+}
+
+.nestbox p{
+	margin:0 0;
+}
+
+ul{
+	margin: 0;
+}
+
+#d_eggs{
+	display:block;
+	position:absolute;
+	top:0;
+	left:0;
+}
+
+#d_eggs p{
+	margin-top:0;
+	margin-bottom:0;
+	display:block;
+	position:absolute;
+	top:0;
+	left:0;
+	width:10vw;
+}
+
+#d_extlink{
+	display:block;
+	position:absolute;
+	top:0;
+	right:0;
+	width:10vw;
+}
+
+#d_net{
+	position:absolute;
+	left:0;
+	top:90%;
+	margin:0;
+	width:100vw;
+	height:10%;
+}
+
+#d_mousenet{
+	position:absolute;
+	display:none;
+	cursor:none;
+	user-select:none;
+}
+#mousenet{
+	width:5vw;
+}
+
+#mainCanvas{
+	display:inline-block;
+	position:absolute;
+	width:100%;
+	height:100%;
+	margin:0;
+}
+
+#barnbtn{
+	position:absolute;
+	right:0;
+
+}
+#barn{
+	display:none;
+	position:absolute;
+	width:50vw;
+	height:80vh;
+	left:25vw;
+	top:10vh;
+	margin:0;
+	background-color:transparent;
+}
+
+#avsetdv{
+	display:block;
+}
+#factNameTB,#factDescTB{
+	width:80%;
+}
+
+#selectPrompt{
+	display:none;
+	position:absolute;
+	top: 0;
+	left:50%;
+	transform: translate(-50%,0);
+	margin: 0px 0px;
+}
+
+
+#shed{
+	margin-top: 4%;
+	display:block;
+	height:94%;
+	width:100%;
+	overflow-y: auto;
+}
+
+.flip{
+	transform:rotate(45deg);
+	transform-origin: 0% 100%;
+	transition: transform 0.1s linear;
+}
+
+.hidden{
+	display:none;
+}
+
+.tabcontainer{
+	display:inline-block;
+	height:94%;
+	width:100%;
+	background-color:white;
+}
+
+.activetab{
+	color:white;
+	background-image: url("backwood.jpg");
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	position:absolute;
+	display:block;
+	height:94%;
+	width:100%;
+}
+
+
+.tablinks li{
+	 margin: 0px  5px;
+	 user-select:none;
+     float:left;
+     list-style:none;
+}
+
+.tablinks a{
+	padding:9px 15px;
+	display:inline-block;
+	border-radius:3px 3px 0px 0px;
+	background:#7FB5DA;
+	font-size:16px;
+	font-weight:600;
+	color:#4c4c4c;
+    transition:all linear 0.15s;
+}
+
+li.active a{
+	background:#a7cce5;
+}
+
+.tablinks{
+    display:inline-block;
+    background-color: rgba(0,0,0,0);
+}
+
+#cfactorybox {
+    width:50%;
+	position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    height: 100%;
+    border-left-style: solid;
+    padding-left: 10px;
+}
+
+#cv_cfactory{
+	width:50%;
+	height:50%;
+	
+}
+
+#underttl{
+	display:block;
+	position:absolute;
+    width:300px;
+    height:10px;
+    bottom:30px;
+    right:25%;
+    left:50%;
+    margin-left:-150px;
+}
+#underttl p{
+	text-align:center;
+}
+.nomargin{
+	margin: 8px 0;
+}
+.cfcpk{
+	position: absolute;
+	left: 100px;
+}
+#cf_lhs, #cf_rhs{
+	display:block;
+	width:50%;
+}
+#cf_mods{
+	position:relative;
+}
+#cf_rhs{
+	border-left-style:dashed;
+	padding:0px 10px;
+	position:absolute;
+	right:0;
+	top:0;
+}
+
+#tb_1{
+	text-align:center;
+}
+#name{
+	font-size:2vw;
+	margin: 0.5em;
+}
+#desc{
+	font-size:1vw;
+}

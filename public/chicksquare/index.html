@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" media="only screen and (orientation:portrait)" type="text/css" href="phone.css"/>
+		<link rel="stylesheet" media="not screen and (orientation:portrait)" type="text/css" href="normal.css"/>
+		<script src="jquery.min.js"></script>
+		<script src="name.js"></script>
+		<script src="chicken.js"></script>
+		<script src="barn.js"></script>
+		<script src="page.js"></script>
+		<script src="badges.js"></script>
+		<script src="setmng.js"></script>
+	</head>
+	<body>
+		
+		<canvas id="mainCanvas"></canvas>
+		<div id="d_eggs">
+			<p>Eggs: 0</p>
+		</div>
+		<div id="d_extlink">
+			<a href="http://www.stitchmind.com/smstore/?tag=cockblock">Want a real chicksquare?</a>
+		</div>
+		<div id="d_net" class="mydiv">
+			<input id="netbtn" type="image" src="net.png" height="100%"/>
+			<input id="barnbtn" type="image" src="barn.png" height="100%"/>
+		</div>
+		<div id="d_mousenet" class="mydiv" width="0px" height="0px">
+			<img id="mousenet" src="net_mouse.png"/>
+		</div>
+		
+		<div id="barn">
+			<div class="tablinks">
+				<li id="t_1" class="tbli active" ><a>Chicken</a></li>
+				<li id="t_2" class="tbli"><a>Nestbox</a></li>
+				<li id="t_3" class="tbli"><a>Eggs</a></li>
+				<li id="t_4" class="tbli"><a>Badges</a></li>
+				<li id="t_5" class="tbli"><a>X</a></li>
+			</div>
+			<div id="tabs" class="tabcontainer">
+				<div id="tb_1" class="tab">
+					<canvas id="tc_1"></canvas>
+					<p id="name">No chicken selected!</p>
+					<p id="desc">Try the net!</p>
+					<button id="atbbtn"> Add to Barn </button>
+				</div>
+				<div id="tb_2" class="tab">
+					<p id="selectPrompt">Select a box!</p>
+					<div id="shed">
+						<div class="nestbox">
+							<canvas class="c_nb" id="slt0"></canvas>
+							<p class="nbname">Empty</p>
+							<p class="nbeps">0 Eggs per sec</p>
+						</div>
+						<div class="nestbox">
+							<canvas class="c_nb" id="slt1"></canvas>
+							<p class="nbname">Empty</p>
+							<p class="nbeps">0 Eggs per sec</p>
+						</div>
+						<div class="nestbox">
+							<canvas class="c_nb" id="slt2"></canvas>
+							<p class="nbname">Empty</p>
+							<p class="nbeps">0 Eggs per sec</p>
+						</div>
+						<div class="nestbox finalbox">
+							<canvas class="c_nb"></canvas>
+							<p>Add another nest</p>
+							<button id="nextBox">300 eggs</button>
+						</div>
+					</div>
+				</div>
+				<div id="tb_3" class="tab">
+					<h2>Add Chicken Set</h2>
+					<input id="addbox" type="text"></input> <button id="addsetbtn">Add</button>
+					<p>Available sets:</p>
+					<div id="avsetdv">
+						
+					</div>
+					<p>Added Sets:</p>
+					<ul id="setlist">
+					</ul>
+					<div id="cfactorybox">
+						<h2> Make new chicken</h2>
+						<div id="cfactory" class="mydiv">
+							<canvas id="cv_cfactory" width="200" height="200"></canvas>
+							<br/>
+							<input type="text" placeholder="Name..." id="factNameTB"></input>
+							<textarea id="factDescTB" placeholder="Description"></textarea>
+							<br/>
+							<div id="cf_mods" class="mydiv">
+								<div id="cf_lhs">
+									<p class="nomargin">Body:<input  type="color" class="cfcpk" value="#ffffff"></p>
+									<p class="nomargin">Beak:<input  type="color" class="cfcpk" value="#ffff00"></p>
+									<p class="nomargin">Crown:<input type="color" class="cfcpk" value="#ff0000"></p>	
+									<p class="nomargin">Eyes:<input type="color" class="cfcpk" value="#000000"></p>
+									<p class="nomargin">Edges:<input type="color" class="cfcpk" value="#000000"></p>
+								</div>
+								<div id="cf_rhs">
+									<p class="nomargin">Or upload your own! (Subject to moderation)</p>
+									<p><a href="http://project2100au.freeriderwebhosting.com/chicksquare/template.png" target="_blank" download>Get the template</a>, then upload: <input type="file" id="input"></p>
+								</div>
+							</div>
+							<br>
+							<button id="sendBirb">Submit (500 eggs)</button>		
+						</div>
+					</div>
+				</div>
+				<div id="tb_4" class="tab">
+					<h2>Badges earnt</h2>
+					<div class="badge">
+						<img src="./badges/newbie.png"></img>
+						<p>Hello!</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="underttl">
+		<p><a href="https://www.facebook.com/Teleprote-Productions-631410180311570/">Facebook</a> - <a href="https://chrome.google.com/webstore/detail/chicksquares/nkjbdebcjapomgjbegialdfhkamedpkc/reviews">Feedback</a> - <a id="donoradbtn" href="http://zipteria.com/A1Ja" target="_blank">Watch an ad</a></p>
+	</div>
+</body>
+</html>																			
