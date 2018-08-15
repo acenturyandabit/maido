@@ -95,7 +95,6 @@ h1{
 
 .listbox>div.inactive{
 	filter:brightness(70%);
-	
 }
 
 #problem_box>.listbox>div{
@@ -114,6 +113,7 @@ h1{
 
 .listbox p{
 	display:inline-block;
+	width:calc(100% - 100px);
 }
 
 .ico{
@@ -151,4 +151,13 @@ float: right;
 	background: rgba(0,0,0,0.9);
 	color:white;
 	animation: rise 0.5s linear;
+}
+
+#header>a{
+	float:right;
+}
+
+#dialogTA{
+	width:50%;
+	height:30%;
 }

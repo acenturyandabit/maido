@@ -1,14 +1,9 @@
 
-
-
-
 var discussionDoc;
 
 var localDataCopy={
 	items:{}
 };
-
-
 
 $(document).ready(()=>{
 	let addr=window.location.href;
@@ -17,7 +12,10 @@ $(document).ready(()=>{
 		db.collection('pepper').doc(k[1]).get().then((doc)=>{
 			if (doc.exists){
 				//load stuff!
-				discussionDoc=db.collection('pepper').doc(k[1]);
+				discussionDoc=db.collection('pepper').doc(k[1]);				
+				discussionDoc.get().then((r)=>{
+					document.title="PEPPER: "+r.data().title;
+				})
 				discussionDoc.collection("items").onSnapshot(function(querySnapshot) {
 					$("#body>div>div.listbox>div").each((i,e)=>{e.classList.add("unseen")});
 					localDataCopy.items={};
