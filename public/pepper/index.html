@@ -1,8 +1,10 @@
 <html>
 	<head>
-		<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-app.js"></script>
-		<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-firestore.js"></script>
 		<script src="../jquery.min.js"></script>
+		<script src="discman.js"></script>
+		<link rel="stylesheet" type="text/css" href="index.css">
 		<script>
 			var config = {
 				apiKey: "AIzaSyA-sH4oDS4FNyaKX48PSpb1kboGxZsw9BQ",
@@ -14,97 +16,161 @@
 			};
 			firebase.initializeApp(config);
 			// Initialize Cloud Firestore through Firebase
+			const settings={
+				timestampsInSnapshots: true
+			};
 			var db = firebase.firestore();
+			db.settings(settings);
+			db.enablePersistence().catch(function(err) {
+				if (err.code == 'failed-precondition') {
+					// Multiple tabs open, persistence can only be enabled
+					// in one tab at a a time.
+					// ...
+					} else if (err.code == 'unimplemented') {
+					// The current browser does not support all of the
+					// features required to enable persistence
+					// ...
+				}
+			});
 			//for now just loading pep - will handle fake queries later 
 			
-			$(document).ready(()=>{
-				let addr=window.location.href;
-				if (k=RegExp("/\?discussion\=([^&]+)").exec(addr) && k[1]){
-					
-				}else{
-					//show splash
-					$("#splash").show();
+			function showNewIssue(){
+				$("#dialog h2").text("Enter a new issue");
+				$("#dialog p")[0].innerHTML="Please describe it in detail, so your compatriots know what <i>exactly</i> the bejeesus is going wrong.";
+				$("#dialog p")[1].style.display="block";
+				$("#dialog p")[1].innerHTML="It would be nice to include some good things about the current situation as well!";
+				$("#dialog p")[2].innerHTML="Spot any related solutions? Help us solve your problem!";
+				$("#dialogTA")[0].value="";
+				$("#dialogTA").show();
+				$("#dialog").show();
+			}
+			
+			
+			
+			function showNewRecommend(){
+				$("#dialog h2").text("Enter a new recommendation");
+				$("#dialog p")[0].innerHTML="Please describe it in detail, so everyone knows how brilliant your solution is!";
+				$("#dialog p")[1].style.display="none";
+				$("#dialog p")[2].innerHTML="Spot any related problems? Connect them now!";
+				$("#dialogTA")[0].value="";
+				$("#dialogTA").show();
+				$("#dialog").show();
+			}
+			
+			var editingID="";
+			function showEdit(id){
+				editingID=id;
+				$("#dialog p")[0].innerHTML="Click 'Submit' when you're done :)";
+				$("#dialog p")[1].style.display="none";
+				$("#dialog p")[2].innerHTML="";
+				if (localDataCopy.items[id].type=='problem'){
+					$("#dialog h2").text("Edit issue...");
+					}else{
+					$("#dialog h2").text("Edit recommendation...");
 				}
-				
-				
+				$("#dialogTA")[0].value=localDataCopy.items[id].text;
+				$("#dialogTA").show();
+				$("#dialog").show();
+			}
+			
+			
+			var delID="";
+			function showDelete(id){
+				delID=id;
+				$("#dialog h2").text("Are you sure you want to delete this?");
+				$("#dialog p")[0].innerHTML="You won't be able to get this item back!";
+				$("#dialog p")[1].style.display="none";
+				$("#dialog p")[2].innerHTML="";
+				$("#dialogTA").hide();
+				$("#dialog").show();
+			}
+			
+			linkingID="";
+			function showLinks(id){ //also handles link connections
+				if (linkingID==""){
+					drawLinks(id);
+					}else{
+					discussionDoc.collection("items").doc(linkingID).update({
+						connections:firebase.firestore.FieldValue.arrayUnion(id)
+					})
+					discussionDoc.collection("items").doc(id).update({
+						connections:firebase.firestore.FieldValue.arrayUnion(linkingID)
+					})
+				}
+			}
+			
+			function drawLinks(id){
+				linkingID=id;
+				$("#body>div>div.listbox>div").each((i,e)=>{e.classList.add("inactive")});
+				if (localDataCopy.items[id]){
+					$("#"+id).removeClass("inactive");
+					$("#"+id).parent().prepend($("#"+id)[0]);
+					for (i in localDataCopy.items[id].connections){
+						$("#"+localDataCopy.items[id].connections[i]).removeClass("inactive");
+						$("#"+localDataCopy.items[id].connections[i]).parent().prepend($("#"+localDataCopy.items[id].connections[i])[0]);
+					}
+				}
+				$("#linkShadow").show();
+			}
+			
+			function dialogSubmit(){
+				if ($("#dialogTA")[0].value!=""){
+					switch($("#dialog h2").text()){
+						case "Enter a new recommendation":
+							discussionDoc.collection("items").add({"text":$("#dialogTA")[0].value, "connections":[],"type":'solution'})
+						break;
+						case "Enter a new issue":
+							discussionDoc.collection("items").add({"text":$("#dialogTA")[0].value, "connections":[],'type':'problem'})
+						break;
+						case "Edit issue...":
+						case "Edit recommendation...":
+							discussionDoc.collection("items").doc(editingID).set({"text":$("#dialogTA")[0].value});
+							editingID="";
+						break;
+					}
+				}
+				//unvalidated cases
+				switch($("#dialog h2").text()){
+					case "Are you sure you want to delete this?":
+						discussionDoc.collection("items").doc(delID).delete();
+				}
+				$("#dialog").hide();
+			}
+			
+			// mass event handling (?)
+			
+			$(document).ready(()=>{
+				$(".listbox").on("click",".editIco",function(e){
+					showEdit(e.currentTarget.parentNode.id);
+				})
+				$(".listbox").on("click",".linkIco",function(e){
+					showLinks(e.currentTarget.parentNode.id);
+				})
+				$(".listbox").on("click",".deleteIco",function(e){
+					showDelete(e.currentTarget.parentNode.id);
+				})
+				$("#body>div>div.status>button").on("click",(e)=>{//reset filters
+					if (linkingID!=""){
+						//if linking mode, reactivate everything
+						$("#body>div>div.listbox>div").removeClass("inactive");
+						$("#linkShadow").hide();
+						linkingID="";
+						}else{
+						$("#"+e.parentNode.parentNode.id+">div.listbox>div").removeClass("inactive");
+					}
+					//Reactivate everything on that side if not linking mode
+					
+				});
 				
 			})
 			
-			db.collection
+			
+			
 			
 		</script>
 		<style>
-			body{
-			margin:0;
-			display:flex;
-			flex-direction:column;
-			}
 			
-			#body{
-			display:flex;
-			flex:1 0 auto;
-			flex-direction:row;
-			}
 			
-			#issues, #solutions{
-			flex: 1 0 auto;
-			display:flex;
-			flex-direction: column;
-			
-			}
-			
-			h1{
-			border-bottom: solid 1px;
-			}
-			
-			#issues{
-			background-color:#ffaaaa;
-			}
-			
-			#issues>.addbutton{
-		background-color: #ff5555;
-		}
-		
-		#solutions{
-		flex: 1 0 auto;
-		display:flex;
-		background-color:#aaaaff;
-		}
-		
-		#solutions>.addbutton{
-		background-color:#5555ff;
-		}
-		
-		.listbox{
-		flex: 1 0 auto;
-		}
-		.addbutton{
-		flex:0 1 5%;
-		border:dotted;
-		}
-		
-		#divider{
-		flex: 0 1 5%;
-		background-color:grey;
-		}
-		
-		#header{
-		width: 100%;
-		}
-		#header>span:first-child{
-		font-size:3em;
-		padding-left:0.5em;
-		}
-		
-		#splash{
-			position:absolute;
-			width:100%;
-			height:100%;
-			top:0;
-			left:0;
-			background:rgba(5,5,5,0.7);
-		}
-		
 		</style>
 	</head>
 	<body>
@@ -113,24 +179,68 @@
 			<hr>
 		</div>
 		<div id="body">
-			<div id="issues">
+			<div id="problem_box">
 				<h1>Issues</h1>
-				<div class="listbox"></div>
-				<div class="addbutton">+: Enter a new issue</div>
+				<div class="status">
+					<span>Filter:</span>
+					<input></input>
+					<!--<span>Sort:</span>-->
+					<button>Reset</button>
+				</div>
+				<div class="listbox">
+				</div>
+				<div class="addbutton" onclick="showNewIssue()">+: Enter a new issue</div>
 			</div>
 			<div id="divider">
 				
 			</div>
-			<div id="solutions">
+			<div id="solution_box">
 				<h1>Recommendations</h1>
+				<div class="status">
+					<span>Filter:</span>
+					<input></input>
+					<!--<span>Sort:</span>-->
+					<button>Reset</button>
+				</div>
 				<div class="listbox"></div>
-				<div class="addbutton">+: Enter a new recommendation</div>
+				<div class="addbutton" onclick="showNewRecommend()">+: Enter a new recommendation</div>
 			</div>
 		</div>
-		<div id="splash">
-				<span>Welcome to PEPPER</span>
-				<span>A platform for constructive problem solving</span>
-				<span>To get started, enter a discussion code below; or start a new discussion.</span>
+		<div id="linkShadow">
+			<p>Click the link icon on darkened items to link problems and solutions. Press Reset when you're done!</p>
+		</div>
+		<div id="splash" class="splash" style="display:none">
+			<div style="height:20%; width:100%;"></div>
+			<h1 style="width:30%; display:inline-block;">Welcome to PEPPER!</h1>
+			<h2>A platform for constructive problem solving</h2>
+			<p>To get started, enter a discussion code below; or start a new discussion...</p>
+			<p id="spellcheck" style="display: none">Hmm... we couldn't find that one. Check your spelling, maybe?</p>
+			<p id="sorrytaken" style="display: none">Sorry, that discussion name has been taken! Please try again :3</p>
+			<input id="discussionID" placeholder="Discussion ID"></input>
+			<br>
+			<input id="password" type="password" placeholder="Password"></input>
+			<br>
+			<button id="joinbtn" onclick="joindiscussion(false)">Join</button>
+			<button id="createbtn" onclick="joindiscussion(true)">Create</button>
+		</div>
+		<div id="dialog" class="splash" style="display:none">
+			<h2></h2>
+			<p></p>
+			<p></p>
+			<textarea id="dialogTA"></textarea>
+			<br>
+			<p></p>
+			<div>
+			</div>
+			<br>
+			<button onclick="dialogSubmit()">Submit</button>
+			<button onclick="$('#dialog').hide();">Cancel</button> <!-- add if text in bracket then hide -->
+		</div>
+		<div id="template" style="display:none" class="discussionItem">
+			<p>I cannot logon!</p>
+			<img src="link.png" class="linkIco ico"></img>
+			<img src="edit.png" class="editIco ico"></img>
+			<img src="delete.png" class="deleteIco ico"></img>
 		</div>
 	</body>
 </html>

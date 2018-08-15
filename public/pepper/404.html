@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<script src="../jquery.min.js"></script>
+		<script>
+			$(document).ready(()=>{
+				setTimeout(()=>{
+					bits=window.location.href.split("/");
+					bits[bits.length-1]="index.html";
+					window.location.href=bits.join("/");
+					},3000);
+			})
+		</script>
+		<style>
+			#splash{
+			position:absolute;
+			width:100%;
+			height:100%;
+			top:0;
+			left:0;
+			background:rgba(5,5,5,0.7);
+			text-align:center;
+			color:white;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div id="splash">
+			<div style="height:20%; width:100%;"></div>
+			<h1 style="width:30%; display:inline-block;">404 ;(</h1>
+			<h2>We couldn't find that discussion... how about give it another shot?</h2>
+			<p>Taking you back home in just a sec...</p>
+		</div>
+	</body>
+</html>
