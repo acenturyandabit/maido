@@ -22,7 +22,7 @@ $(document).ready(()=>{
 					querySnapshot.forEach(function(doc) {
 						if ($("#"+doc.id)[0]){
 							$("#"+doc.id)[0].classList.remove("unseen");
-							$("#"+doc.id+" p")[0].innerText=doc.data().text;
+							$("#"+doc.id+">p")[0].innerText=doc.data().text;
 						}else{
 							newItem=$('#template')[0].cloneNode(true)
 							newItem.children[0].innerText=doc.data().text;
@@ -30,15 +30,68 @@ $(document).ready(()=>{
 							newItem.style.display="block";
 							$("#"+doc.data().type+"_box>.listbox").append(newItem);
 						}
+						if (doc.data().connections)$("#"+doc.id+">span>span").text(doc.data().connections.length);
 						localDataCopy.items[doc.id]=doc.data();
+						if (!localDataCopy.items[doc.id].connections)localDataCopy.items[doc.id].connections=[];
 					});
 					$("#body>div>div.listbox>div.unseen").remove();
 					$("#loading").hide();
 					if (linkingID!=""){//update linking if working on linking.
 						drawLinks(linkingID);
 					}
+					//sort all elements and read them
+					sortable=[];
+					for (v in localDataCopy.items){
+						sortable.push([localDataCopy.items[v].connections.length,v,localDataCopy.items[v].type]);
+					}
+					sortable.sort((a,b)=>{return a[0]-b[0]});
+					for (i in sortable){
+						$("#"+sortable[i][2]+"_box>div.listbox").prepend($("#"+sortable[i][1]));//reinsert them all in
+					}
+					//perform a roughly complexity n swap sort from top and bottom
+					
+					// let kappa=['problems','solutions'];
+					// let lst;
+					// let max;
+					// let hold;
+					// for (j=0;j<2;j++){
+						// lst=$("#"+kappa[j]+">div.listbox>div span.linkCount");
+						// max=0;
+						// hold=undefined;
+						// for (i in lst){
+							// if (!isNaN(i)){
+								// if (i>max)max=i;
+								// if (hold){
+									// if (Number(hold.innerText)>=Number(lst[i].innerText)){
+										// $(lst[i].parentNode.parentNode).insertBefore(hold.parentNode.parentNode);
+										// break;
+									// }
+								// }
+								// if (lst[i+1] && Number(lst[i].innerText)<Number(lst[i+1].innerText)){
+									// hold=lst[i];
+								// }
+							// }
+						// }
+						// hold=undefined;
+						// //backwards pass
+						// for (i in lst){
+							// if (!isNaN(i)){
+								// i=max-i;
+								// if (hold){
+									// if (Number(hold.innerText)<=Number(lst[i].innerText)){
+										// $(lst[i].parentNode.parentNode).insertAfter(hold.parentNode.parentNode);
+										// break;
+									// }
+								// }
+								// if (lst[i-1] && Number(lst[i].innerText)>Number(lst[i-1].innerText)){
+									// hold=lst[i];
+								// }
+							// }
+						// }
+					// }
+					//lol that took a while
 				});
-			}else{
+				}else{
 				//throw a 404
 				bits=window.location.href.split("/");
 				bits[bits.length-1]="404.html";
@@ -113,7 +166,7 @@ function joindiscussion(create=false){
 
 
 var preseed=0;
-			
+
 function srand(newPreseed){
 	if (newPreseed.length){//process strings as well
 		let k=0;

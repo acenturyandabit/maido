@@ -45,6 +45,11 @@ function dialogSubmit(){
 		if (linkingID==delID){
 			resetLinking();
 		}
+		for (i in localDataCopy.items[delID].connections){
+			discussionDoc.collection('items').doc(localDataCopy.items[delID].connections[i]).update({
+				connections:firebase.firestore.FieldValue.arrayRemove(delID)
+			})
+		}
 		discussionDoc.collection("items").doc(delID).delete();
 		delID="";
 	}

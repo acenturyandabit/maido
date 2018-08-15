@@ -91,6 +91,7 @@ h1{
 
 .listbox>div{
 	border: 1px solid;
+	position:relative;
 }
 
 .listbox>div.inactive{
@@ -124,6 +125,19 @@ h1{
 	padding: 5 5;
 	width:20px;
 	height:20px;
+}
+
+.listbox>div>span{
+	position:absolute;
+	bottom:0;
+}
+
+#problem_box .listbox>div>span{
+	right:0;
+}
+
+#solution_box .listbox>div>span{
+	left:0;
 }
 
 #problem_box .ico{
