@@ -1,4 +1,4 @@
-
+//http://quotum.herokuapp.com/pepper/?discussion=UeUYbXEgLLGxs4wB2WMwrunEu
 function showNewIssue(){
 	$("#dialog h2").text("Enter a new issue");
 	$("#dialog p")[0].innerHTML="Please describe it in detail, so your compatriots know what <i>exactly</i> the bejeesus is going wrong.";
@@ -59,15 +59,12 @@ function dialogSubmit(){
 // mass event handling (?)
 
 
-const catchy=["goes well with salt",": Engine for Prompt Problem Engagement and Resolution","est. 2018"];
+const catchy=["goes well with salt",": Engine for Progressive Problem Engagement and Resolution","est. 2018","do not inhale; may cause sneezing"];
 $(document).ready(()=>{
 	srand(Date.now());
 	$("#header>span:nth-child(2)").text(catchy[rand()%catchy.length]);
 	$(".listbox").on("click",".editIco",function(e){
 		showEdit(e.currentTarget.parentNode.id);
-	})
-	$(".listbox").on("click",".linkIco",function(e){
-		showLinks(e.currentTarget.parentNode.id);
 	})
 	$(".listbox").on("click",".deleteIco",function(e){
 		showDelete(e.currentTarget.parentNode.id);

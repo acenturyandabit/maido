@@ -1,0 +1,37 @@
+
+#problem_box>.listbox>div{
+	background-color:#ffcccc;
+	color:black;
+}
+
+#solution_box>.listbox>div{
+	background-color:#ccccff;
+	color:black;
+}
+
+#solution_box>.listbox>div:hover{
+	background-color:#9999ff;
+	color:white;
+}
+
+#problem_box>.listbox>div:hover{
+	background-color:#ff9999;
+	color:white;
+}
+
+#problem_box{
+	background-color:#ffaaaa;
+}
+
+
+#problem_box>.addbutton{
+	background-color: #ff5555;
+}
+
+#solution_box{
+	background-color:#aaaaff;
+}
+
+#solution_box>.addbutton{
+	background-color:#5555ff;
+}

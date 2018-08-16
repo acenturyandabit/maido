@@ -1,0 +1,68 @@
+#solution_box{
+	display:none;
+}
+
+#problem_box, #solution_box{
+	flex: 0 0 80%;
+	flex-direction: column;
+}
+
+.addbutton{
+	position:absolute;
+	bottom:0;
+	width:80%;
+	height:5%;
+}
+
+#divider{
+	flex: 0 1 20%;
+	display:flex;
+	background-color:grey;
+	flex-direction: column;
+}
+
+#divider>div{
+	flex: 1 1 auto;
+}
+
+#divider p{
+	text-align:center;
+	color:white;
+}
+
+#header>span:first-child{
+	padding:0.1em;
+	font-size: 2em;
+}
+
+#linkShadow{
+	z-index:10;
+}
+
+#header>span:nth-child(2){
+	padding-left:0.5em;
+}
+
+.listbox p{
+	display:inline-block;
+	width:calc(100% - 200px);
+}
+
+.ico{
+	padding: 5 5;
+	width:60px;
+	height:60px;
+}
+
+.editIco{
+	display:none;
+}
+
+body {
+	font-size: 2.5em;
+}
+
+input,button, textarea{
+	font-size:100%;
+	
+}

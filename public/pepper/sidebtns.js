@@ -73,4 +73,5 @@ function resetLinking(){
 	$("#body>div>div.listbox>div").removeClass("inactive");
 	$("#linkShadow").hide();
 	linkingID="";
+	$(".linkIco").show();
 }

@@ -10,54 +10,25 @@ body{
 	flex-direction:row;
 }
 
-#problem_box, #solution_box{
-	flex: 0 0 49%;
-	display:flex;
-	flex-direction: column;
-}
-
 h1{
 	border-bottom: solid 1px;
-}
-
-#problem_box{
-	background-color:#ffaaaa;
-}
-
-#problem_box>.addbutton{
-	background-color: #ff5555;
-}
-
-#solution_box{
-	background-color:#aaaaff;
-}
-
-#solution_box>.addbutton{
-	background-color:#5555ff;
 }
 
 .listbox{
 	flex: 1;
 	overflow-y: auto;
+	display:flex;
+	flex-direction: column;
 }
 .addbutton{
-	flex:0 1 5%;
 	border:dotted;
 	color:white;
-}
-
-#divider{
-	flex: 0 1 2%;
-	background-color:grey;
 }
 
 #header{
 	width: 100%;
 }
-#header>span:first-child{
-	font-size:3em;
-	padding-left:0.5em;
-}
+
 
 #splash,#dialog{
 	position:absolute;
@@ -84,11 +55,6 @@ h1{
 	animation: subtleDrop 0.2s linear;
 }
 
-.listbox{
-	display:flex;
-	flex-direction: column;
-}
-
 .listbox>div{
 	border: 1px solid;
 	position:relative;
@@ -98,34 +64,14 @@ h1{
 	filter:brightness(70%);
 }
 
-#problem_box>.listbox>div{
-	background-color:#ff3333;
-}
-
 #solution_box>.listbox>div{
 	text-align: right;
-	background-color:#3333ff;
 }
 
 .discussionItem{
 	position:relative;
-	
 }
 
-.listbox p{
-	display:inline-block;
-	width:calc(100% - 100px);
-}
-
-.ico{
-	/*position:absolute;
-	top: calc(50% - 10px);
-	margin: 5px 5px;
-	*/
-	padding: 5 5;
-	width:20px;
-	height:20px;
-}
 
 .listbox>div>span{
 	position:absolute;
@@ -141,7 +87,7 @@ h1{
 }
 
 #problem_box .ico{
-float: right;
+	float: right;
 }
 
 #solution_box .ico{
@@ -149,17 +95,8 @@ float: right;
 }
 
 
-
-#solution_box .deleteIco{
-	left: 30px;
-}
-
 #linkShadow{
 	display:none;
-	/*position:absolute;
-	bottom:0;
-	left:0;
-	width:100%;*/
 	transition: flex-basis 500ms ease-in-out;
 	flex: 0 0 5%;
 	background: rgba(0,0,0,0.9);
