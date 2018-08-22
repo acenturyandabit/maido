@@ -14,6 +14,10 @@ app.use(bodyParser.json());
 */
 
 app.use(express.static(__dirname + '/public'));
+
+//setup qsheets
+
+
 // // views is directory for all template files
 // app.set('views', [__dirname + '/pages',__dirname + '/pages/crashcards']);
 // app.set('view engine', 'ejs');

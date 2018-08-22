@@ -1,9 +1,6 @@
 <NotepadPlus>
     <Session activeView="0">
-        <mainView activeIndex="1">
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="568" startPos="0" endPos="0" selMode="0" lang="JavaScript" encoding="-1" filename="C:\https\bits\qSheets2\qsheets.js" backupFilePath="" originalFileLastModifTimestamp="-1678377224" originalFileLastModifTimestampHigh="30681776" mapFirstVisibleDisplayLine="-1" mapFirstVisibleDocLine="-1" mapLastVisibleDocLine="-1" mapNbLine="-1" mapHigherPos="-1" mapWidth="-1" mapHeight="-1" mapKByteInDoc="151010304" mapWrapIndentMode="-1" mapIsWrap="no" />
-            <File firstVisibleLine="0" xOffset="0" scrollWidth="1192" startPos="0" endPos="0" selMode="0" lang="HTML" encoding="-1" filename="C:\https\bits\qSheets2\index.html" backupFilePath="" originalFileLastModifTimestamp="-358069485" originalFileLastModifTimestampHigh="30681774" mapFirstVisibleDisplayLine="-1" mapFirstVisibleDocLine="-1" mapLastVisibleDocLine="-1" mapNbLine="-1" mapHigherPos="-1" mapWidth="-1" mapHeight="-1" mapKByteInDoc="771751936" mapWrapIndentMode="-1" mapIsWrap="no" />
-        </mainView>
+        <mainView activeIndex="1" />
         <subView activeIndex="0" />
     </Session>
 </NotepadPlus>

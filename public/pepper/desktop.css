@@ -35,3 +35,22 @@
 	display:inline-block;
 	width:calc(100% - 100px);
 }
+
+@keyframes flash{
+	0%{
+		opacity: 0;
+	}
+	30%{
+		opacity: 1;
+	}
+	60%{
+		opacity: 0;
+	}
+	100%{
+		opacity: 1;
+	}
+}
+
+.flash{
+	animation: flash 0.3s linear;
+}

@@ -293,7 +293,7 @@ function render(div, str){
 				p+=2;
 				p3=p2+1;
 			}else{
-				p2=str.search(/([\+\-\/\*])/i)
+				p2=str.search(/[^\-]+([\+\-\/\*])/i)
 				if (p2==-1){
 					p2=str.length;
 				}
@@ -333,10 +333,9 @@ function render(div, str){
 		renderTopLevel=true;
 	}
 }
-
+/*
 $(document).ready(()=>{
 	testTexts=["ax^3+bx^5+c^(4^5)","ax^(bx+c)",'sin(3x+5)','(5+2x)/(x+3)','(ax+b)^4','pi'];
 	for (i in testTexts)render($("#contentDiv")[0],testTexts[i])
-	
-	
 });
+*/

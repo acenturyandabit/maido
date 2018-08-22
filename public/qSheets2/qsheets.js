@@ -31,13 +31,13 @@ function _loadQuestionSet(name){
 	$("#contentButtons").show();
 	$("#contentDiv").empty();
 	initDiff();
-	let rootdiv=$("#"+divname)[0]
+	let rootdiv=$("#contentDiv")[0]
 	let heading=document.createElement('h1');
 	heading.innerHTML=qGens[name].prettyName;
 	rootdiv.append(heading);
 	
 	var seedstring=metaSrand();
-	printTo(rootdiv,seedstring);
+	printTo(rootdiv,"Question set code: '"+seedstring+"'. Keep this if you want to revisit or share a question set.");
 	
 	var iLink=document.createElement("a");
 	//iLink.id="topHead"+i;
@@ -50,13 +50,22 @@ function _loadQuestionSet(name){
 	iDiv.style.display="none";
 	rootdiv.append(iDiv);
 	printTo(iDiv,qGens[name].notes)
-	
 	let instr=document.createElement('p');
 	printTo(iDiv,qGens[name].instruction)
 	rootdiv.append(instr);
-	for (int i=0;i<qCount;i++){
-		qGens[name].genq(rootdiv,cDiff);
-		if 
+	for (let i=0;i<setSettings.qCount;i++){
+		tq=qGens[name].gen(rootdiv,cDiff);
+		var aLink=document.createElement("a");
+		aLink.innerHTML="Answer"
+		aLink.addEventListener("click",toggleNextSibling);
+		rootdiv.appendChild(aLink);
+		iDiv=document.createElement("div")
+		iDiv.style.display="none";
+		rootdiv.append(iDiv);
+		printTo(iDiv,tq.answerString);
+		
+		rootdiv.appendChild(document.createElement('hr'));
+		//if 
 		updateDiff();
 	}
 	
@@ -67,6 +76,7 @@ function regenSet(){
 }
 
 function resetWindow(){
+	window.location.href="index.html";
 	$("#contentButtons").hide();
 	$("#buttons").show();
 	$("#contentDiv").empty();
@@ -89,8 +99,8 @@ function layout(div,i,name){
 		a=document.createElement("a");
 		a.innerHTML=i.prettyName;
 		a.id="a_gen_"+name;
-		//a.href="#"+a.id;
-		a.addEventListener("click",loadQuestionSet);
+		a.href="?q="+name;
+		//a.addEventListener("click",loadQuestionSet);
 		div.appendChild(a);
 		div.appendChild(document.createElement("br"));
 	}else{

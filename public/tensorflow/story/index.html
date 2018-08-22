@@ -1,0 +1,227 @@
+<html>
+	<head>
+		
+		
+		
+		
+		<!-- Stuff you probably want to read up on to save you a lot of pain
+			- What are LSTMS:
+				
+			- One-hot encoding
+			
+			
+			
+		-->
+		
+		
+		
+		
+		
+		
+		
+		
+		<!-- Load TensorFlow.js -->
+		<script src="../localtf.js"> </script>
+		<!-- Place your code in the script tag below. You can also use an external .js file -->
+		<script>
+			//initial training data
+			var trainingtext="long ago , the mice had a general council to consider what measures they could take to outwit their common enemy , the cat . some said this , and some said that but at last a young mouse got up and said he had a proposal to make , which he thought would meet the case . you will all agree , said he , that our chief danger consists in the sly and treacherous manner in which the enemy approaches us . now , if we could receive some signal of her approach , we could easily escape from her . i venture , therefore , to propose that a small bell be procured , and attached by a ribbon round the neck of the cat . by this means we should always know when she was about , and could easily retire while she was in the neighbourhood . this proposal met with general applause , until an old mouse got up and said that is all very well , but who is to bell the cat ? the mice looked at one another and nobody spoke . then the old mouse said it is easy to propose impossible remedies ."
+			//var trainingtext="possums yay";
+			trainingtext=trainingtext.split(" ")
+			bins={};
+			for (var i=0;i<trainingtext.length;i++){
+				if (bins[trainingtext[i]])bins[trainingtext[i]].val++;
+				else bins[trainingtext[i]]={"val":1};
+			}
+			numberbins=[];
+			for (i in bins){
+				bins[i].index=numberbins.length;
+				numberbins.push(i);
+			}
+			
+			///constants
+			
+			vocab_size = numberbins.length;
+			n_input = 1; //number of words to give at a time
+			n_hidden = 5; //rnn units
+			learning_rate = 0.001;
+			training_iters = 50;
+			/*weights = {
+				'out': tf.Variable(tf.randomNormal([n_hidden, vocab_size]))
+				};
+				biases = {
+				'out': tf.Variable(tf.randomNormal([vocab_size]))
+			};*/
+			
+			///actual rnn
+			
+			//define a 3 word input
+			const input=tf.input({shape:[vocab_size]});
+			const model=tf.sequential();
+			//define a normal dense input layer with n_hidden hidden nodes.
+			//const hiddens=tf.layers.dense({units:n_hidden,inputShape:[vocab_size]});
+			//model.add(hiddens);
+			
+			//define a LSTM hidden layer with n_hidden output nodes.
+			const outputs=tf.layers.lstm({units:vocab_size, returnSequences:true, inputShape:[trainingtext.length,1]});
+			model.add(outputs);
+			
+			//create an optimiser to train the network
+			const optimizer = tf.train.sgd(3);
+			
+			//compile the model so we can run it
+			model.compile({optimizer, loss: 'categoricalCrossentropy'});
+			
+			console.log('Generating test data...');
+			
+			//train the model with data
+			var offset = Math.floor(Math.random()*(n_input+1))
+			
+			//ATTEMPT 2: Generate all beforehand
+			//batch size: 1
+			//max_size: trainingtext.length
+			//feature count: 1 (?)
+			//output: one hot.
+			tdata=[];
+			for (var i=0;i<trainingtext.length;i++){
+				tdata.push(bins[trainingtext[i]].index);
+			}
+			//generate the one hots
+			outputcopy=tdata.slice(1);
+			outputcopy.push(0);
+			toutputs=tf.oneHot(tf.tensor1d(tdata.slice(outputcopy),'int32'), vocab_size);
+			newshape=[1];
+			newshape.push.apply(newshape,toutputs.shape);
+			toutputs=tf.reshape(toutputs,newshape)
+			tdata=tf.tensor3d(tdata,[1,tdata.length,1]);
+			
+			async function run(){
+				console.log('running');
+				h=await model.fit(tdata, toutputs, {
+					batchSize: 1,
+					epochs: 3,
+					//verbose:true
+				}); 
+				console.log('fin');
+				//const saveResults = await model.save('localstorage://my-model-1');
+				// use the model for prediction
+				sentence="mouse mouse mouse";
+				words = sentence.split(' ')
+				for (var i=0;i<32;i++){				
+					symbols_in_keys = words;// training words
+					for (i in symbols_in_keys){
+						symbols_in_keys[i]=bins[symbols_in_keys[i]].index;
+					}
+					var onehot_pred_index=tf.tidy(()=>{
+						symbols_in_keys=tf.tensor3d(symbols_in_keys,[1,symbols_in_keys.length,1]);
+						onehot_pred = model.predict(symbols_in_keys);
+						
+						return(tf.argMax(onehot_pred, 1).data())[0];
+						
+					});
+					sentence += numberbins[onehot_pred_index];
+					for (let j=0;j<words.length-1;j++){
+						words[j]=words[j+1];
+					}
+					words[words.length-1]=numberbins[onehot_pred_index];
+				}
+				console.log(sentence);
+			}
+			run();
+			console.log("huh");
+			
+			
+			
+
+			//const loadedModel = await tf.loadModel('localstorage://my-model-1');
+			//generate training data - must generate all data before feeding to the neural net ;-;
+			/*var trainingInputs=[];
+			var trainingOutputs=[];
+			for (var offset=0;offset<trainingtext.length-n_input;offset++){
+				symbols_in_keys = trainingtext.slice(offset,offset+n_input);// training words
+				for (i in symbols_in_keys){
+				symbols_in_keys[i]=bins[symbols_in_keys[i]].index;
+			}
+			trainingInputs.push.apply(trianingInputs,symbols_in_keys);//merge in place
+			
+			symbols_out_onehot=new Array(numberbins.length).fill(0);
+			symbols_out_onehot[bins[trainingtext[offset+n_input]].index]=1;
+			trainingOutputs.push.apply(trainingOutputs, symbols_out_onehot);
+			
+			offset+=n_input+1;
+			}
+			
+			trainingInputs=tf.tensor2d(trainingInputs,[trainingtext.length-n_input,3]);
+			
+			h=await model.fit(symbols_in_keys, symbols_out_onehot, {
+			batchSize: 4,
+			epochs: 3
+			}); 
+			*/
+			
+			
+			/*
+			//ATTEMPT 1: PROGRESSIVE TRAINING
+			
+			async function runtrain(){
+				for (var step=0;step<training_iters;step++){
+					
+					//generate the input and output
+					
+					
+					if (offset > (trainingtext.length-n_input-1)){ // if the story loops, start again but with a bit of randomness
+						offset = random.randint(0, n_input+1);
+					}
+					
+					symbols_in_keys = trainingtext.slice(offset,offset+n_input);// training words
+					for (i in symbols_in_keys){
+						symbols_in_keys[i]=bins[symbols_in_keys[i]].index;
+					}
+					//also onehot it.
+					symbols_in_keys=tf.oneHot(tf.tensor1d(symbols_in_keys,'int32'), vocab_size);
+					console.log(symbols_in_keys.shape)
+					//symbols_in_keys=tf.tensor3d(symbols_in_keys,[1,symbols_in_keys.length,1]);
+					
+					
+					symbols_out_onehot=new Array(vocab_size).fill(0);
+					symbols_out_onehot[bins[trainingtext[offset+n_input]].index]=1;
+					symbols_out_onehot=tf.tensor2d(symbols_out_onehot,[1,symbols_out_onehot.length]);
+					//actually train	
+					h=await model.fit(symbols_in_keys, symbols_out_onehot, {
+						batchSize: 4,
+						epochs: 3
+					}); 				
+					console.log("Loss after Epoch " + i + " : " + h.history.loss[0]);
+				}
+				
+				// use the model for prediction
+				sentence="mouse mouse mouse";
+				words = sentence.split(' ')
+				for (var i=0;i<32;i++){				
+					symbols_in_keys = words;// training words
+					for (i in symbols_in_keys){
+						symbols_in_keys=bins[symbols_in_keys[i]].index;
+					}
+					var onehot_pred_index=tf.tidy(()=>{
+						symbols_in_keys=tf.tensor2d(symbols_in_keys,[1,symbols_in_keys.length]);
+						onehot_pred = model.predict(symbols_in_keys);
+						
+						return(tf.argMax(onehot_pred, 1).data())[0];
+						
+					});
+					sentence += numberbins[onehot_pred_index];
+					for (let j=0;j<words.length-1;j++){
+						words[j]=words[j+1];
+					}
+					words[words.length-1]=numberbins[onehot_pred_index];
+				}
+				console.log(sentence);
+			}
+			runtrain();
+			*/
+		</script>
+	</head>
+	
+	<body>
+	</body>
+</html>

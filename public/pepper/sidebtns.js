@@ -44,14 +44,24 @@ function showLinks(id){ //also handles link and unlink connections
 				connections:firebase.firestore.FieldValue.arrayRemove(linkingID)
 			})
 			}else{
-			discussionDoc.collection("items").doc(linkingID).update({
-				connections:firebase.firestore.FieldValue.arrayUnion(id)
-			})
-			discussionDoc.collection("items").doc(id).update({
-				connections:firebase.firestore.FieldValue.arrayUnion(linkingID)
-			})
+			if (localDataCopy.items[linkingID].type!=localDataCopy.items[id].type){
+				discussionDoc.collection("items").doc(linkingID).update({
+					connections:firebase.firestore.FieldValue.arrayUnion(id)
+				})
+				discussionDoc.collection("items").doc(id).update({
+					connections:firebase.firestore.FieldValue.arrayUnion(linkingID)
+				})
+			}else{
+				$("#linkShadow p").text("Link problems to solutions, so we can solve them! If you share a concern, add another problem entry [links are votes], and please link it to an appropriate solution!");
+				$("#linkShadow p").addClass("flash");
+				setTimeout(()=>{
+					$("#linkShadow p").text("Click the link icon on darkened items to link problems and solutions. Press Escape or click a reset button when you're done!");
+				},5000);
+				setTimeout(()=>{
+					$("#linkShadow p").removeClass("flash");
+				},1000);
+			}
 		}
-		
 	}
 }
 
@@ -73,5 +83,5 @@ function resetLinking(){
 	$("#body>div>div.listbox>div").removeClass("inactive");
 	$("#linkShadow").hide();
 	linkingID="";
-	$(".linkIco").show();
+$(".linkIco").show();
 }

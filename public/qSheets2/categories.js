@@ -1,3 +1,7 @@
+qSheets.HSCPhys={
+	prettyName:"HSC Physics Course (2019-)"
+}
+
 qSheets.y12adv={
 	prettyName:"Year 12 Advanced Maths"
 }
