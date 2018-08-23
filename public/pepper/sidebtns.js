@@ -52,6 +52,7 @@ function showLinks(id){ //also handles link and unlink connections
 					connections:firebase.firestore.FieldValue.arrayUnion(linkingID)
 				})
 			}else{
+				
 				$("#linkShadow p").text("Link problems to solutions, so we can solve them! If you share a concern, add another problem entry [links are votes], and please link it to an appropriate solution!");
 				$("#linkShadow p").addClass("flash");
 				setTimeout(()=>{
@@ -59,7 +60,7 @@ function showLinks(id){ //also handles link and unlink connections
 				},5000);
 				setTimeout(()=>{
 					$("#linkShadow p").removeClass("flash");
-				},1000);
+				},200);
 			}
 		}
 	}
@@ -83,5 +84,5 @@ function resetLinking(){
 	$("#body>div>div.listbox>div").removeClass("inactive");
 	$("#linkShadow").hide();
 	linkingID="";
-$(".linkIco").show();
+	$(".linkIco").show();
 }

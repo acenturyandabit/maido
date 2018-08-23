@@ -25,7 +25,10 @@ $(document).ready(()=>{
 	}else{
 		$(".listbox").on("click",".linkIco",function(e){
 			showLinks(e.currentTarget.parentNode.id);
-		})	
+		})
+		$(".listbox").on("click",".discussionItem",function(e){
+			showLinks(e.currentTarget.id);
+		})
 	}
 });
 

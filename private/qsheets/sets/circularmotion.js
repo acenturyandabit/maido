@@ -1,15 +1,14 @@
 var thisSetName="circularMotion";
 
 /*//TODO:
-- THIS TOOK 7 HOURS LOL
+- THIS TOOK 6 HOURS LOL
 - Minimal answers
 - Full answers
 */
 
 //How questions are structured
 /*
-	Parents are concerned about legal stuffs and my reputation... .-.
-	if continuning these dealings then please pay under the table
+	
 	
 	
 	
@@ -104,17 +103,18 @@ qSheets.HSCPhys[thisSetName]={
 				{type:"query",ref:["v"],data:"How fast is the particle moving?"},
 				{type:"query",ref:["r"],data:"What is the radius of the circle?"},
 				{type:"query",ref:["t"],data:"How long does it take for the particle to go around the circle?"},
-				{type:"answer",ref:["v"],data:"The speed of the particle is given by v=2*r*pi/T. The numerical value is {v}."},
-				{type:"answer",ref:["r"],data:"The radius of the circle is given by r=v*T/2*pi. The numerical value is {r}."},
-				{type:"answer",ref:["t"],data:"The time taken to complete one loop is given by t=2*pi*r/v. The numerical value is {t}."}
+				/*{type:"answer",ref:["v"],data:"The speed of the particle is given by v=sqrt(r*a). The numerical value is {v}."},
+				{type:"answer",ref:["r"],data:"The radius of the circle is given by r=v^2/a. The numerical value is {r}."}
+				{type:"answer",ref:["t"],data:"The acceleration of the particle is given by a=v^2/r. The numerical value is {a}."},*/
 			]
 		]
-	},{
+	}/*,{
+		prompt:"A particle is moving in uniform circular motion.",
 		solve: function (vars){
-			let v=vars.v;
-			let r=vars.r;
-			let m=vars.m;
-			let f=vars.f;
+			let v=vars[0];
+			let r=vars[1];
+			let m=vars[2];
+			let f=vars[2];
 			if (v==undefined){
 				return Math.sqrt(f*r/m);
 			}
@@ -128,33 +128,33 @@ qSheets.HSCPhys[thisSetName]={
 				return m*v*v/r;
 			}
 		},
-		vars: ['v','r','m','f'],
-		statement_sets:[
-			[
-				{type:"unit",ref:['v'],data:"ms^-1"},
-				{type:"unit",ref:['r'],data:"m"},
-				{type:"unit",ref:['m'],data:"kg"},
-				{type:"unit",ref:['f'],data:"N"},
-				{type:"prompt",data:"A particle is moving in uniform circular motion."},
-				{type:"info",ref:["v"],data:"The particle is travelling at {v}."},
-				{type:"info",ref:["r"],data:"The radius of the circle is {r}."},
-				{type:"info",ref:["f"],data:"The centripetal force on the particle is {f}."},
-				{type:"info",ref:["m"],data:"The particle weighs {m}."},
-				{type:"query",ref:["v"],data:"How fast is the particle moving?"},
-				{type:"query",ref:["r"],data:"What is the radius of the circle?"},
-				{type:"query",ref:["f"],data:"What is the centripetal force on the particle?"},
-				{type:"query",ref:["m"],data:"What is the mass of the particle?"},
-				{type:"answer",ref:["v"],data:"The speed of the particle is given by v=sqrt(r*F/m). The numerical value is {v}."},
-				{type:"answer",ref:["r"],data:"The radius of the circle is given by r=m*v^2/F. The numerical value is {r}."},
-				{type:"answer",ref:["f"],data:"The time taken to complete one loop is given by t=2*pi*r/v. The numerical value is {t}."},
-				{type:"answer",ref:["m"],data:"The mass of the particle is given by F*r/v^2."}
-			]
+		vars: [{//velocity
+				units:"ms^-1",
+				info:"The particle is travelling at <>.",
+				query:"What is the velocity of the particle?"
+			},
+			{//radius
+				units:"m",
+				info:"The radius of the circle is <>.",
+				query:"What is the radius of the circle?"
+			},
+			{//mass
+				units:"kg",
+				info:"The particle has a mass of <>.",
+				query:"What is the mass of the particle?"
+			},
+			{//force
+				units:"N",
+				info:"The centripetal force experienced by the particle is <>.",
+				query:"What is the centripetal force experienced by the particle?"
+			}
 		]
 	},{
+		prompt:"A particle is travelling with a fixed angular velocity.",
 		solve: function (vars){
-			let t=vars.t;
-			let th=vars.th;//theta
-			let w=vars.w;
+			let t=vars[0];
+			let th=vars[1];
+			let w=vars[2];
 			if (t==undefined){
 				return th/w;
 			}
@@ -165,25 +165,29 @@ qSheets.HSCPhys[thisSetName]={
 				return th/t;
 			}
 		},
-		vars: ['t','th','w'],
-		statement_sets:[
-			[
-				{type:"unit",ref:['t'],data:"s"},
-				{type:"unit",ref:['th'],data:"radians"},
-				{type:"unit",ref:['w'],data:"rad/sec"},
-				{type:"prompt",data:"A particle is moving in uniform circular motion."},
-				{type:"info",ref:["t"],data:"The particle travels for {t}."},
-				{type:"info",ref:["th"],data:"Over its motion, the particle unergos an angular displacement of {th}."},
-				{type:"info",ref:["w"],data:"The particle is travelling with angular velocity {w}."},
-				{type:"query",ref:["t"],data:"How long does the particle take to travel?"},
-				{type:"query",ref:["th"],data:"Through what angular displacement does the particle travel?"},
-				{type:"query",ref:["w"],data:"What is the angular velocity of the particle?"},
-				{type:"answer",ref:["t"],data:"The particle takes {t} to travel; this is given by t=theta/w."},
-				{type:"answer",ref:["th"],data:"The angular displacement of the particle is theta=t*w. The numerical value is {th}."},
-				{type:"answer",ref:["w"],data:"The angular velocity of the particle is given by w=theta/t. The numerical value is {w}."}
-			]
+		vars: [{//time
+				units:"s",
+				info:"The particle travels for <>.",
+				query:"How long has the particle been travelling?"
+			},
+			{//theta (angle)
+				units:"radians",
+				info:"The particle has an angular displacement of <>.",
+				query:"What is the particle's angular displacement?"
+			},
+			{//omega
+				units:"rad/s",
+				info:"The particle's angular velocity is <>.",
+				query:"What is the angular velocity of the particle?"
+			}		
 		]
-	}],
+	}*/
+	
+	
+	
+	
+	
+	],
 	
 	
 	gen:function (rootdiv,difficulty){ // Generate a single question.
