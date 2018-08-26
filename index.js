@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 //exclusions
 app.use('/public', (req, res, next) => {
   if (env !== 'development') {
-	  var result = req.url.match(/^\/js\/(maps|src)\/.+\.js$/)
+	  var result = req.url.match(/^\/qsheets\/\/.+\.js$/)
     if (result) {
       return res.status(403).end("eheh you're not meant to be here... idk hmu @ steeven.liu2@gmail.com if you want sth")
     }

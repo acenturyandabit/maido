@@ -1,0 +1,152 @@
+<html>
+	<head>
+		<script src="jquery.min.js"></script>
+		<script>
+			var dtp=[
+				{id:"PLAN.1" ,name:"Business case analysis",			dependencies:[], color:'blue'					},
+				{id:"PLAN.2" ,name:"Financial approval",				dependencies:["PLAN.1"],color:'blue'			},
+				{id:"DATA.2" ,name:"Prepare existing plans",			dependencies:["PLAN.2"],color:'yellow'			},
+				{id:"DATA.3" ,name:"Tram shed site inspection",			dependencies:["PLAN.2"],color:'yellow'			},
+				{id:"TECH.1" ,name:"Draw plans for tracks",				dependencies:["DATA.2"],color:'red'				},
+				{id:"TECH.2" ,name:"Draw plans for shed",				dependencies:["DATA.3"],color:'red'				},
+				{id:"TECH.3" ,name:"Plan integration conf.",			dependencies:["TECH.1", "TECH.2"],color:'red'	},
+				{id:"TECH.4" ,name:"Environmental impact plan",			dependencies:["TECH.3"],color:'red'	},
+				{id:"EXPN.1" ,name:"Purchase land",						dependencies:["DATA.3"],color:'green'			},
+				{id:"EXPN.2" ,name:"Open contract bidding",				dependencies:["TECH.4"],color:'green'			},
+				{id:"EXPN.3" ,name:"Select contractor bid",				dependencies:["EXPN.2"],color:'green'			},
+				{id:"INIT.1" ,name:"Inform public abt. disruptions",	dependencies:["EXPN.3"],color:'orange'			},
+				{id:"INIT.2" ,name:"Reroute traffic",					dependencies:["INIT.1"],color:'orange'			},
+				{id:"UTIL.1" ,name:"Locate utilities",					dependencies:["INIT.2"],color:'salmon'			},
+				{id:"UTIL.2" ,name:"Pothole the area",					dependencies:["UTIL.1"],color:'salmon'			},
+				{id:"UTIL.3" ,name:"Excavate half a metre",				dependencies:["UTIL.2"],color:'salmon'			},
+				{id:"UTIL.4" ,name:"Redirect the utility",				dependencies:["UTIL.3"],color:'salmon'			},
+				{id:"PTFM.1" ,name:"Concrete platforms",				dependencies:["UTIL.4"],color:'lightgreen'		,overrideLevel:3},
+				{id:"PTFM.2" ,name:"Wire up platforms",					dependencies:["PTFM.1"],color:'lightgreen'		,overrideLevel:3},
+				{id:"PTFM.3" ,name:"Install ticketing systems",			dependencies:["PTFM.2"],color:'lightgreen'		,overrideLevel:3},
+				{id:"TRCK.1" ,name:"Place reinforcements (track)",		dependencies:["UTIL.4"],color:'darkgreen'		,overrideLevel:0},
+				{id:"TRCK.2" ,name:"Pour concrete",						dependencies:["TRCK.1"],color:'darkgreen'		,overrideLevel:0},
+				{id:"TRCK.3" ,name:"Lay track",							dependencies:["TRCK.2"],color:'darkgreen'		,overrideLevel:0},
+				{id:"TRCK.4" ,name:"Add tarmac",						dependencies:["TRCK.3"],color:'darkgreen'		,overrideLevel:0},
+				{id:"TRCK.5" ,name:"Construct signalling",				dependencies:["TRCK.1"],color:'darkgreen'		,overrideLevel:1},
+				{id:"TRCK.6" ,name:"Install Power wires",				dependencies:["TRCK.1"],color:'darkgreen'		,overrideLevel:2},
+				{id:"TRCK.7" ,name:"Clean working area",				dependencies:["TRCK.4", "TRCK.5", "TRCK.6", "PTFM.3"],color:'darkgreen', overrideLevel:1},
+				{id:"SHED.1" ,name:"Inform public (shed)",				dependencies:["EXPN.2", "EXPN.1"],color:'cyan'	,overrideLevel:2},
+				{id:"SHED.2" ,name:"Interior groundwork",				dependencies:["SHED.1"],color:'cyan'			,overrideLevel:2,level:9},
+				{id:"SHED.3" ,name:"Place shed foundations",			dependencies:["SHED.1"],color:'cyan'			,overrideLevel:3},
+				{id:"SHED.4" ,name:"Shed building construction",		dependencies:["SHED.3"],color:'cyan'			,overrideLevel:3},
+				{id:"SHED.5" ,name:"Utilites conn. & deployment",		dependencies:["SHED.4","SHED.2"],color:'cyan'			,overrideLevel:3},
+				{id:"SHED.6" ,name:"Install shed machinery",			dependencies:["SHED.5"],color:'cyan'			,overrideLevel:3},
+				{id:"SHED.7" ,name:"Clean up",							dependencies:["SHED.6"],color:'cyan'			,overrideLevel:3},
+				{id:"VRFY.1" ,name:"Verify track work",					dependencies:["TRCK.7"],color:'grey'			,overrideLevel:2},
+				{id:"VRFY.2" ,name:"Verify tram shed",					dependencies:["SHED.7"],color:'grey'			,overrideLevel:4},
+				{id:"VRFY.3" ,name:"Tram test runs",					dependencies:["VRFY.1", "VRFY.2"],color:'grey'	,overrideLevel:4},
+				{id:"VRFY.4" ,name:"Ticketing system test",				dependencies:["PTFM.3"],color:'grey'			,overrideLevel:3, level:18},
+				{id:"CLOS",name:"Project handover",						dependencies:["VRFY.3", "VRFY.4"],color:'maroon',overrideLevel:3}
+			];
+			$(document).ready(drawEverything);
+			
+			function getDTP(id){
+				for (var i=0;i<dtp.length;i++)if (dtp[i].id==id)return dtp[i];
+			}			
+			function getLevel(obj){
+				if (obj.level!=-1)return obj.level;
+				if (obj.dependencies && obj.dependencies.length>0){
+					obj.level=0;
+					for (var i=0;i<obj.dependencies.length;i++){
+						if (obj.level<getLevel(getDTP(obj.dependencies[i]))+1)obj.level=getLevel(getDTP(obj.dependencies[i]))+1;
+					}
+					return obj.level;
+				}else{
+					obj.level=0;
+					return obj.level;
+				}
+			}
+			function drawEverything(){
+				//later feature: make sure that there are no cyclic dependencies
+				
+				//initialise all levels cos we need to
+				for (var i=0;i<dtp.length;i++){
+					if (!dtp[i].hasOwnProperty("level"))dtp[i].level=-1;
+				}
+				//count how many discrete levels there are.
+				//we assume there are no cycles!
+				var maxlvl=0;
+				for (var i=0;i<dtp.length;i++){
+					if (getLevel(dtp[i])>maxlvl)maxlvl=getLevel(dtp[i]);
+				}
+				//now everything has a level.
+				//now, make a vector of what objects are at which levels.
+				//allocate storage
+				var stor=[];
+				for (var i=0;i<maxlvl+1;i++){
+					stor[i]=[];
+				}
+				var maxct=0;
+				for (var i=0;i<dtp.length;i++){
+					stor[dtp[i].level].push(i);
+					dtp[i].drawlvl=stor[dtp[i].level].length-1;
+					
+				}
+				//deal with override drawlevels
+				for (var i=0;i<dtp.length;i++){
+					if (dtp[i].hasOwnProperty("overrideLevel"))dtp[i].drawlvl=dtp[i].overrideLevel;
+					if (dtp[i].drawlvl>maxct)maxct=dtp[i].drawlvl;
+				}
+				
+				
+				const bht=50;
+				const bln=160;
+				const bhm=10;
+				const blm=10;
+				//draw everything onto the canvas
+				var cvs=$("#result")[0];
+				cvs.width=(bln+blm)*(maxlvl+1);
+				cvs.height=(bht+bhm)*(maxct+1);
+				ctx=cvs.getContext('2d');
+				
+				for (var i=0;i<dtp.length;i++){
+					//draw box
+					ctx.fillStyle=dtp[i].color;
+					ctx.fillRect(dtp[i].level*(bln+blm),dtp[i].drawlvl*(bht+bhm),bln,bht);
+					//draw text
+					ctx.font = '12px serif';
+					red=parseInt("0x"+ctx.fillStyle.substring(1,3));
+					green=parseInt("0x"+ctx.fillStyle.substring(3,5));
+					blue=parseInt("0x"+ctx.fillStyle.substring(5,7));
+					if ((red*0.299 + green*0.587 + blue*0.114) > 176)ctx.fillStyle="black";
+					else ctx.fillStyle="white";
+					//thanks to Mark Ransom on StackOverflow
+					ctx.fillText(dtp[i].name,dtp[i].level*(bln+blm),dtp[i].drawlvl*(bht+bhm)+bht/2);
+					//draw lines
+					ctx.beginPath();
+					for (var j=0;j<dtp[i].dependencies.length;j++){
+						ctx.moveTo(dtp[i].level*(bln+blm),dtp[i].drawlvl*(bht+bhm)+bht/2);
+						ctx.lineTo(getDTP(dtp[i].dependencies[j]).level*(bln+blm)+bln,getDTP(dtp[i].dependencies[j]).drawlvl*(bht+bhm)+bht/2);
+					}
+					ctx.closePath();
+					ctx.stroke();
+				}
+				
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</script>
+	</head>
+	<body>
+	<canvas id="result">
+		
+		
+	</canvas>	
+	</body>
+	
+	
+	
+	
+</html>

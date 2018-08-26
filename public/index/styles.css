@@ -1,0 +1,41 @@
+body {
+  display: flex;
+  flex-direction: column;
+  background-color: black;
+  color: white;
+}
+
+body>div {
+  flex: 1 0 auto;
+  text-align: center
+}
+
+#center-threebox {
+  display: flex;
+  flex-direction: row;
+
+}
+#center-threebox>div:not(#ctd):not(#wsf):not(#abm){
+  flex: 0 0 10%;
+}
+#ctd{
+  flex: 0 0 auto;
+}
+
+#wsf {
+  text-align: right;
+  flex: 1 1 33%;
+}
+
+#abm{
+  text-align: left;
+  flex: 1 1 33%;
+}
+
+a {
+  color: aquamarine;
+}
+
+a:visited {
+  color: cadetblue;
+}

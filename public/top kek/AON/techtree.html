@@ -1,0 +1,103 @@
+<html>
+	<head>
+		<script src="jquery.min.js"></script>
+		<script src="svg.min.js"></script>
+		<script src="scripts/utils.js"></script>
+		<script src="scripts/contextMenu.js"></script>
+		<script src="scripts/svgInit.js"></script>
+		<script src="scripts/item.js"></script>
+		<script src="scripts/mnips.js"></script>
+		<script src="scripts/motion.js"></script>
+		<script src="scripts/save.js"></script>
+		<link rel="stylesheet" type="text/css" href="styles.css">
+	</head>
+	<body>
+		<div id="topbar">
+			<h1>Tech Tree</h1>
+			<div class='dropdown'>
+				<a>File</a>
+				<div class="dropdown_content">
+					<button onclick="newDiagram()">New</button><br>
+					<button onclick="showLoadScreen()">Load</button><br>
+					<button onclick="showSaveScreen()">Save</button><br>
+				</div>
+			</div>
+			<div class='dropdown'>
+				<a>Insert</a>
+				<div class="dropdown_content">
+					<button onclick="createNew()">New item...</button><br>
+				</div>
+			</div>
+		</div>
+		<div id="sidebar">
+			<h1>Tech Tree</h1>
+			<h3>Current item</h3>
+			<p>Title</p>
+			<input type="text"></input>
+			<p>Details</p>
+			<textarea></textarea>
+			<p>Predecessors</p>
+			<div class="listBox">
+				<p>Nothing to see here!</p>
+			</div>
+			<p>Branches</p>
+			<div class="listBox">
+				<p>Nothing to see here!</p>
+			</div>
+		</div>
+		<div id="itemSVG" >
+			
+		</div>
+		<div id="backContext" class="contextMenu">
+			<button onclick="createNew()">New item</button>
+		</div>
+		<div id="elemContext" class="contextMenu">
+			<button onclick="deleteContext()">Delete</button>
+		</div>
+		<div id="newItemSplash" class="splash">
+			<div>
+				<h2>New item</h2>
+				<p>Title:</p>
+				<input type="text" class="autoreturn"></input>
+				<p>Details</p>
+				<textarea></textarea>
+				<br>
+				<button onClick="_addElement()" class='defaultreturn'>Add</button>
+			</div>
+		</div>
+		<div id="saveSplash" class="splash">
+			<div>
+				<h2>Save to browser</h2>
+				<input type="text" id="toBrowserSave"></textarea>
+				<button onClick="saveLocal();$('#saveSplash').hide()">Done</button>
+				
+				<h2>Save as string</h2>
+				<textarea id="saveText"></textarea>
+				<button onClick="$('#saveSplash').hide()">Done</button>
+			</div>
+		</div>
+		<div id="loadSplash" class="splash">
+			<div>
+				<h2>Load options</h2>
+				<h3>Load from browser data</h3>
+				<div id="localSaves">	
+				</div>
+				<p>Autoload:</p>
+				<input id="autoload" type="text" placeholder="Save name...">
+				<button onclick="setAutoload()">Confirm</button>
+				<h3>Load from string</h3>
+				<textarea id="loadText"></textarea>
+				<button onClick="loaderLoad()">Done</button>
+			</div>
+		</div>
+		<div id="confirmNew" class="splash">
+			<div>
+				<h2>Whoa..</h2>
+				<h3>Do you want to save the current diagram?</h3>
+				<button onClick="$('#confirmNew').hide();showSaveScreen()">Yes</button>
+				<button onClick="_newDiagram()">No</button>
+			</div>
+		</div>
+		<p id="status">Ready</p>
+	</body>
+</html>
