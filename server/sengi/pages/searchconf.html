@@ -1,0 +1,44 @@
+<html>
+<head>
+
+
+</head>
+<body>
+    <h1> Search configuration</h1>
+    <div>
+        <div>
+            <h2> Sites </h2>
+            <div>
+                <div>
+                    <h3>Selected</h3>
+                </div>
+                <div>
+                    <h3>Available</h3>
+                </div>
+            </div>
+            <button>Add</button>
+            <button>Remove</button>
+            <button>Edit</button> <!--Can only edit personal sites-->
+            <button>New</button>
+        </div>
+        <div>
+                <h2> Attributes </h2>
+                <p>Results string will show up here post validation</p>
+                <table>
+                    <tr>
+                        <th>Attribute name:</th>
+                        <th>Regex filter: (Capture group 0)</th>
+                        <th>Sample output:</th>
+                    </tr>
+                    <tr class="final_filter">
+                            <td><input type="text" value="Screen size"/></td>
+                            <th><input type="text" value='(/d+)""'/></td>
+                            <th>5</th>
+                        </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <button>Run search</button>
+</body>
+</html>
