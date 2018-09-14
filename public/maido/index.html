@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <script src="../jquery.min.js"></script>
+        <script>
+            function guid() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+            }
+            $(document).ready(()=>{
+                $("#todolist").on ("input",".initial input",(e)=>{
+                    newNode=$(".initial")[0].cloneNode(true)
+                    newNode.classList.remove('initial');
+                    newNode.dataset.taskgroup=guid();
+                    $(newNode).find("*").each((i,e)=>{
+                        e.dataset.taskgroup=newNode.dataset.taskgroup
+                    })
+                    $("#todolist").append(newNode)
+                    $(newNode).find("."+e.currentTarget.classList[0]).focus()
+                    $(newNode).find("."+e.currentTarget.classList[0])[0].setSelectionRange(1,1)
+                    $(".initial input").each((i,e)=>{e.value=""})
+                })
+                $("#todolist").on ("keypress",".date",(e)=>{
+                    if (e.currentTarget.parentElement.classList.contains("initial"))return;
+                    if (e.keyCode==13){
+                        if (e.currentTarget.value=="now"){
+                            var d = new Date();
+                            d.setTime(Date.now());
+                            e.currentTarget.value=d.toString().split("GMT")[0]
+                        }else if (isNaN(Date.parse(e.currentTarget.value))){
+                            e.currentTarget.style.background="red";
+                            setTimeout(()=>{e.currentTarget.style.background="white"; e.currentTarget.value=""},200)
+                            return;
+                        }
+                        else{
+                            var d = new Date();
+                            d.setTime(Date.parse(e.currentTarget.value));
+                            e.currentTarget.value=d.toString().split("GMT")[0]
+                        }
+                    }
+                })
+                $("#todolist").on("focus","tr",(e)=>{
+                    // retract the previous textarea
+                    retract_description()
+                    if (!e.currentTarget.classList.contains("initial")){
+                        $(e.currentTarget).find("textarea")[0].style.display="block";
+                        $("#todolist_db").append($(e.currentTarget).find("textarea")[0])
+                    }
+                })
+            })
+            function retract_description(){
+                try{
+                    otg=$("#todolist_db").children("*")[0].dataset.taskgroup
+                    $("#todolist_db").children("*")[0].style.display="none"
+                    $('td.ta_stor[data-taskgroup='+otg+']').append($("#todolist_db").children("*")[0])
+                }catch (_e){
+                }
+            }
+            function saveToBrowser(){
+                savedata={};
+                // collapse the description so that we save it
+                retract_description();
+                $("#todolist tr:not(.initial) * ").each((i,e)=>{
+                    if (savedata[e.dataset.taskgroup]==undefined)savedata[e.dataset.taskgroup]={};
+                    if (e.className.length>0){
+                        savedata[e.dataset.taskgroup][e.className]=e.value;
+                    }
+                })
+                console.log(savedata)
+            }
+
+        </script>
+    </head>
+    <body>
+        <h1>Maido</h1>
+        <button onclick="saveToBrowser()">Save</button>
+        <div style="display:flex;flex-direction:row">
+            <div>
+                <table id="todolist">
+                    <tr class="initial">
+                        <td><input class="tname" placeholder="Task name"></td>
+                        <td><input class="date" placeholder="Date"></td>
+                        <td><button >0 postpones</button></td>
+                        <td data-role="ta_stor"><textarea placeholder="Description..." style="display: none"></textarea></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="todolist_db">
+                
+            </div>
+        </div>
+    </body>
+</html>
