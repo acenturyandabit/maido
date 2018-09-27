@@ -1,10 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+var cookieParser=require('cookie-parser');
 const fs = require('fs');
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use(cookieParser())
 /*
 	app.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -14,16 +15,22 @@ app.use(bodyParser.json());
 */
 
 //exclusions
-app.use('/public', (req, res, next) => {
-  if (env !== 'development') {
+
+app.use('/pepkern',require('./server/pepkern/pepkern.js').middleware)
+
+
+app.use('/', (req, res, next) => {
+  if (process.env !== 'development') {
 	  var result = req.url.match(/^\/qsheets\/\/.+\.js$/)
     if (result) {
       return res.status(403).end("eheh you're not meant to be here... idk hmu @ steeven.liu2@gmail.com if you want sth")
     }
   }
+  if (req.url.match(/^.+?\.ejs/)){
+	return res.send().end()
+  }
   next()
 })
-
 
 app.use(express.static(__dirname + '/public'));
 
@@ -39,6 +46,8 @@ app.set('view engine', 'ejs');
 // if (!process.env.PORT)console.log("listening on 8080");
 //console.log(process)
 app.listen(process.env.PORT || 8080);
+
+//app.use('/idealogue',require('./server/idealogue.js'))
 
 // app.get("/", function(req, res){ 
 	// res.render("index"); 

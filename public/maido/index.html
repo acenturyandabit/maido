@@ -1,16 +1,36 @@
 <html>
+<!--
+Interpreter API:
+now: exact time when enter key is pressed. Does not update on reorder.
+waiting: now plus one day. Updates on reorder.
+d/m[/y] h:m[:/s][am|pm]: quick short date entry. 
+
+
+
+-->
+
+
+<!--
+Sorting order:
+dones....
+
+then sort by time.
+
+
+-->
 
 <head>
     <script src="../jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Maido</title>
+    <script src="maidocore.js"></script>
+    <script src="support.js"></script>
+    <script src="datesort.js"></script>
+    <script src="loadsave.js"></script>
+    <script src="search.js"></script>
+    <script src="svg.min.js"></script>
+    <script src="timeline.js"></script>
     <script>
-        function guid() {
-            function s4() {
-                return Math.floor((1 + Math.random()) * 0x10000)
-                    .toString(16)
-                    .substring(1);
-            }
-            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-        }
         $(document).ready(() => {
             $("#todolist").on("input", ".initial input", (e) => {
                 newNode = $(".initial")[0].cloneNode(true)
@@ -26,25 +46,43 @@
                     e.value = ""
                 })
             })
+
+            $("body").on("keydown", (e) => {
+                if (e.ctrlKey && e.key == "s") {
+                    $('#savebtn').click()
+                    return false
+                }
+            })
+
+            $("#todolist").on("click", "tr:not(.initial) button.doneState", (e) => {
+                if (e.currentTarget.innerHTML == "Redo") {
+                    e.currentTarget.innerHTML = "Done"
+                    $(e.currentTarget.parentElement.parentElement).find("button.postpone")[0].innerText =
+                        "Postpone"
+                } else {
+                    e.currentTarget.innerHTML = "Redo"
+                    $(e.currentTarget.parentElement.parentElement).find("button.postpone")[0].innerText =
+                        "Remove"
+                }
+            })
+
+            $("#todolist").on("click", "tr:not(.initial) button.postpone", (e) => {
+                if (e.currentTarget.innerHTML == "Postpone") {
+                    del = $(e.currentTarget.parentElement.parentElement).find(".date")[0];
+                    dsplt = del.value.split(/\[/g);
+                    dsplt[0] += "+1";
+                    del.value = dsplt.join("[")
+                    date_reparse(del)
+                } else {
+                    retract_description()
+                    $(e.currentTarget.parentElement.parentElement).remove();
+                }
+            })
+
             $("#todolist").on("keypress", ".date", (e) => {
                 if (e.currentTarget.parentElement.classList.contains("initial")) return;
                 if (e.keyCode == 13) {
-                    if (e.currentTarget.value == "now") {
-                        var d = new Date();
-                        d.setTime(Date.now());
-                        e.currentTarget.value = d.toString().split("GMT")[0]
-                    } else if (isNaN(Date.parse(e.currentTarget.value))) {
-                        e.currentTarget.style.background = "red";
-                        setTimeout(() => {
-                            e.currentTarget.style.background = "white";
-                            e.currentTarget.value = ""
-                        }, 200)
-                        return;
-                    } else {
-                        var d = new Date();
-                        d.setTime(Date.parse(e.currentTarget.value));
-                        e.currentTarget.value = d.toString().split("GMT")[0]
-                    }
+                    date_reparse(e.currentTarget);
                 }
             })
             $("#todolist").on("focus", "tr", (e) => {
@@ -55,63 +93,73 @@
                     $("#todolist_db").append($(e.currentTarget).find("textarea")[0])
                 }
             })
+            //autoload and shenanigans
+            loadFromBrowser();
+            first_sort();
+
         })
 
-        function retract_description() {
+        function retract_description(ghost = false) {
             try {
                 otg = $("#todolist_db").children("*")[0].dataset.taskgroup
-                $("#todolist_db").children("*")[0].style.display = "none"
-                $('td[data-role="ta_stor"][data-taskgroup=' + otg + ']').append($("#todolist_db").children("*")[0])
+                // remove previous copy
+                $('td[data-role="ta_stor"][data-taskgroup=' + otg + '] textarea').remove();
+                if (ghost) {
+                    $('td[data-role="ta_stor"][data-taskgroup=' + otg + ']').append($("#todolist_db").children("*").clone())
+                    $('td[data-role="ta_stor"][data-taskgroup=' + otg + ']').children().hide()
+                } else {
+                    $("#todolist_db").children("*")[0].style.display = "none"
+                    $('td[data-role="ta_stor"][data-taskgroup=' + otg + ']').append($("#todolist_db").children("*"))
+                }
+                return otg;
             } catch (_e) {}
-        }
-
-        function saveToBrowser() {
-            savedata = {};
-            // collapse the description so that we save it
-            retract_description();
-            $("#todolist tr:not(.initial) * ").each((i, e) => {
-                if (savedata[e.dataset.taskgroup] == undefined) savedata[e.dataset.taskgroup] = {};
-                if (e.className.length > 0) {
-                    if (e.tagName == 'INPUT' || e.tagName == 'TEXTAREA') savedata[e.dataset.taskgroup][e.className] =
-                        e.value;
-                    if (e.tagName == 'BUTTON') savedata[e.dataset.taskgroup][e.className] = e.innerText;
-                }
-            })
-            window.localStorage.setItem('lastSave', JSON.stringify(savedata))
-        }
-
-        function loadFromBrowser() {
-            data = JSON.parse(window.localStorage.getItem('lastSave'))
-            $("#todolist tr:not(.initial)").remove()
-            for (d in data) {
-                newNode = $(".initial")[0].cloneNode(true)
-                newNode.classList.remove('initial');
-                newNode.dataset.taskgroup = d;
-                $(newNode).find("*").each((i, e) => {
-                    e.dataset.taskgroup = newNode.dataset.taskgroup
-                })
-                for (p in data[d]) {
-                    e = $(newNode).find("." + p)[0]
-                    if (e.tagName == 'INPUT' || e.tagName == 'TEXTAREA') e.value=data[d][p];
-                    if (e.tagName == 'BUTTON')e.innerHTML=data[d][p];
-                }
-            }
-            $("#todolist").append(newNode)
         }
     </script>
 </head>
 
 <body>
     <h1>Maido</h1>
-    <button onclick="saveToBrowser()">Save</button>
-    <button onclick="loadFromBrowser()">Load</button>
+    <ul>
+        <li>
+            <a>File</a>
+            <div>
+                <a onclick="saveToBrowser()">Save</a>
+                <a onclick="loadFromBrowser()">Quickload</a>
+                <a onclick="showLoader()">Load</a>
+            </div>
+        </li>
+        <li>
+            <a>Actions</a>
+            <div>
+                <a onclick="alignDates()">Toggle date alignment</a>
+            </div>
+        </li>
+        <li>
+            <a>View</a>
+            <div>
+                <a onclick="toggleTimeline()">Toggle timeline</a>
+            </div>
+        </li>
+        <li>
+            <a>Help</a>
+            <div>
+                <a onclick="showdocs()">Documentation</a>
+            </div>
+        </li>
+    </ul>
+    <div id="timeline_svg">
+
+    </div>
     <div style="display:flex;flex-direction:row">
         <div>
+            <span>Search: <input id="searchbar"></span>
             <table id="todolist">
                 <tr class="initial">
                     <td><input class="name" placeholder="Task name"></td>
+                    <td><input class="tags" placeholder="Tags"></td>
                     <td><input class="date" placeholder="Date"></td>
                     <td><button class="doneState">Done</button></td>
+                    <td><button class="postpone">Postpone</button></td>
                     <td data-role="ta_stor"><textarea class="description" placeholder="Description..." style="display: none"></textarea></td>
                 </tr>
             </table>
@@ -119,6 +167,17 @@
         <div id="todolist_db">
 
         </div>
+    </div>
+    <div id="loader_dialog">
+        <h2>Available save sessions:</h2>
+        <div id="loader_dialog_panel_container">
+            <div id="loader_dialog_list">
+            </div>
+            <div id="loader_dialog_viewer">
+
+            </div>
+        </div>
+        <button onclick="$('#loader_dialog').hide()">Cancel</button>
     </div>
 </body>
 

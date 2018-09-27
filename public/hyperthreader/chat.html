@@ -1,0 +1,71 @@
+<html>
+    <style>
+    body{
+        display:flex;
+        flex-direction:column;
+    }
+    #maincontent{
+        display:flex;
+        flex-direction:row;
+    }
+    #pool{
+        display: flex;
+        flex-direction: column;
+    }
+    div:has-children{
+        background-color:red;
+    }
+    #sidebar{
+        padding-right: 10px;
+    }
+    #sidebar span{
+        margin-left:5px;
+        display: block;
+    }
+
+    #chatbox span{
+        margin-left:5px;
+        display: block;
+    }
+
+    #threadDoc textarea{
+        width:80vw;
+        height:20vh;
+        resize: none
+    }
+    #threadDoc{
+        border-bottom: 1px solid black
+    }
+    </style>
+    <body>
+        <div id="menubar">
+            <h1>HYPERTHREADER</h1>
+            <p>Message logistics and organisation</p>
+        </div>
+        <div id="maincontent">
+            <div id="sidebar">
+                <span>Some thread
+                    <span>some other thread</span> 
+                    <span>some other thread</span> 
+                    <span>some other thread</span> 
+                    <span>some other thread</span> 
+                </span>
+            </div>
+            <div id="pool">
+                <div id="threadTitle"><h2>TITLE</h2></div>
+                <div id="threadDoc"><textarea></textarea></div>
+                <div id="chatbox">
+                    <span>Some thread
+                        <span>some other thread</span> 
+                        <span>some other thread</span> 
+                        <span>some other thread</span> 
+                        <span>some other thread</span> 
+                    </span>
+                </div>
+                <div id="throwbox">
+                    <input>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
