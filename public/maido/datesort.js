@@ -1,5 +1,11 @@
 function itemComparer(a, b) {
-    return (b.date - a.date) + 1e15 * (b.done - a.done);
+    if (a.done!=b.done)return b.done-a.done;
+    else if (a.done*b.done){
+        return -(b.date - a.date);
+    }else{
+        return (b.date - a.date);
+    }
+    
 }
 
 function first_sort() {
@@ -10,16 +16,14 @@ function first_sort() {
             date: 9999999999999,
             done: 0
         };
-        if (el = $(e).find(".date")[0]) {
+        if (el = $(e).find("[data-role='date']")[0]) {
             if ((bits = /\[(.+?)\]/g.exec(el.value)) != null) {
                 if (!isNaN(Date.parse(bits[1]))) {
                     ti.date = Date.parse(bits[1])
                 }
             }
-        }
-        if (el = $(e).find("button")[0]) {
-            if (el.innerText == "Redo") {
-                ti.done = 1;
+            if(el.value.includes("done")){
+                ti.done=1;
             }
         }
         items.push(ti)
@@ -57,7 +61,7 @@ function date_reparse(e) {
             e.value = dv + "[" + d.toString().split("GMT")[0] + "]"
             break;
         default:
-            regexes = [/(?:(?:(\d+)\/(\d+)(?:\/(\d+))?)|(?:(\d+):(\d+)(?::(\d+))?\s*|(am|pm)))/g, /(?:(mon)|(tue)s*|(?:(wed)(?:nes)*)|(?:(thu)r*s*)|(fri)|(sat)(?:ur)*|(sun))(?:day)*/ig,/\+(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g]
+            regexes = [/(?:(?:(\d+)\/(\d+)(?:\/(\d+))?)|(?:(\d+):(\d+)(?::(\d+))?\s*|(am|pm)))/g, /(?:(mon)|(tue)s*|(?:(wed)(?:nes)*)|(?:(thu)r*s*)|(fri)|(sat)(?:ur)*|(sun))(?:day)*/ig,/\+(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g,/done/g]
             d_cmp = dv.split(" ");
             //d_cmp=d_cmp.map(x=>x.toLowerCase())
             d = new Date()

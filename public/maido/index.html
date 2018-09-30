@@ -22,105 +22,32 @@ then sort by time.
 <head>
     <script src="../jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <title>Maido</title>
-    <script src="maidocore.js"></script>
+    <title>Maido-Adaptive task tracker</title>
+    <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
+    <script src="lscommon.js"></script>
+    <script src="webcore.js"></script>
+    <script src="localcore.js"></script>
+
     <script src="support.js"></script>
+
     <script src="datesort.js"></script>
-    <script src="loadsave.js"></script>
+
     <script src="search.js"></script>
+    
+    <script src="editor.js"></script>
+    
+    <script src="marker.js"></script>
+    
     <script src="svg.min.js"></script>
     <script src="timeline.js"></script>
-    <script>
-        $(document).ready(() => {
-            $("#todolist").on("input", ".initial input", (e) => {
-                newNode = $(".initial")[0].cloneNode(true)
-                newNode.classList.remove('initial');
-                newNode.dataset.taskgroup = guid();
-                $(newNode).find("*").each((i, e) => {
-                    e.dataset.taskgroup = newNode.dataset.taskgroup
-                })
-                $("#todolist").append(newNode)
-                $(newNode).find("." + e.currentTarget.classList[0]).focus()
-                $(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
-                $(".initial input").each((i, e) => {
-                    e.value = ""
-                })
-            })
-
-            $("body").on("keydown", (e) => {
-                if (e.ctrlKey && e.key == "s") {
-                    $('#savebtn').click()
-                    return false
-                }
-            })
-
-            $("#todolist").on("click", "tr:not(.initial) button.doneState", (e) => {
-                if (e.currentTarget.innerHTML == "Redo") {
-                    e.currentTarget.innerHTML = "Done"
-                    $(e.currentTarget.parentElement.parentElement).find("button.postpone")[0].innerText =
-                        "Postpone"
-                } else {
-                    e.currentTarget.innerHTML = "Redo"
-                    $(e.currentTarget.parentElement.parentElement).find("button.postpone")[0].innerText =
-                        "Remove"
-                }
-            })
-
-            $("#todolist").on("click", "tr:not(.initial) button.postpone", (e) => {
-                if (e.currentTarget.innerHTML == "Postpone") {
-                    del = $(e.currentTarget.parentElement.parentElement).find(".date")[0];
-                    dsplt = del.value.split(/\[/g);
-                    dsplt[0] += "+1";
-                    del.value = dsplt.join("[")
-                    date_reparse(del)
-                } else {
-                    retract_description()
-                    $(e.currentTarget.parentElement.parentElement).remove();
-                }
-            })
-
-            $("#todolist").on("keypress", ".date", (e) => {
-                if (e.currentTarget.parentElement.classList.contains("initial")) return;
-                if (e.keyCode == 13) {
-                    date_reparse(e.currentTarget);
-                }
-            })
-            $("#todolist").on("focus", "tr", (e) => {
-                // retract the previous textarea
-                retract_description()
-                if (!e.currentTarget.classList.contains("initial")) {
-                    $(e.currentTarget).find("textarea")[0].style.display = "block";
-                    $("#todolist_db").append($(e.currentTarget).find("textarea")[0])
-                }
-            })
-            //autoload and shenanigans
-            loadFromBrowser();
-            first_sort();
-
-        })
-
-        function retract_description(ghost = false) {
-            try {
-                otg = $("#todolist_db").children("*")[0].dataset.taskgroup
-                // remove previous copy
-                $('td[data-role="ta_stor"][data-taskgroup=' + otg + '] textarea').remove();
-                if (ghost) {
-                    $('td[data-role="ta_stor"][data-taskgroup=' + otg + ']').append($("#todolist_db").children("*").clone())
-                    $('td[data-role="ta_stor"][data-taskgroup=' + otg + ']').children().hide()
-                } else {
-                    $("#todolist_db").children("*")[0].style.display = "none"
-                    $('td[data-role="ta_stor"][data-taskgroup=' + otg + ']').append($("#todolist_db").children("*"))
-                }
-                return otg;
-            } catch (_e) {}
-        }
-    </script>
 </head>
 
 <body>
     <h1>Maido</h1>
+    <!--Hey there! It's your dev. If you're reading this, you probably know enough about web dev to offer realistic suggestions. I'd love to hear from you! My email is steeven.liu2@gmail.com, whenever you're ready. :) -->
+    <!--Shibboleet.-->
     <ul>
-        <li>
+        <li class="oLocalOnly">
             <a>File</a>
             <div>
                 <a onclick="saveToBrowser()">Save</a>
@@ -138,6 +65,7 @@ then sort by time.
             <a>View</a>
             <div>
                 <a onclick="toggleTimeline()">Toggle timeline</a>
+                <a onclick="NewWindow=window.open('compain.html','newWin','width=500,height=300,left=20,top=20,toolbar=No,location=No,scrollbars=no,status=No,resizable=no,fullscreen=No');  NewWindow.focus(); void(0);">Open Companion</a>
             </div>
         </li>
         <li>
@@ -155,12 +83,14 @@ then sort by time.
             <span>Search: <input id="searchbar"></span>
             <table id="todolist">
                 <tr class="initial">
-                    <td><input class="name" placeholder="Task name"></td>
-                    <td><input class="tags" placeholder="Tags"></td>
-                    <td><input class="date" placeholder="Date"></td>
-                    <td><button class="doneState">Done</button></td>
-                    <td><button class="postpone">Postpone</button></td>
-                    <td data-role="ta_stor"><textarea class="description" placeholder="Description..." style="display: none"></textarea></td>
+                    <td>Add a new task...</td>
+                </tr>
+                <tr class="initial template">
+                    <td><input data-role="name" placeholder="Task name"></td>
+                    <td><input data-role="tags" placeholder="Tags"></td>
+                    <td><input data-role="date" placeholder="Date"></td>
+                    <td><button class="remove">Remove</button></td>
+                    <td class="ta_stor"><textarea data-role="description" placeholder="Description..." style="display: none"></textarea></td>
                 </tr>
             </table>
         </div>
@@ -168,16 +98,21 @@ then sort by time.
 
         </div>
     </div>
-    <div id="loader_dialog">
+
+    <div class="dialog" id="loader_dialog">
         <h2>Available save sessions:</h2>
         <div id="loader_dialog_panel_container">
             <div id="loader_dialog_list">
             </div>
             <div id="loader_dialog_viewer">
-
+                
             </div>
         </div>
         <button onclick="$('#loader_dialog').hide()">Cancel</button>
+    </div>
+    <div class="dialog" id="dnfDialog">
+        <h2>Uh oh...</h2>
+        <p>We couldn't find the task list that you specified. Maybe check your spelling and try again?</p>
     </div>
 </body>
 
