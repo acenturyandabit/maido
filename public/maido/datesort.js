@@ -30,7 +30,7 @@ function first_sort() {
     })
     items.sort(itemComparer)
     for (i = 0; i < items.length; i++) {
-        $("tr.initial").after($("tr[data-taskgroup=" + items[i].id + "]"));
+        $("tr.initial.template").after($("tr[data-taskgroup=" + items[i].id + "]"));
         //console.log(items[i].id)
     }
     //console.log(items)
