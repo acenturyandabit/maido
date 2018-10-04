@@ -1,9 +1,7 @@
 $(document).ready(()=>{
-
     $("table").on('keyup',"input[data-role='tags']",(e)=>{
         precheck.markercheck(e.currentTarget.parentElement.parentElement);
     })
-
 })
 
 var colNames = {
@@ -155,7 +153,6 @@ var colNames = {
     'yellow': '#ffff00',
     'yellowgreen': '#9acd32'
 };
-
 function ensureHexColor(col){
     if (col[0]=="#")return col;
     else return colNames[col];
@@ -171,22 +168,58 @@ function getContrastYIQ(hexcolor){
     return (yiq >= 128) ? 'black' : 'white';
 }
 
-precheck.markercheck=(td)=>{
-    let cval=$(td).find("[data-role='tags']")[0].value;
+$(document).ready(()=>{
+$("body").append(
+    `
+<div class="dialog" id="markerpicker">
+<h2>Tag editor</h2>
+<textarea></textarea>
+</div>
+    `
+)
+tagformats=JSON.parse(localStorage.getItem("maidoTagFormats"));
+if (!tagformats)tagformats={};
+$("#markerpicker textarea")[0].value=JSON.stringify(tagformats);
+$("#markerpicker textarea").on("change",(e)=>{
+    tagformats=JSON.parse(e.currentTarget.value);
+    localStorage.setItem("maidoTagFormats", JSON.stringify(tagformats))
+    $("tr:not(.initial)").each((i,e)=>{
+        precheck.markercheck(e)
+    });
+});
+$("li:contains('View')>div").append(
+    `
+    <a onclick="$('#markerpicker').show()">Show tag configuration</a>
+    `
+)
+precheck.markercheck=(tr)=>{
+    let cval=$(tr).find("[data-role='tags']")[0].value;
     bits=cval.split(" ");
     ismarker=false;
     color="blue";
     for (i in bits){
-        if (bits[i].includes("#marker")){
-            ismarker=true;
-            if (bits[i].split('#marker:').length>1){
-                color=bits[i].split('#marker:')[1];
+        if (bits[i][0]=="#"){
+            tagname=bits[i].slice(1);
+            if (tagformats[tagname]){
+                //.background=color;e.style.color=getContrastYIQ(color)
+                $(tr).find("input").each((i,e)=>{
+                    Object.assign(e.style,tagformats[tagname]);
+                });
             }
+            //ismarker=true;
+            /*if (bits[i].split('#marker:').length>1){
+                color=bits[i].split('#marker:')[1];
+            }*/
         }
     }
+    /*
     if (ismarker){
         $(td).find("input").each((i,e)=>{e.style.background=color;e.style.color=getContrastYIQ(color)});
     }else{
         $(td).find("input").each((i,e)=>{e.style.background="white"});
-    }
+    }*/
 }
+$("tr:not(.initial)").each((i,e)=>{
+    precheck.markercheck(e)
+});
+});

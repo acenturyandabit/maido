@@ -1,4 +1,4 @@
-var rootcln; // firebase root document collection reference
+var rootcl; // firebase root document collection reference
 if (window.location.href.slice(undefined, 4) != "file") {
     style = document.createElement("style")
     style.innerHTML = `

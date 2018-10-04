@@ -1,0 +1,33 @@
+<html>
+<head>
+    <script src="../jquery.min.js"></script>
+    <script>
+        $(document).ready(()=>{
+            $("#data").on("keyup",(e)=>{
+                v=e.currentTarget.value;
+                filler=$("#template")[0].value;
+                bits=v.split(/(\r\n|\r|\n)/g);
+                for (j=0;j<bits.length;j++){
+                    k=bits[j].split(":");
+                    propname=k.shift();
+                    _data=k.join(":");
+                    filler=filler.replace(RegExp("<"+propname+">","g"),_data);
+                }
+                $("#filledText").html(filler);
+            })
+        })
+    </script>
+</head>
+<body>
+<div>
+    <div>
+        <textarea id="data"></textarea>
+    </div>
+</div>
+<div>
+    <p id="filledText"></p>
+    <textarea id="template"></textarea>
+</div>
+</body>
+
+</html>

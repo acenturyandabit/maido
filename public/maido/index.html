@@ -36,10 +36,13 @@ then sort by time.
     
     <script src="editor.js"></script>
     
-    <script src="marker.js"></script>
+    <script src="tagman.js"></script>
     
     <script src="svg.min.js"></script>
     <script src="timeline.js"></script>
+    <script>
+    $(document).ready(()=>{$("body").on('keyup',/*'.dialog',*/(e)=>{if (e.keyCode==27)$(".dialog").hide()})});
+    </script>
 </head>
 
 <body>

@@ -7,7 +7,7 @@ function loadFromString(str) {
 }
 
 function loadSingleEntry(id, data) {
-    console.log(id,data);
+    //console.log(id,data);
     newNode = $(".initial.template")[0].cloneNode(true)
     newNode.classList.remove('initial');
     newNode.classList.remove('template');

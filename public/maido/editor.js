@@ -1,30 +1,32 @@
 $(document).ready(() => {
-    $("#todolist").on("change", ".initial input", (e) => {
-        newNode = $(".initial.template")[0].cloneNode(true)
-        newNode.classList.remove('initial');
-        newNode.classList.remove('template');
-        newNode.dataset.taskgroup = guid();
-        $(newNode).find("*").each((i, e) => {
-            e.dataset.taskgroup = newNode.dataset.taskgroup
-        })
-        $("#todolist").append(newNode)
-        //$(newNode).find("." + e.currentTarget.classList[0]).focus()
-        //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
-        $(".initial input").each((i, e) => {
-            e.value = ""
-        })
-        if (rootcl){
-            rootcl.doc(newNode.dataset.taskgroup).set(toWebObj(newNode));
+    $("#todolist").on("keyup", ".initial input", (e) => {
+        if (e.keyCode == 13) {
+            newNode = $(".initial.template")[0].cloneNode(true)
+            newNode.classList.remove('initial');
+            newNode.classList.remove('template');
+            newNode.dataset.taskgroup = guid();
+            $(newNode).find("*").each((i, e) => {
+                e.dataset.taskgroup = newNode.dataset.taskgroup
+            })
+            $("#todolist").append(newNode)
+            //$(newNode).find("." + e.currentTarget.classList[0]).focus()
+            //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
+            $(".initial input").each((i, e) => {
+                e.value = ""
+            })
+            if (rootcl) {
+                rootcl.doc(newNode.dataset.taskgroup).set(toWebObj(newNode));
+            }
         }
     })
     $("#todolist").on("click", "tr:not(.initial) button.remove", (e) => {
         retract_description();
-        if(rootcl){
+        if (rootcl) {
             rootcl.doc(e.currentTarget.parentElement.parentElement.dataset.taskgroup).delete();
         }
         $(e.currentTarget.parentElement.parentElement).remove();
         //push a deleted onto the changelog
-        
+
     })
 
     $("#todolist").on("keypress", "[data-role='date']", (e) => {
@@ -33,7 +35,7 @@ $(document).ready(() => {
             date_reparse(e.currentTarget);
         }
     })
-    $("#todolist").on("keypress", "input", (e) => {
+    $("#todolist").on("keypress", "tr:not(.initial) input", (e) => {
         if (e.keyCode == 13) {
             e.currentTarget.blur();
             //date_reparse(e.currentTarget);

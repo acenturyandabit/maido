@@ -62,7 +62,6 @@ function saveToBrowser() {
 
 function loadFromBrowser(key = 'lastSave') {
     loadFromString(window.localStorage.getItem(key))
-    
     console.log(key)
 }
 
