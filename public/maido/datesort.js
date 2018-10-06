@@ -8,9 +8,21 @@ function itemComparer(a, b) {
 
 }
 
+function extractDate(e){
+    if (el = $(e).find("[data-role='date']")[0]) {
+        //if (el.value.includes("auto")) date_reparse(el, true);
+        if ((bits = /\[(.+?)\]/g.exec(el.value)) != null) {
+            if (!isNaN(Date.parse(bits[1]))) {
+                return Date.parse(bits[1]);
+            }
+        }
+    }
+    return -1;
+}
+
 function first_sort() {
     items = [];
-    $("tr:not(.initial)").each((i, e) => {
+    $("tr:not(.pintotop)").each((i, e) => {
         ti = {
             id: e.dataset.taskgroup,
             date: 9999999999999,
@@ -31,7 +43,7 @@ function first_sort() {
     })
     items.sort(itemComparer)
     for (i = 0; i < items.length; i++) {
-        $("tr.initial.template").after($("tr[data-taskgroup=" + items[i].id + "]"));
+        $("#todolist tr.template").after($("tr[data-taskgroup=" + items[i].id + "]"));
         //console.log(items[i].id)
     }
     //console.log(items)
@@ -49,103 +61,114 @@ var regexes = {
 }
 
 function date_reparse(e, callByAuto = false) {
+    //remove []
     bits = /(.*?)(?:\[.*?\])(.*)/g.exec(e.value);
     if (bits == null) {
-        dv = e.value;
+        dvchain = e.value;
     } else {
-        dv = bits[1] + bits[2];
+        dvchain = bits[1] + bits[2];
     }
-    var d = new Date();
-    d_cmp = dv.split(" ");
-    //d_cmp=d_cmp.map(x=>x.toLowerCase())
-    d = new Date()
-    d.setMinutes(0);
-    d.setSeconds(0);
-    hr = 9;
-    addamt = 0;
-    found = false;
-    for (j in regexes) {
-        noDateSpecific = true;
-        for (i in d_cmp) {
-            while ((regres = regexes[j].exec(d_cmp[i])) != null) {
-                found = true;
-                switch (j) {
-                    case "time":
-                        if (regres[1]) {
-                            d.setDate(Number(regres[1]))
-                            noDateSpecific = false;
-                        }
-                        if (regres[2]) d.setMonth(Number(regres[2]) - 1)
-                        if (regres[3]) d.setFullYear(Number(regres[3]))
-                        if (regres[4]) hr = Number(regres[4]);
-                        if (regres[5]) d.setMinutes(Number(regres[5]))
-                        if (regres[6]) d.setSeconds(Number(regres[6]))
-                        if (regres[7] == 'pm') hr += 12;
-                        d.setHours(hr);
-                        break;
-                    case "dayofweek":
-                        nextDay = 0;
-                        for (i = 0; i < regres.length; i++) {
-                            if (regres[i] != undefined) {
-                                nextDay = i;
+    dvchain = dvchain.split("&");
+    let dlist = [];
+    let d;
+    for (k = 0; k < dvchain.length; k++) {
+        dv = dvchain[k];
+        d = new Date();
+        d_cmp = dv.split(" ");
+        d.setMinutes(0);
+        d.setSeconds(0);
+        hr = 9;
+        addamt = 0;
+        found = false;
+        for (j in regexes) {
+            noDateSpecific = true;
+            for (i in d_cmp) {
+                while ((regres = regexes[j].exec(d_cmp[i])) != null) {
+                    found = true;
+                    switch (j) {
+                        case "time":
+                            if (regres[1]) {
+                                d.setDate(Number(regres[1]))
+                                noDateSpecific = false;
                             }
-                        }
-                        if (d.getDay() == nextDay % 7 && Date.now() - d.getTime() > 0) {
-                            d.setDate(d.getDate() + 7);
-                        } else {
-                            d.setDate(d.getDate() + (nextDay + 7 - d.getDay()) % 7);
-                        }
-                        break;
-                    case "plusTime":
-                        addamt = 1;
-                        for (i = 2; i < regres.length; i++) {
-                            if (regres[i] != undefined) {
-                                factor = i;
+                            if (regres[2]) d.setMonth(Number(regres[2]) - 1)
+                            if (regres[3]) d.setFullYear(Number(regres[3]))
+                            if (regres[4]) hr = Number(regres[4]);
+                            if (regres[5]) d.setMinutes(Number(regres[5]))
+                            if (regres[6]) d.setSeconds(Number(regres[6]))
+                            if (regres[7] == 'pm') hr += 12;
+                            d.setHours(hr);
+                            break;
+                        case "dayofweek":
+                            nextDay = 0;
+                            for (i = 0; i < regres.length; i++) {
+                                if (regres[i] != undefined) {
+                                    nextDay = i;
+                                }
                             }
-                        }
-                        switch (factor) { /// this can be improved.
-                            case 2:
-                                addamt = 1000 * 60;
-                                break;
-                            case 3:
-                                addamt = 1000 * 60 * 60;
-                                break;
-                            case 4:
-                                addamt = 1000 * 60 * 60 * 24;
-                                break;
-                            case 5:
-                                addamt = 1000 * 60 * 60 * 24 * 7;
-                                break;
-                            case 6:
-                                addamt = 1000 * 60 * 60 * 24 * 30;
-                                break;
-                            case 7:
-                                addamt = 1000 * 60 * 60 * 24 * 365;
-                                break;
-                        }
-                        addamt *= Number(regres[1]);
-                        break;
-                    case "done":
-                        break;
-                    case "auto":
-                        break;
-                    case "now":
-                        d.setTime(Date.now());
-                        break;
-                    case "waiting":
-                        d.setTime(Date.now() + 1000 * 60 * 60 * 24);
-                        break;
-                    case "someday":
-                        d.setTime(Date.now() + 365 * 24 * 60 * 60 * 1000);
-                        break;
+                            if (d.getDay() == nextDay % 7 && Date.now() - d.getTime() > 0) {
+                                d.setDate(d.getDate() + 7);
+                            } else {
+                                d.setDate(d.getDate() + (nextDay + 7 - d.getDay()) % 7);
+                            }
+                            break;
+                        case "plusTime":
+                            addamt = 1;
+                            for (i = 2; i < regres.length; i++) {
+                                if (regres[i] != undefined) {
+                                    factor = i;
+                                }
+                            }
+                            switch (factor) { /// this can be improved.
+                                case 2:
+                                    addamt = 1000 * 60;
+                                    break;
+                                case 3:
+                                    addamt = 1000 * 60 * 60;
+                                    break;
+                                case 4:
+                                    addamt = 1000 * 60 * 60 * 24;
+                                    break;
+                                case 5:
+                                    addamt = 1000 * 60 * 60 * 24 * 7;
+                                    break;
+                                case 6:
+                                    addamt = 1000 * 60 * 60 * 24 * 30;
+                                    break;
+                                case 7:
+                                    addamt = 1000 * 60 * 60 * 24 * 365;
+                                    break;
+                            }
+                            addamt *= Number(regres[1]);
+                            break;
+                        case "done":
+                            break;
+                        case "auto":
+                            break;
+                        case "now":
+                            d.setTime(Date.now());
+                            break;
+                        case "waiting":
+                            d.setTime(Date.now() + 1000 * 60 * 60 * 24);
+                            break;
+                        case "someday":
+                            d.setTime(Date.now() + 365 * 24 * 60 * 60 * 1000);
+                            break;
+                    }
                 }
             }
         }
+        if (found) {
+            d.setTime(d.getTime() + addamt);
+            while (noDateSpecific && Date.now() - d.getTime() > 0) d.setDate(d.getDate() + 1); // increment to tomorrow if too late today. kinda like postpone but not really
+            dlist.push(d.getTime());
+        }
     }
-    if (found) {
-        d.setTime(d.getTime() + addamt)
-        while (noDateSpecific && Date.now() - d.getTime() > 0) d.setDate(d.getDate() + 1) // increment to tomorrow if too late today. kinda like postpone but not really
-        e.value = dv + "[" + d.toString().split("GMT")[0] + "]"
+    dlist.sort((a, b) => {
+        return a - b;
+    });
+    if (dlist.length > 0) {
+        e.value = dvchain.join("&") + "[" + new Date(dlist[0]).toString().split("GMT")[0] + "]"
     } else {
         e.style.background = "red";
         setTimeout(() => {
@@ -158,7 +181,7 @@ function date_reparse(e, callByAuto = false) {
 dates_aligned = false;
 
 function alignDates() {
-    $("tr:not(.initial) .date").each((i, e) => {
+    $("tr:not(.template) .date").each((i, e) => {
         bits = /(.*?)(\[.*?\])(.*)/g.exec(e.value);
         if (bits != null) {
             if (dates_aligned) {

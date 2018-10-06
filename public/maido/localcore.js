@@ -46,7 +46,7 @@ function saveToBrowser() {
     maidocore.pushSaveCache(timestamp)
     // collapse the description so that we save it
     retract_description(true);
-    $("#todolist tr:not(.initial) * ").each((i, e) => {
+    $("#todolist tr:not(.pintotop) * ").each((i, e) => {
         if (savedata[e.dataset.taskgroup] == undefined) savedata[e.dataset.taskgroup] = {};
         if (e.dataset.role) {
             if (e.tagName == 'INPUT' || e.tagName == 'TEXTAREA') savedata[e.dataset.taskgroup][e.dataset.role] =

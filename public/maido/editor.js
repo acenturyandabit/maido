@@ -1,8 +1,8 @@
 $(document).ready(() => {
-    $("#todolist").on("keyup", ".initial input", (e) => {
+    $("#todolist").on("keyup", ".template input", (e) => {
         if (e.keyCode == 13) {
-            newNode = $(".initial.template")[0].cloneNode(true)
-            newNode.classList.remove('initial');
+            newNode = $("#todolist tr.template")[0].cloneNode(true)
+            newNode.classList.remove('pintotop');
             newNode.classList.remove('template');
             newNode.dataset.taskgroup = guid();
             $(newNode).find("*").each((i, e) => {
@@ -11,15 +11,17 @@ $(document).ready(() => {
             $("#todolist").append(newNode)
             //$(newNode).find("." + e.currentTarget.classList[0]).focus()
             //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
-            $(".initial input").each((i, e) => {
+            $("#todolist tr.template input").each((i, e) => {
                 e.value = ""
+                e.style.color="white";
+                e.style.background="black";
             })
             if (rootcl) {
                 rootcl.doc(newNode.dataset.taskgroup).set(toWebObj(newNode));
             }
         }
     })
-    $("#todolist").on("click", "tr:not(.initial) button.remove", (e) => {
+    $("#todolist").on("click", "tr:not(.template) button.remove", (e) => {
         retract_description();
         if (rootcl) {
             rootcl.doc(e.currentTarget.parentElement.parentElement.dataset.taskgroup).delete();
@@ -30,12 +32,12 @@ $(document).ready(() => {
     })
 
     $("#todolist").on("keypress", "[data-role='date']", (e) => {
-        if (e.currentTarget.parentElement.classList.contains("initial")) return;
+        if (e.currentTarget.parentElement.classList.contains("template")) return;
         if (e.keyCode == 13) {
             date_reparse(e.currentTarget);
         }
     })
-    $("#todolist").on("keypress", "tr:not(.initial) input", (e) => {
+    $("#todolist").on("keypress", "tr:not(.template) input", (e) => {
         if (e.keyCode == 13) {
             e.currentTarget.blur();
             //date_reparse(e.currentTarget);
@@ -44,7 +46,7 @@ $(document).ready(() => {
     $("#todolist").on("focus", "tr", (e) => {
         // retract the previous textarea
         retract_description()
-        if (!e.currentTarget.classList.contains("initial")) {
+        if (!e.currentTarget.classList.contains("template")) {
             $(e.currentTarget).find("textarea")[0].style.display = "block";
             $("#todolist_db").append($(e.currentTarget).find("textarea")[0])
         }

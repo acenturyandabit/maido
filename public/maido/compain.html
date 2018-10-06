@@ -1,9 +1,39 @@
 <html>
+
 <head>
+    <script src="../jquery.min.js"></script>
+    <script>
+        function runUpdate() {
+            //get the topmost task. Let mai supply it for us.
+            taskname = window.localStorage.getItem("compainTask");
+            $("#ctname").text(taskname);
+            taskdate = new Date(Number(window.localStorage.getItem("compainDate")));
+            curdate = new Date();
+            taskdate=new Date(curdate.getTime()-taskdate.getTime()-10*60*60*1000);
+            $("#taskdate").text(taskdate.toLocaleTimeString());
+            $("#ctime").text(curdate.toLocaleTimeString());
+        }
+        $(document).ready(()=>{runUpdate()});
+        setInterval(runUpdate, 500);
+    </script>
+    <style>
+        .bigger {
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
     <!--
-    Basically microtimer implemented on mai. Also shows you the next task (or whichever one it remembers) and allows you to set it as done.
 
-
-
+    Show a clock; time since (currently looked at event) start, also some other shenanigans for later
     -->
+    <div>
+        <p id="ctname">Current task name goes here.</p>
+    </div>
+    <div>
+        <span class="bigger"><span id="taskdate">TASK CTE/ETA</span>||<span id="ctime">CURRENT TIME</span></span>
+    </div>
+</body>
+
 </html>

@@ -37,8 +37,9 @@ then sort by time.
     <script src="editor.js"></script>
     
     <script src="tagman.js"></script>
+    <script src="compain.js"></script>
     
-    <script src="svg.min.js"></script>
+    <script src="../svg.min.js"></script>
     <script src="timeline.js"></script>
     <script>
     $(document).ready(()=>{$("body").on('keyup',/*'.dialog',*/(e)=>{if (e.keyCode==27)$(".dialog").hide()})});
@@ -68,7 +69,6 @@ then sort by time.
             <a>View</a>
             <div>
                 <a onclick="toggleTimeline()">Toggle timeline</a>
-                <a onclick="NewWindow=window.open('compain.html','newWin','width=500,height=300,left=20,top=20,toolbar=No,location=No,scrollbars=no,status=No,resizable=no,fullscreen=No');  NewWindow.focus(); void(0);">Open Companion</a>
             </div>
         </li>
         <li>
@@ -84,11 +84,11 @@ then sort by time.
     <div style="display:flex;flex-direction:row">
         <div>
             <span>Search: <input id="searchbar"></span>
-            <table id="todolist">
-                <tr class="initial">
+            <table class="tdl" id="todolist">
+                <tr class="pintotop">
                     <td>Add a new task...</td>
                 </tr>
-                <tr class="initial template">
+                <tr class="pintotop template">
                     <td><input data-role="name" placeholder="Task name"></td>
                     <td><input data-role="tags" placeholder="Tags"></td>
                     <td><input data-role="date" placeholder="Date"></td>

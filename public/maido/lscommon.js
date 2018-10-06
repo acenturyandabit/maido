@@ -1,6 +1,6 @@
 function loadFromString(str) {
     data = JSON.parse(str);
-    $("#todolist tr:not(.initial)").remove()
+    $("#todolist tr:not(.pintotop)").remove()
     for (d in data) {
         loadSingleEntry(d,data[d])
     }
@@ -8,8 +8,8 @@ function loadFromString(str) {
 
 function loadSingleEntry(id, data) {
     //console.log(id,data);
-    newNode = $(".initial.template")[0].cloneNode(true)
-    newNode.classList.remove('initial');
+    newNode = $("#todolist tr.template")[0].cloneNode(true)
+    newNode.classList.remove('pintotop');
     newNode.classList.remove('template');
     newNode.dataset.taskgroup = id;
     $(newNode).find("*").each((i, e) => {
