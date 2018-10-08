@@ -1,3 +1,14 @@
+var autosave = false;
+
+function toggleAutosave() {
+    autosave = !autosave;
+    if (autosave) {
+        $("li:contains('Preferences')>div span")[0].innerText = "on";
+    } else {
+        $("li:contains('Preferences')>div span")[0].innerText = "off";
+    }
+}
+
 function _maidocore() {
     var self = this;
     this.savecache = [];
@@ -10,7 +21,7 @@ function _maidocore() {
         this.logSaveTime.push(Date.now())
         if (i > 0) this.logSaveDelta[i] = this.logSaveDelta[i - 1] * this.logSavePattern[i - 1]
     }
-    Object.assign(this,JSON.parse(window.localStorage.getItem('maido-core')))
+    Object.assign(this, JSON.parse(window.localStorage.getItem('maido-core')))
     this.pushSaveCache = function (timeStamp) {
         this.savecache[0].push(timestamp);
         while (this.savecache[0].length > this.logSavePattern[0]) {
@@ -37,23 +48,18 @@ function _maidocore() {
     }, 60000);
 }
 
-var precheck={};
+var precheck = {};
 
 function saveToBrowser() {
     savedata = {};
     Object.assign(maidocore, JSON.parse(window.localStorage.getItem('maido-core')))
     timestamp = Date.now()
     maidocore.pushSaveCache(timestamp)
-    // collapse the description so that we save it
-    retract_description(true);
-    $("#todolist tr:not(.pintotop) * ").each((i, e) => {
+    // save everything that is relevant
+    $("input[data-taskgroup], textarea[data-taskgroup]").each((i, e) => {
         if (savedata[e.dataset.taskgroup] == undefined) savedata[e.dataset.taskgroup] = {};
-        if (e.dataset.role) {
-            if (e.tagName == 'INPUT' || e.tagName == 'TEXTAREA') savedata[e.dataset.taskgroup][e.dataset.role] =
-                e.value;
-            if (e.tagName == 'BUTTON') savedata[e.dataset.taskgroup][e.dataset.role] = e.innerText;
-        }
-    })
+        savedata[e.dataset.taskgroup][e.dataset.role] = e.value;
+    });
     window.localStorage.setItem('lastSave', JSON.stringify(savedata))
     window.localStorage.setItem(timestamp.toString(), JSON.stringify(savedata))
     window.localStorage.setItem('maido-core', JSON.stringify(maidocore))
@@ -66,15 +72,15 @@ function loadFromBrowser(key = 'lastSave') {
 }
 
 function showLoader() {
-    D=new Date();
+    D = new Date();
     $("#loader_dialog_list").empty()
-    for (i of maidocore.savecache){
-        for (j of i){
-            if(j!=null){
-                ael=document.createElement("button");
+    for (i of maidocore.savecache) {
+        for (j of i) {
+            if (j != null) {
+                ael = document.createElement("button");
                 D.setTime(Number(j))
-                ael.innerText=D.toLocaleString()
-                ael.dataset.ref=j;
+                ael.innerText = D.toLocaleString()
+                ael.dataset.ref = j;
                 $("#loader_dialog_list").append(ael);
                 $("#loader_dialog_list").append("<br>");
             }
@@ -82,22 +88,33 @@ function showLoader() {
     }
     $("#loader_dialog").show();
 }
-
-if (window.location.href.slice(undefined,4)=="file"){
+function startLocal(){
     maidocore = new _maidocore();
-    $(document).ready(()=>{
-        $("#loader_dialog_list").on("click","button",(e)=>{ 
+    $(document).ready(() => {
+        $("#loader_dialog_list").on("click", "button", (e) => {
             loadFromBrowser(e.currentTarget.dataset.ref)
             $("#loader_dialog").hide()
         })
+        $("body").on("keyup", (e) => {
+            if (autosave) {
+                saveToBrowser();
+            }
+        });
         $("body").on("keydown", (e) => {
             if (e.ctrlKey && e.key == "s") {
                 saveToBrowser()
                 return false
             }
-        })
+
+        }) 
         loadFromBrowser();
         first_sort();
+        //show autosave
+        $("li:contains('Preferences')>div").append(
+            `
+            <a onclick="toggleAutosave()">Toggle autosave (<span>off</span>)</a>
+        `
+        )
+
     })
-    
 }

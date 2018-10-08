@@ -8,5 +8,5 @@ $(document).ready(()=>{
 
 
 function toggleTimeline(){
-    $("#timeline").toggle();
+    $("#timeline_svg").toggle();
 }

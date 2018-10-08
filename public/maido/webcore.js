@@ -1,5 +1,7 @@
+var urlParams = new URLSearchParams(window.location.search);
+var listName = urlParams.get('listname');
 var rootcl; // firebase root document collection reference
-if (window.location.href.slice(undefined, 4) != "file") {
+if (listName && window.location.href.slice(undefined, 4) != "file") {
     style = document.createElement("style")
     style.innerHTML = `
     .oLocalOnly{
@@ -16,8 +18,7 @@ if (window.location.href.slice(undefined, 4) != "file") {
     };
     firebase.initializeApp(config);
     // get querystring name of set
-    let urlParams = new URLSearchParams(window.location.search);
-    let listName = urlParams.get('listname');
+    let 
     db = firebase.firestore();
     db.settings({
         timestampsInSnapshots: true
@@ -74,6 +75,8 @@ if (window.location.href.slice(undefined, 4) != "file") {
             $("#dnfDialog").show();
         }
     });
+}else{
+    startLocal();
 }
 
 function toWebObj(node) {

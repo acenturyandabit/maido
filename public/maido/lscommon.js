@@ -1,6 +1,7 @@
 function loadFromString(str) {
     data = JSON.parse(str);
     $("#todolist tr:not(.pintotop)").remove()
+    $("#todolist_db textarea:not(.template)").remove()
     for (d in data) {
         loadSingleEntry(d,data[d])
     }
@@ -11,19 +12,24 @@ function loadSingleEntry(id, data) {
     newNode = $("#todolist tr.template")[0].cloneNode(true)
     newNode.classList.remove('pintotop');
     newNode.classList.remove('template');
+    $(newNode).find("button").text("Remove");
     newNode.dataset.taskgroup = id;
+
+    //clone the description box as well. 
+    dbox=$("#todolist_db .template")[0].cloneNode(true);
+    dbox.classList.remove("template");
+    dbox.dataset.taskgroup = id;
+    $("#todolist_db").append(dbox);
     $(newNode).find("*").each((i, e) => {
         e.dataset.taskgroup = newNode.dataset.taskgroup
     })
+    $("#todolist").append(newNode)
     for (p in data) {
-        e = $(newNode).find("[data-role*='" + p + "']")[0]
-        if (e) {
-            if (e.tagName == 'INPUT' || e.tagName == 'TEXTAREA') e.value = data[p];
-            if (e.tagName == 'BUTTON') e.innerHTML = data[p];
-        }
+        e = $("[data-taskgroup='"+id+"'][data-role*='" + p + "']")[0]
+        if (e)e.value = data[p];
     }
     for (f in precheck) {
         precheck[f](newNode);
     }
-    $("#todolist").append(newNode)
+    
 }

@@ -51,6 +51,7 @@ function first_sort() {
 
 var regexes = {
     time: /(?:(?:(\d+)\/(\d+)(?:\/(\d+))?)|(?:(\d+):(\d+)(?::(\d+))?\s*|(am|pm)))/g,
+    hourOnlyTime:/^(\d+)(am|pm)/g,
     dayofweek: /(?:(mon)|(tue)s*|(?:(wed)(?:nes)*)|(?:(thu)r*s*)|(fri)|(sat)(?:ur)*|(sun))(?:day)*/ig,
     plusTime: /\+(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g,
     done: /done/g,
@@ -80,8 +81,9 @@ function date_reparse(e, callByAuto = false) {
         hr = 9;
         addamt = 0;
         found = false;
+        noDateSpecific = true;
         for (j in regexes) {
-            noDateSpecific = true;
+            
             for (i in d_cmp) {
                 while ((regres = regexes[j].exec(d_cmp[i])) != null) {
                     found = true;
@@ -92,11 +94,20 @@ function date_reparse(e, callByAuto = false) {
                                 noDateSpecific = false;
                             }
                             if (regres[2]) d.setMonth(Number(regres[2]) - 1)
-                            if (regres[3]) d.setFullYear(Number(regres[3]))
+                            if (regres[3]){
+                                yr=Number(regres[3]);
+                                if (yr<100)yr+=2000;
+                                d.setFullYear(yr)
+                            } 
                             if (regres[4]) hr = Number(regres[4]);
                             if (regres[5]) d.setMinutes(Number(regres[5]))
                             if (regres[6]) d.setSeconds(Number(regres[6]))
                             if (regres[7] == 'pm') hr += 12;
+                            d.setHours(hr);
+                            break;
+                        case "hourOnlyTime":
+                            if (regres[1]) hr = Number(regres[1]);
+                            if (regres[2] == 'pm') hr += 12;
                             d.setHours(hr);
                             break;
                         case "dayofweek":
@@ -169,11 +180,6 @@ function date_reparse(e, callByAuto = false) {
     });
     if (dlist.length > 0) {
         e.value = dvchain.join("&") + "[" + new Date(dlist[0]).toString().split("GMT")[0] + "]"
-    } else {
-        e.style.background = "red";
-        setTimeout(() => {
-            e.style.background = "white";
-        }, 200)
     }
     if (!callByAuto) first_sort();
 }

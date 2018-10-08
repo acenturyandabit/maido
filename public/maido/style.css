@@ -78,3 +78,7 @@ li:hover div{
 .template{
     border-bottom: 1px solid black;
 }
+
+table{
+    border-collapse:collapse;
+}

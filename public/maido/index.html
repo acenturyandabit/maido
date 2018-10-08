@@ -25,24 +25,28 @@ then sort by time.
     <title>Maido-Adaptive task tracker</title>
     <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
     <script src="lscommon.js"></script>
-    <script src="webcore.js"></script>
     <script src="localcore.js"></script>
+    <script src="webcore.js"></script>
 
     <script src="support.js"></script>
 
     <script src="datesort.js"></script>
 
     <script src="search.js"></script>
-    
+
     <script src="editor.js"></script>
-    
+
     <script src="tagman.js"></script>
     <script src="compain.js"></script>
-    
+
     <script src="../svg.min.js"></script>
     <script src="timeline.js"></script>
     <script>
-    $(document).ready(()=>{$("body").on('keyup',/*'.dialog',*/(e)=>{if (e.keyCode==27)$(".dialog").hide()})});
+        $(document).ready(() => {
+            $("body").on('keyup', /*'.dialog',*/ (e) => {
+                if (e.keyCode == 27) $(".dialog").hide()
+            })
+        });
     </script>
 </head>
 
@@ -72,13 +76,19 @@ then sort by time.
             </div>
         </li>
         <li>
+            <a>Preferences</a>
+            <div>
+            </div>
+        </li>
+        <li>
             <a>Help</a>
             <div>
                 <a onclick="showdocs()">Documentation</a>
             </div>
         </li>
+
     </ul>
-    <div id="timeline_svg">
+    <div id="timeline_svg" style="display:none">
 
     </div>
     <div style="display:flex;flex-direction:row">
@@ -92,13 +102,12 @@ then sort by time.
                     <td><input data-role="name" placeholder="Task name"></td>
                     <td><input data-role="tags" placeholder="Tags"></td>
                     <td><input data-role="date" placeholder="Date"></td>
-                    <td><button class="remove">Remove</button></td>
-                    <td class="ta_stor"><textarea data-role="description" placeholder="Description..." style="display: none"></textarea></td>
+                    <td><button class="remove">Clear</button></td>
                 </tr>
             </table>
         </div>
         <div id="todolist_db">
-
+            <textarea class="template" data-role="description" placeholder="Description..." style="display: none"></textarea>
         </div>
     </div>
 
@@ -108,7 +117,7 @@ then sort by time.
             <div id="loader_dialog_list">
             </div>
             <div id="loader_dialog_viewer">
-                
+
             </div>
         </div>
         <button onclick="$('#loader_dialog').hide()">Cancel</button>

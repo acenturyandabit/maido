@@ -31,13 +31,14 @@ var rootoptions = {
     }
 }
 var wikidata = {};
-
+var ncalls=0;
 function wikidisplay(_query, first = false, cbmember) {
     let query = _query;
     //if query is a string, then convert it into a pageid
     if (first) {
         $("#wikistatus").text("Querying wikipedia for item number...")
         $.getJSON("https://en.wikipedia.org/w/api.php?action=query&format=json&callback=?&titles=" + query).done((data) => {
+            ncalls++;
             wikidisplay(Number(Object.keys(data.query.pages)[0]));
         })
         return;
@@ -53,6 +54,7 @@ function wikidisplay(_query, first = false, cbmember) {
             wikidata[cbmember].linkReturnCount++;
             $("#wikistatus").text("Gathering relevance data for link " + wikidata[cbmember].linkReturnCount + " of " + Object.keys(wikidata[cbmember].link500).length);
         } else $.getJSON("https://en.wikipedia.org/w/api.php?action=query&format=json&generator=links&callback=?&gpllimit=max&gplnamespace=0&pageids=" + query).done((data) => {
+            ncalls++;
             wikidata[query].link500 = {};
             let relevance = 0;
             if (data.query)
@@ -79,6 +81,7 @@ function wikidisplay(_query, first = false, cbmember) {
         //get info 
         $("#wikistatus").text("Getting detail of current item...");
         $.getJSON("https://en.wikipedia.org/w/api.php?action=query&prop=description&format=json&callback=?&pageids=" + query).done((data) => {
+            ncalls++;
             if (!wikidata[query]) wikidata[query] = {};
             Object.assign(wikidata[query], {
                 title: data.query.pages[Object.keys(data.query.pages)[0]].title,
@@ -92,6 +95,7 @@ function wikidisplay(_query, first = false, cbmember) {
     if (!wikidata[query].link500) {
         $("#wikistatus").text("Finding links for current item...");
         $.getJSON("https://en.wikipedia.org/w/api.php?action=query&format=json&generator=links&callback=?&gpllimit=max&gplnamespace=0&pageids=" + query).done((data) => {
+            ncalls++;    
             wikidata[query].link500 = {};
             wikidata[query].linkReturnCount = 0;
             for (i in data.query.pages) {
