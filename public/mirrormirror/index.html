@@ -1,7 +1,87 @@
 <html>
 
 <head>
+    <script src="../jquery.min.js"></script>
+    <style>
+        .browse {
+            display: none;
+        }
 
+        .wellout {
+            display: none;
+        }
+    </style>
+    <script>
+        var prompts = [
+            "What are you thinking about?\n\nHow did you feel about it?",
+            "Tell me something you remember.",
+            "What 'first's did you get up to recently?",
+            "Who did you talk to today? What about?",
+            "How are your family/friends doing?",
+            "What should/could you be doing right now?",
+            "Give me a random idea that you have right now.",
+            "Describe your emotional state in 7 words."
+        ]
+
+        /*
+        MISSION: to record, and be a good conversation partner? 
+
+        knowledge
+        
+        decisions
+        opinions
+        experiences
+        ideas
+        edit and change your memories as well.
+
+
+
+put prompt into the textbox and just record that. Might as well. 
+
+Also there is no need for shenanigans. 
+
+
+
+        //need to start off with a large enough base for memories. Hence the bot. 
+        */
+        //watch doctor who and the truman show
+        //load additional questions from localstorage
+
+        function pickprompt() {
+            $(".coinin .response")[0].value=prompts[Math.round(Math.random() * prompts.length)];
+        }
+        $(() => {
+            pickprompt();
+        });
+
+        function submit() {
+            if ($(".coinin .response")[0].value.length > 0) {
+                mirabella = localStorage.getItem('mirabella');
+                if (!mirabella) mirabella = [];
+                else {
+                    mirabella = JSON.parse(mirabella);
+                    //retrieve an entry from mirabella
+                    response = undefined;
+                    while (!response) {
+                        dataname = mirabella.splice(Math.round(Math.random() * mirabella.length))[0];
+                        response = localStorage.getItem(dataname);
+                    }
+                    mirabella.push(dataname);
+                    $(".wellout").show();
+                    entrydate = new Date(Number(dataname.slice(6)));
+                    $(".wellout .entrydate").text(entrydate.toString());
+                    $(".wellout .response").text(response);
+                    //display it
+                }
+                $(".coinin").hide();
+                name = "mirmir" + Date.now()
+                mirabella.push(name);
+                localStorage.setItem('mirabella', JSON.stringify(mirabella));
+                localStorage.setItem(name, $(".coinin .response")[0].value);
+                $(".coinin .response")[0].value = "";
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -14,24 +94,19 @@
     </div>
     <div class="coinin">
         <p>Prompt:</p>
-        <p class="prompt">What are you thinking about?</p>
-        <button>Change prompt</button><button>Question mode</button>
+        <button onclick="pickprompt()">Change prompt</button>
         <br>
-        <textarea placeholder="Type your response here."></textarea>
+        <textarea class="response" placeholder="Type your response here."></textarea>
         <br>
         <input placeholder="Tags...">
-        <button>Submit</button>
+        <button onclick="submit()">Submit</button>
     </div>
     <div class="wellout">
         <p>Entry date:<span class="entrydate"></span></p>
-        <p class="prompt">What are you thinking about?</p>
-        <button>Change prompt</button>
-        <input placeholder="Type your answer here.">
-        <input placeholder="Tags...">
-        <button>Submit</button>
+        <textarea class="response" disabled></textarea>
+        <br>
+        <button onclick="pickprompt();$('.coinin').show();$('.wellout').hide()">Submit another</button>
     </div>
 </body>
 
 </html>
-
-Tell me something you remember about ... .

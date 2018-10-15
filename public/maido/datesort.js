@@ -8,7 +8,7 @@ function itemComparer(a, b) {
 
 }
 
-function extractDate(e){
+function extractDate(e) {
     if (el = $(e).find("[data-role='date']")[0]) {
         //if (el.value.includes("auto")) date_reparse(el, true);
         if ((bits = /\[(.+?)\]/g.exec(el.value)) != null) {
@@ -51,14 +51,15 @@ function first_sort() {
 
 var regexes = {
     time: /(?:(?:(\d+)\/(\d+)(?:\/(\d+))?)|(?:(\d+):(\d+)(?::(\d+))?\s*|(am|pm)))/g,
-    hourOnlyTime:/^(\d+)(am|pm)/g,
+    hourOnlyTime: /^(\d+)(am|pm)/g,
     dayofweek: /(?:(mon)|(tue)s*|(?:(wed)(?:nes)*)|(?:(thu)r*s*)|(fri)|(sat)(?:ur)*|(sun))(?:day)*/ig,
     plusTime: /\+(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g,
     done: /done/g,
     auto: /auto/g,
     now: /now/g,
     waiting: /waiting/g,
-    someday: /someday/g
+    someday: /someday/g,
+    free: /free:(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g
 }
 
 function date_reparse(e, callByAuto = false) {
@@ -79,11 +80,11 @@ function date_reparse(e, callByAuto = false) {
         d.setMinutes(0);
         d.setSeconds(0);
         hr = 9;
-        addamt = 0;
+        freeamt = 0;
         found = false;
         noDateSpecific = true;
         for (j in regexes) {
-            
+
             for (i in d_cmp) {
                 while ((regres = regexes[j].exec(d_cmp[i])) != null) {
                     found = true;
@@ -94,11 +95,11 @@ function date_reparse(e, callByAuto = false) {
                                 noDateSpecific = false;
                             }
                             if (regres[2]) d.setMonth(Number(regres[2]) - 1)
-                            if (regres[3]){
-                                yr=Number(regres[3]);
-                                if (yr<100)yr+=2000;
+                            if (regres[3]) {
+                                yr = Number(regres[3]);
+                                if (yr < 100) yr += 2000;
                                 d.setFullYear(yr)
-                            } 
+                            }
                             if (regres[4]) hr = Number(regres[4]);
                             if (regres[5]) d.setMinutes(Number(regres[5]))
                             if (regres[6]) d.setSeconds(Number(regres[6]))
@@ -124,7 +125,7 @@ function date_reparse(e, callByAuto = false) {
                             }
                             break;
                         case "plusTime":
-                            addamt = 1;
+                            freeamt = 1;
                             for (i = 2; i < regres.length; i++) {
                                 if (regres[i] != undefined) {
                                     factor = i;
@@ -132,25 +133,25 @@ function date_reparse(e, callByAuto = false) {
                             }
                             switch (factor) { /// this can be improved.
                                 case 2:
-                                    addamt = 1000 * 60;
+                                    freeamt = 1000 * 60;
                                     break;
                                 case 3:
-                                    addamt = 1000 * 60 * 60;
+                                    freeamt = 1000 * 60 * 60;
                                     break;
                                 case 4:
-                                    addamt = 1000 * 60 * 60 * 24;
+                                    freeamt = 1000 * 60 * 60 * 24;
                                     break;
                                 case 5:
-                                    addamt = 1000 * 60 * 60 * 24 * 7;
+                                    freeamt = 1000 * 60 * 60 * 24 * 7;
                                     break;
                                 case 6:
-                                    addamt = 1000 * 60 * 60 * 24 * 30;
+                                    freeamt = 1000 * 60 * 60 * 24 * 30;
                                     break;
                                 case 7:
-                                    addamt = 1000 * 60 * 60 * 24 * 365;
+                                    freeamt = 1000 * 60 * 60 * 24 * 365;
                                     break;
                             }
-                            addamt *= Number(regres[1]);
+                            freeamt *= Number(regres[1]);
                             break;
                         case "done":
                             break;
@@ -165,21 +166,72 @@ function date_reparse(e, callByAuto = false) {
                         case "someday":
                             d.setTime(Date.now() + 365 * 24 * 60 * 60 * 1000);
                             break;
+                        case "free":
+                            freeamt = 1;
+                            for (i = 2; i < regres.length; i++) {
+                                if (regres[i] != undefined) {
+                                    factor = i;
+                                }
+                            }
+                            switch (factor) { /// this can be improved.
+                                case 2:
+                                    freeamt = 1000 * 60;
+                                    break;
+                                case 3:
+                                    freeamt = 1000 * 60 * 60;
+                                    break;
+                                case 4:
+                                    freeamt = 1000 * 60 * 60 * 24;
+                                    break;
+                                case 5:
+                                    freeamt = 1000 * 60 * 60 * 24 * 7;
+                                    break;
+                                case 6:
+                                    freeamt = 1000 * 60 * 60 * 24 * 30;
+                                    break;
+                                case 7:
+                                    freeamt = 1000 * 60 * 60 * 24 * 365;
+                                    break;
+                            }
+                            freeamt *= Number(regres[1]);
+                            lastdate = Date.now();
+                            pass = false;
+                            $('input[data-role="date"').each((i, el) => {
+                                if (!pass)
+                                    if ((bits = /\[(.+?)\]/g.exec(el.value)) != null) {
+                                        if (!isNaN(Date.parse(bits[1]))) {
+                                            thendate = Date.parse(bits[1]);
+                                            if (thendate - lastdate > freeamt+100) {
+                                                pass = true;
+                                            }else{
+                                                lastdate=thendate;
+                                            }
+                                        }
+                                    }
+                            });
+                            d.setTime(lastdate + freeamt);
                     }
                 }
             }
         }
         if (found) {
-            d.setTime(d.getTime() + addamt);
+            d.setTime(d.getTime() + freeamt);
             while (noDateSpecific && Date.now() - d.getTime() > 0) d.setDate(d.getDate() + 1); // increment to tomorrow if too late today. kinda like postpone but not really
-            dlist.push(d.getTime());
+            dlist.push({
+                date: d.getTime(),
+                part: dv
+            });
         }
     }
     dlist.sort((a, b) => {
-        return a - b;
+        return a.date - b.date;
     });
     if (dlist.length > 0) {
-        e.value = dvchain.join("&") + "[" + new Date(dlist[0]).toString().split("GMT")[0] + "]"
+        ndarr = [];
+        for (i = 0; i < dlist.length; i++) {
+            ndarr.push(dlist[i].part);
+        }
+        e.value = ndarr.join("&") + "[" + new Date(dlist[0].date).toString().split("GMT")[0] + "]"
     }
     if (!callByAuto) first_sort();
 }
@@ -187,7 +239,7 @@ function date_reparse(e, callByAuto = false) {
 dates_aligned = false;
 
 function alignDates() {
-    $("tr:not(.template) .date").each((i, e) => {
+    $("tr:not(.template) [data-role='date']").each((i, e) => {
         bits = /(.*?)(\[.*?\])(.*)/g.exec(e.value);
         if (bits != null) {
             if (dates_aligned) {

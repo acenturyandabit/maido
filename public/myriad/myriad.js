@@ -7,31 +7,44 @@ var rootoptions = {
     wikipedia: {
         title: "Wikipedia",
         brief: "Browse wikipedia with Myraid! \n Enter your search term below...",
-        searchbar: true,
-        buttonFunction: (query) => {
-            window.location.href = "?wiki=" + query;
-            /*$.getJSON("https://en.wikipedia.org/w/api.php?action=query&format=json&callback=?&titles="+query).done((data) => {
-            //get some metadata and display it!
-            data.query.pages[Object.keys(data.query.pages)[0]].title;
-            $.getJSON("https://en.wikipedia.org/w/api.php?action=query&format=json&generator=links&callback=?&pageids="+Object.keys(data.query.pages)[0]).done((data) => {
-                console.log(data);
-            })
-            })*/
+        gendom: function gen(div) {
+            var inp = document.createElement("input");
+            div.appendChild(inp);
+            var btn = document.createElement("button");
+            btn.innerText = "Go";
+            btn.onclick = (e) => {
+                window.location.href = "?wiki=" + e.currentTarget.previousSibling.value;
+            }
+            div.appendChild(btn);
         },
         to: ["root"]
     },
     custom: {
         title: "Custom dataset",
         brief: "Visualise a custom dataset here...",
-        searchbar: true,
-        buttonFunction: (query) => {
-
+        gendom: function gen(div) {
+            var inp = document.createElement("input");
+            var k = new FileReader();
+            inp.type = "file";
+            div.appendChild(inp);
+            inp.onchange = function (e) {
+                k.onload = () => {
+                    var customdata = JSON.parse(k.result);
+                    render({
+                        data: customdata,
+                        root: 'root',
+                        external: true
+                    })
+                }
+                k.readAsText(e.currentTarget.files[0]);
+            }
         },
         to: ['root']
     }
 }
 var wikidata = {};
-var ncalls=0;
+var ncalls = 0;
+
 function wikidisplay(_query, first = false, cbmember) {
     let query = _query;
     //if query is a string, then convert it into a pageid
@@ -95,7 +108,7 @@ function wikidisplay(_query, first = false, cbmember) {
     if (!wikidata[query].link500) {
         $("#wikistatus").text("Finding links for current item...");
         $.getJSON("https://en.wikipedia.org/w/api.php?action=query&format=json&generator=links&callback=?&gpllimit=max&gplnamespace=0&pageids=" + query).done((data) => {
-            ncalls++;    
+            ncalls++;
             wikidata[query].link500 = {};
             wikidata[query].linkReturnCount = 0;
             for (i in data.query.pages) {
@@ -207,6 +220,7 @@ function render(state) {
         if (external) {
             svgroot.clear();
             rendercache = [];
+            _state = state; // copy state in as a reference.
             let rootpoint = state.data[state.root];
             //render root in the center, with description
             ckl = svgroot.circle(300).cx(cx).cy(cy);
@@ -235,20 +249,7 @@ function render(state) {
                     var group = svgroot.group().attr({
                         id: rendercache[i].id,
                         "data-itemName": rootpoint.to[i]
-                    }).click((args) => {
-                        for (i = 0; i < args.path.length; i++) {
-                            if (args.path[i].tagName.toLocaleLowerCase() == "g") {
-                                if (!wikiquery) render({
-                                    data: state.data,
-                                    root: args.path[i].dataset.itemName
-                                });
-                                else {
-                                    wikidisplay(args.path[i].dataset.itemName);
-                                }
-                                break;
-                            }
-                        }
-                    });
+                    }).click(groupClickHandler);
                     target = rootpoint.to[i];
                     console.log(rendercache[i])
                     rcx = cx + rendercache[i].r * Math.cos(rendercache[i].angle);
@@ -261,12 +262,12 @@ function render(state) {
                     innerdiv.style['line-height'] = '200px';
                     innerdiv.style["text-align"] = "center";
                     innerfobj.appendChild(innerdiv);
-                    Object.assign(innerfobj.style,{
-                        "display":"inline-block",
-                        "vertical-align":"middle",
-                        "line-height":"normal"
+                    Object.assign(innerfobj.style, {
+                        "display": "inline-block",
+                        "vertical-align": "middle",
+                        "line-height": "normal"
                     });
-                    
+
                     innerp = document.createElement("span");
                     innerp.innerText = state.data[target].title;
                     innerdiv.appendChild(innerp);
@@ -274,18 +275,54 @@ function render(state) {
                     //svgroot.text(state.data[target].brief).cx(rcx).cy(rcy).fill('white');
                 }
             }
-            if (rootpoint.searchbar) {
-                input = document.createElement("input");
-                div.appendChild(input);
+            if (!state.from) state.from = [];
+            if (rootpoint.from || state.from[state.from.length - 1]) {
+                fromfrom = rootpoint.from || state.from[state.from.length - 1];
+                var group = svgroot.group().attr({
+                    "data-itemName": fromfrom
+                }).click(groupClickHandler).cx(cx).cy(cy * 2 - 100);
+                group.rect(200, 100).fill('black').cx(0).cy(0);
+                innerfobj = group.foreignObject(200, 100).cx(0).cy(0);
+                innerdiv = document.createElement('div')
+                innerdiv.style.width = "100%";
+                innerdiv.style.color = 'white';
+                innerdiv.style['line-height'] = '100px';
+                innerdiv.style["text-align"] = "center";
+                innerfobj.appendChild(innerdiv);
+                Object.assign(innerfobj.style, {
+                    "display": "inline-block",
+                    "vertical-align": "middle",
+                    "line-height": "normal"
+                });
+                innerdiv.innerText = "back to "+ state.data[fromfrom].title;
             }
-            if (rootpoint.buttonFunction) {
-                button = document.createElement("button");
-                button.innerText = "Go";
-                button.onclick = () => {
-                    rootpoint.buttonFunction(input.value);
+            if (rootpoint.gendom) {
+                rootpoint.gendom(div);
+            }
+        }
+    }
+}
+
+function groupClickHandler(args) {
+    for (i = 0; i < args.path.length; i++) {
+        if (args.path[i].tagName.toLocaleLowerCase() == "g") {
+            if (!wikiquery) {
+                fromstack = _state.from;
+                if (!fromstack) fromstack = [];
+                if (fromstack[fromstack.length-1]==args.path[i].dataset.itemName){
+                    fromstack.pop();
+                }else{
+                    fromstack.push(_state.root);
                 }
-                div.appendChild(button);
+                render({
+                    data: _state.data,
+                    root: args.path[i].dataset.itemName,
+                    from: fromstack
+                });
+            } else {
+                wikidisplay(args.path[i].dataset.itemName);
             }
+            break;
         }
     }
 }

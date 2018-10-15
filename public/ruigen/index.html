@@ -1,0 +1,40 @@
+<html>
+
+<head>
+    <script src="../jquery.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+    <script>
+        var sf = 1; //scaling factor
+        var uiElements = {
+            radar_big: {
+                w: 2,
+                h: 2,
+                updateAndDraw: function (state) {
+                    state.angle++;
+                    //ctx.
+                },
+                initialise: function () {
+                    state.angle = 0;
+                }
+            }
+        }
+        $(() => {
+            c = $("canvas")[0];
+            c.width = window.innerWidth;
+            c.height = window.innerHeight;
+
+
+        })
+    </script>
+</head>
+
+<body>
+    <canvas>
+    </canvas>
+</body>
+
+</html>

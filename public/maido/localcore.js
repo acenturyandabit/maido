@@ -101,11 +101,10 @@ function startLocal(){
             }
         });
         $("body").on("keydown", (e) => {
-            if (e.ctrlKey && e.key == "s") {
+            if (e.ctrlKey && e.keyCode == 83) { // ctrl s
                 saveToBrowser()
                 return false
             }
-
         }) 
         loadFromBrowser();
         first_sort();

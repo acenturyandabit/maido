@@ -1,71 +1,178 @@
 <html>
-    <style>
-    body{
-        display:flex;
-        flex-direction:column;
-    }
-    #maincontent{
-        display:flex;
-        flex-direction:row;
-    }
-    #pool{
-        display: flex;
-        flex-direction: column;
-    }
-    div:has-children{
-        background-color:red;
-    }
-    #sidebar{
-        padding-right: 10px;
-    }
-    #sidebar span{
-        margin-left:5px;
-        display: block;
-    }
 
-    #chatbox span{
-        margin-left:5px;
-        display: block;
-    }
+<head>
+    <link rel="stylesheet" type="text/css" href="chat.css">
+    <script src="../jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
 
-    #threadDoc textarea{
-        width:80vw;
-        height:20vh;
-        resize: none
-    }
-    #threadDoc{
-        border-bottom: 1px solid black
-    }
-    </style>
-    <body>
+
+    <script>
+
+        var config = {
+        apiKey: "AIzaSyA-sH4oDS4FNyaKX48PSpb1kboGxZsw9BQ",
+        authDomain: "backbits-567dd.firebaseapp.com",
+        databaseURL: "https://backbits-567dd.firebaseio.com",
+        projectId: "backbits-567dd",
+        storageBucket: "backbits-567dd.appspot.com",
+        messagingSenderId: "894862693076"
+    };
+    firebase.initializeApp(config);
+    // get querystring name of set
+    let db = firebase.firestore();
+    db.settings({
+        timestampsInSnapshots: true
+    });
+        function smartThreadID(root, message){
+            // pick longest word from message
+            threadname="";
+            k=message.split(" ");
+            while ((z=k.pop())!=undefined){
+                if (z.length>threadname.length){
+                    threadname=z;
+                }
+            }
+            //trim to 5 letters
+            threadname=threadname.slice(0,5)
+            _threadname=threadname;
+            subseq=0;
+            //check for uniqueness
+            while ($(".tid:contains("+threadname+")").length){
+                subseq++;
+                threadname=_threadname+subseq;
+            }
+            return threadname;
+        }
+        function sendMessage(user,root,message,auto){
+            if (!auto && dbroot)dbroot.doc(user+Date.now().toString()).set({user:user,root:root,message:message});
+            toput=$("#chatbox")[0];
+            if (root.length>1 && $(".tid:contains("+root.slice(1)+")").length){
+                toput=$(".tid:contains("+root.slice(1)+")")[0].parentElement.parentElement;
+            }
+            $(toput).append(
+                `<span class="thread"><span class="msg"><span class="user">`+user+`:</span>`+message+`<span class="tid">>`+smartThreadID(toput, message)+`</span></span>`);
+            $(toput).children()[$(toput).children().length-1].scrollIntoView();
+        }
+
+        function loadMessage (data){
+            sendMessage(data.user,data.root,data.message,true);
+        }
+        var dbroot;
+        function initialiseConversation(name){
+            document.title=name;
+            $("#titlebar").text(name)
+            $("#throwbox input")[0].placeholder="@>";
+            db.collection('hyperthreader').doc(name).get().then((doc)=>{
+                if (doc.exists){
+                    //load the doc messages
+                    dbroot=db.collection('hyperthreader').doc(name).collection('messages');
+                    dbroot.onSnapshot((shot)=>{
+                        shot.docChanges().forEach((change)=>{
+                            if (change.doc.metadata.hasPendingWrites)return;
+                            if (change.type=="added"){
+                                loadMessage(change.doc.data());
+                                //add a new message to the chat.
+                            }
+                        })
+                    })
+                    $("#chatscreen").show();
+                }
+            })
+        }
+    $(()=>{
+        $("#throwbox input").on("keyup",(e)=>{
+            cbox=e.currentTarget;
+            cbox.style.backgroundColor="white";
+            if (e.key=="Enter"){
+                if (cbox.value[0]!=">" && cbox.value!="")sendMessage($("#username").text(),cbox.placeholder.slice(1),$("#throwbox>input")[0].value);
+                else if (cbox.value[0]==">" && cbox.value!=""){
+                    //probably autocomplete so we have a valid identifier
+                    kai=cbox.value.split(':');
+                    cbox.placeholder="@"+kai.shift();
+                    if (kai.length){
+                        sendMessage($("#username").text(),cbox.placeholder.slice(1),kai.join(":"));
+                    }
+                }
+                cbox.value="";
+            }
+            if (cbox.value.length>0 && cbox.value[0]==">"){
+                $("#hoverbox").empty();
+                newroot=cbox.value.split(":")[0];
+                $(".tid:contains("+newroot+")").each((i,e)=>{
+                    $("#hoverbox").append(`<p>`+e.innerText+`<\p>`);
+                });
+                if ($(".tid:contains("+newroot+")").length==0 && newroot.length>1){
+                    cbox.style.backgroundColor="coral";
+                }
+                //populate hoverbox with a bunch of relevant divs.
+                $("#hoverbox").show();
+                //change root; show popup div.
+            }else{
+                $("#hoverbox").hide();
+                
+            }
+        })
+    });
+
+    $(()=>{
+        /*var provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).then(function(result) {
+  // This gives you a Google Access Token. You can use it to access the Google API.
+  var token = result.credential.accessToken;
+  // The signed-in user info.
+  var user = result.user;
+  // Start loading the page.*/
+  k=new URLSearchParams(window.location.search);
+        if (k.has("room"))initialiseConversation(k.get("room"));
+        else{
+            //take a peekaboo at the user's config and figure out which room should be loaded. Load a dummy room for now.
+            initialiseConversation("dummyroom");
+        }/*
+}).catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // The email of the user's account used.
+  var email = error.email;
+  // The firebase.auth.AuthCredential type that was used.
+  var credential = error.credential;
+  // ...
+});*/
+    })
+    </script>
+</head>
+
+<body>
+    <div id="chatscreen" style="display:none">
         <div id="menubar">
-            <h1>HYPERTHREADER</h1>
-            <p>Message logistics and organisation</p>
+            <h1>HYPERTHREADER - <span id="titlebar">The Test of doom</span></h1>
         </div>
         <div id="maincontent">
             <div id="sidebar">
-                <span>Some thread
-                    <span>some other thread</span> 
-                    <span>some other thread</span> 
-                    <span>some other thread</span> 
-                    <span>some other thread</span> 
-                </span>
-            </div>
-            <div id="pool">
-                <div id="threadTitle"><h2>TITLE</h2></div>
-                <div id="threadDoc"><textarea></textarea></div>
-                <div id="chatbox">
-                    <span>Some thread
-                        <span>some other thread</span> 
-                        <span>some other thread</span> 
-                        <span>some other thread</span> 
-                        <span>some other thread</span> 
+                <div style="padding-top:50px; background-color:lightblue">
+                    <img>
+                    <p id="username" contenteditable>a user</p>
+                </div>
+                <div>
+                    <em>Anchored threads</em>
+                    <span>
+                        Nothing to see here... yet!
                     </span>
                 </div>
+            </div>
+            <div id="pool">
+                <h2>Chat</h2>
+                <a href="#" onclick="$('#threadDoc').toggle()">show/hide doc</a>
+                <div id="threadDoc" style="display:none"><textarea></textarea></div>
+                <div id="chatbox">
+                </div>
                 <div id="throwbox">
-                    <input>
+                    <div id="hoverbox">
+                    </div>
+                    <input type="text" placeholder="@>">
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>

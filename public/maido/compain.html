@@ -6,12 +6,18 @@
         function runUpdate() {
             //get the topmost task. Let mai supply it for us.
             taskname = window.localStorage.getItem("compainTask");
-            $("#ctname").text(taskname);
+            plusname = window.localStorage.getItem("compainTaskPlus");
+            $("#ctname").text(taskname+"||"+plusname);
             taskdate = new Date(Number(window.localStorage.getItem("compainDate")));
+            plusdate = new Date(Number(window.localStorage.getItem("compainDatePlus")));
+            bescared = ("true"==window.localStorage.getItem("compainAlert"));
+            if (bescared)$("body").css("background","yellow");
+            else $("body").css("background","white");
             curdate = new Date();
             taskdate=new Date(curdate.getTime()-taskdate.getTime()-10*60*60*1000);
+            plusdate=new Date(plusdate.getTime()-curdate.getTime()-10*60*60*1000);
             $("#taskdate").text(taskdate.toLocaleTimeString());
-            $("#ctime").text(curdate.toLocaleTimeString());
+            $("#ctime").text(plusdate.toLocaleTimeString());
         }
         $(document).ready(()=>{runUpdate()});
         setInterval(runUpdate, 500);
