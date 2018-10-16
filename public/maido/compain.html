@@ -5,19 +5,19 @@
     <script>
         function runUpdate() {
             //get the topmost task. Let mai supply it for us.
-            taskname = window.localStorage.getItem("compainTask");
-            plusname = window.localStorage.getItem("compainTaskPlus");
-            $("#ctname").text(taskname+"||"+plusname);
+            taskname = JSON.parse(window.localStorage.getItem("compainTask"));
+            $("#ctname").html(taskname.join('<br>'));
             taskdate = new Date(Number(window.localStorage.getItem("compainDate")));
-            plusdate = new Date(Number(window.localStorage.getItem("compainDatePlus")));
-            bescared = ("true"==window.localStorage.getItem("compainAlert"));
-            if (bescared)$("body").css("background","yellow");
-            else $("body").css("background","white");
+            //the currrent time relative to the first task. Can be negative.
+            //bescared = ("true"==window.localStorage.getItem("compainAlert"));
+            //if (bescared)$("body").css("background","yellow");
+            if (taskname.length>2){
+                $("body").css("background","yellow");
+            }else $("body").css("background","white");
             curdate = new Date();
-            taskdate=new Date(curdate.getTime()-taskdate.getTime()-10*60*60*1000);
-            plusdate=new Date(plusdate.getTime()-curdate.getTime()-10*60*60*1000);
-            $("#taskdate").text(taskdate.toLocaleTimeString());
-            $("#ctime").text(plusdate.toLocaleTimeString());
+            _taskdate=curdate.getTime()-taskdate.getTime();
+            taskdate=new Date(Math.abs(_taskdate)-10*60*60*1000);
+            $("#taskdate").text(((_taskdate>0)?"":"-")+taskdate.toLocaleTimeString());
         }
         $(document).ready(()=>{runUpdate()});
         setInterval(runUpdate, 500);
@@ -38,7 +38,7 @@
         <button onclick="window.open('','maido','')">Open Mai</button>
     </div>
     <div>
-        <span class="bigger"><span id="taskdate">TASK CTE/ETA</span>||<span id="ctime">CURRENT TIME</span></span>
+        <span class="bigger"><span id="taskdate">TASK CTE/ETA</span></span>
     </div>
 </body>
 

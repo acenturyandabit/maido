@@ -10,18 +10,26 @@ $(document).ready(() => {
                 e.dataset.taskgroup = newNode.dataset.taskgroup
             })
             $("#todolist").append(newNode);
+            dbox = $("#todolist_db .template")[0].cloneNode(true);
+            dbox.classList.remove("template");
+            dbox.dataset.taskgroup = newNode.dataset.taskgroup;
+            $("#todolist_db").append(dbox);
             first_sort();
             //$(newNode).find("." + e.currentTarget.classList[0]).focus()
             //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
             $("#todolist tr.template input").each((i, e) => {
-                e.value = ""
-                e.style.color="black";
-                e.style.background="white";
+                e.value = "";
+                e.style.color = "black";
+                e.style.background = "white";
             })
             if (rootcl) {
                 rootcl.doc(newNode.dataset.taskgroup).set(toWebObj(newNode));
             }
             $("#todolist").removeClass("searchfilter");
+            newInstance=$(newNode).find("[data-role='"+e.currentTarget.dataset.role+"']")[0];
+            newInstance.focus();
+            newInstance.scrollIntoView();
+            $("#nothingLeft").hide();
         }
     })
     /*$("#todolist tr.template input[data-role='name']").on("keyup",(e)=>{
@@ -37,14 +45,17 @@ $(document).ready(() => {
         if (rootcl) {
             rootcl.doc(e.currentTarget.parentElement.parentElement.dataset.taskgroup).delete();
         }
-        $("#todolist_db textarea[data-taskgroup='"+e.currentTarget.parentElement.dataset.taskgroup+"']").remove();
+        $("#todolist_db textarea[data-taskgroup='" + e.currentTarget.parentElement.dataset.taskgroup + "']").remove();
         $(e.currentTarget.parentElement.parentElement).remove();
+        if ($("#todolist tr:not(.template)").length>0)$("#nothingLeft").show();
         //push a deleted onto the changelog
 
     })
 
-    $("#todolist tr.template button.remove").on("click",(e)=>{
-        $("#todolist tr.template input").each((i,e)=>{e.value=""});
+    $("#todolist tr.template button.remove").on("click", (e) => {
+        $("#todolist tr.template input").each((i, e) => {
+            e.value = ""
+        });
 
     })
 
@@ -65,7 +76,7 @@ $(document).ready(() => {
         // retract the previous textarea
         if (!e.currentTarget.classList.contains("template")) {
             $("#todolist_db textarea").hide();
-            $("textarea[data-taskgroup='"+e.currentTarget.dataset.taskgroup+"']").show();
+            $("textarea[data-taskgroup='" + e.currentTarget.dataset.taskgroup + "']").show();
         }
     })
     //autoload and shenanigans

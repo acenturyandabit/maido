@@ -1,22 +1,26 @@
 <html>
 <!--
-Interpreter API:
-now: exact time when enter key is pressed. Does not update on reorder.
-waiting: now plus one day. Updates on reorder.
-d/m[/y] h:m[:/s][am|pm]: quick short date entry. 
+Hey there!
 
 
 
--->
+Yes, you!
 
 
-<!--
-Sorting order:
-dones....
-
-then sort by time.
 
 
+
+
+
+It's Steven here. Right now, I'm the only one holding up the ship, but I'd love to have a few more hands on deck.
+If you want in, email me! steeven.liu2@gmail.com.
+
+Otherwise if you've got a bug or feature request you want to see, same email address ^ Just append a shibboleet to 
+your message and I'll give you higher priority. (Yes I'm trying to make that a thing xD)
+
+Cheers!
+
+~S
 -->
 
 <head>
@@ -51,6 +55,10 @@ then sort by time.
         }));
 
         window.localStorage.setItem("maion", 1)
+
+        function showdocs() {
+            window.open("docs.html", "blank");
+        }
     </script>
     <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
     <script src="lscommon.js"></script>
@@ -123,7 +131,7 @@ then sort by time.
 
     </div>
     <div style="display:flex;flex-direction:row">
-        <div>
+        <div id="tasklist">
             <span>Search: <input id="searchbar"></span>
             <table class="tdl" id="todolist">
                 <tr class="pintotop">
@@ -141,14 +149,19 @@ then sort by time.
             <textarea class="template" data-role="description" placeholder="Description..." style="display: none"></textarea>
         </div>
     </div>
-
+    <div id="nothingLeft">
+        <div style="margin:auto; text-align:center">
+            <img src="ash.png" style="width: 40%;">
+            <p>Got nothing left to do? Yay! Whenever you're ready, you can add some more tasks by typing into
+                the bar above and hitting 'Enter'.</p>
+        </div>
+    </div>
     <div class="dialog" id="loader_dialog">
         <h2>Available save sessions:</h2>
         <div id="loader_dialog_panel_container">
             <div id="loader_dialog_list">
             </div>
             <div id="loader_dialog_viewer">
-
             </div>
         </div>
         <button onclick="$('#loader_dialog').hide()">Cancel</button>

@@ -1,33 +1,21 @@
 function compainClock() {
-    let tcur = -1;
-    let pseudonext;
-    for (i = 0; i < $("#todolist tr:not('.template') input[data-role='name']").length; i++) {
-        if (tcur == -1 && !$("#todolist tr:not('.template') input[data-role='tags']")[i].value.includes("#nocompain")) {
-            tcur = i;
-            if (extractDate($("#todolist tr:not('.pintotop')")[i]) > Date.now()) {
-                pseudonext = i;
+    let nextItems=[];
+    let tnext;
+    for (i = 0; i < $("#todolist tr:not('.pintotop') input[data-role='name']").length; i++) {
+        if (!$("#todolist tr:not('.pintotop') input[data-role='tags']")[i].value.includes("#nocompain")) {
+            if (extractDate($("#todolist tr:not('.pintotop')")[i]) < Date.now()) {
+                nextItems.push($("#todolist tr:not('.pintotop') input[data-role='name']")[i].value);
+                if (!tnext)tnext=extractDate($("#todolist tr:not('.pintotop')")[i]);
+            }else{
+                if (!tnext)tnext=extractDate($("#todolist tr:not('.pintotop')")[i]);
+                nextItems.push($("#todolist tr:not('.template') input[data-role='name']")[i].value);
                 break;
             }
-        } else if (!$("#todolist tr:not('.template') input[data-role='tags']")[i].value.includes("#nocompain") && extractDate($("#todolist tr:not('.pintotop')")[i]) > extractDate($("#todolist tr:not('.pintotop')")[tcur])) {
-            pseudonext = i;
-            break;
         }
     }
-    let tnext;
-    for (i = 0; i < $("#todolist tr:not('.template') input[data-role='name']").length; i++) {
-        if (extractDate($("#todolist tr:not('.pintotop')")[i]) > Date.now() && !$("#todolist tr:not('.template') input[data-role='tags']")[i].value.includes("#nocompain")) {
-            tnext = i;
-            break;
-        }
-    }
-    bescared = false;
-    if (tnext != pseudonext) bescared = true;
     try {
-        window.localStorage.setItem("compainTask", $("#todolist tr:not('.template') input[data-role='name']")[tcur].value);
-        window.localStorage.setItem("compainTaskPlus", $("#todolist tr:not('.template') input[data-role='name']")[tnext].value);
-        window.localStorage.setItem("compainDate", extractDate($("#todolist tr:not('.pintotop')")[tcur]));
-        window.localStorage.setItem("compainDatePlus", extractDate($("#todolist tr:not('.pintotop')")[tnext]));
-        window.localStorage.setItem("compainAlert", bescared);
+        window.localStorage.setItem("compainTask", JSON.stringify(nextItems));
+        window.localStorage.setItem("compainDate", tnext);
     } catch (e) {
 
     }

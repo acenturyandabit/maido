@@ -3,7 +3,7 @@ textarea{
     height:100%;
 }
 #todolist_db{
-    flex: 1 1 auto;
+    flex: 1 2 auto;
 }
 
 html {
@@ -94,4 +94,8 @@ li:hover div{
 
 table{
     border-collapse:collapse;
+}
+
+#tasklist{
+    flex:0 0 auto;
 }

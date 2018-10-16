@@ -5,6 +5,10 @@ function loadFromString(str) {
     for (d in data) {
         loadSingleEntry(d,data[d])
     }
+    if (data && Object.keys(data).length>0)$("#nothingLeft").hide();
+    else{
+        $("#nothingLeft").show()
+    }
 }
 
 function loadSingleEntry(id, data) {

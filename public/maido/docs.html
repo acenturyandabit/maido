@@ -1,0 +1,49 @@
+<html>
+
+<head>
+<style>
+th, td{
+    border:1px solid black;
+}
+</style>
+<title>Maido Documentation</title>
+</head>
+
+<body>
+    <h1>Maido Features and documentation</h1>
+    <h2>Introduction</h2>
+    <p>Maido is a task list tool. It was designed to be "as simple as you need and as powerful as you want"; to make it both intuitive and extensible.</p>
+    <p>What does this mean for you? Each task has 3 boxes and a description; and features will only manifest when you need them to. For example, you can type a lot of things into the date bar with cool use cases, but you'll probably often just use the date function.</p>
+    <p>Furthermore, all that documentation down there? Is probably going to be interesting but may not be super practical for you all the time. Remember, Maido is meant to be intuitive. If you're ever feeling stuck, just do what seems natural. Maido won't hate you for breaking stuff.</p>
+    <h2>How to use</h2>
+    <p>To enter a new task, type a task name, date, tag or anything really into the empty row below "Add a new task". Press Enter to add the task.</p>
+    <h2>Loading and saving</h2>
+    <p>To save, press Ctrl-S. Maido will automatically load your last saved task list when you open it.</p>
+    <p>Use quickload to load the last saved version. To load previous versions, use File->Load.</p>
+    <p> By default, Maido does not autosave your task list. Autosave can be activated in the Preferences menu.</p>
+    <h2>Dates</h2>
+    <p>In the date box of each task, you can type in a date in a variety of formats. When you press enter, your tasks will be sorted by date.</p> 
+    <p>There are also keywords, which are listed in the table below.</p>
+    <table style="border-collapse:collapse;">
+        <tr><th>Format</th><th>Example</th><th>Description</th></tr>
+        <tr><td>dd/MM[/yy]</td><td>12/10/19</td><td>A date in dd/MM/yy format. If less than 4 digits are provided for yyyy, 2000 years will be added on.</td></tr>
+        <tr><td>hh:mm[:ss]</td><td>12:34</td><td>A time in hh:mm:ss. If a date is not specified and the time specified has passed today, the task will be assigned to tomorrow.</td></tr>
+        <tr><td>+x(m|h|d|w|M|y)</td><td>+1w</td><td>Time to add to the current date in minutes,hours,days, weeks, Months or years. Full names are acceptable. Spaces are not.</td></tr>
+        <tr><td>done</td><td></td><td>Marks the task as done, putting it at the bottom of your list.</td></tr>
+        <tr><td>auto</td><td></td><td>Makes the task time update every time the task list is updated. `auto now` tends to be useful.</td></tr>
+        <tr><td>now</td><td></td><td>Sets the task time to the current time.</td></tr>
+        <tr><td>waiting</td><td></td><td>Sets the task time 1 day into the future. It was a shortcut I had before I made +1d :3.</td></tr>
+        <tr><td>someday</td><td></td><td>Sets the task time 1 year into the future. It was a shortcut I had before I made +1y :3.</td></tr>
+        <tr><td>free:x(m|h|d|w|M|y)</td><td>free:2h</td><td>Allocate the next empty space of 2 hours long. It's a little bit trippy right now because unfortunately Maido isn't psychic and doesn't know how long tasks are.</td></tr>
+        <tr><td>(mon[day]|tue[sday]|wed[nesday]..etc)</td><td>wed</td><td>Sets the date to the coming weekday; or the next one if this week's weekday has passed. Good for routine things like lectures.</td></tr>
+    </table>
+    <h2>Tags</h2>
+    <p>The tagging system is designed to be extensible. To configure the tags, go to View>Show tag configuration. In that menu enter your tags and formatting (enter to add, as usual.)</p>
+    <p>The tags literally copy a javascript object into the styling of the associated task, so you might need to know some javascript to edit it. (I'll change that soon.) An example tag could be marker / {"background":"blue"}.</p>
+    <p>Using tags in your task list is much easier. Simply put #tag_name into the Tags of your selected task, and the formatting will adjust as necessary.</p>
+    <h2>Compain</h2>
+    <p>Compain is Maido's companion. It's designed to be small and unobtrusive and pinned on top of all your other windows, so you can make sure you are on track.</p>
+    <p>Compain will show you the current and next task on your list. If you have multiple next tasks due before the current time, Compain will turn a mellow shade of yellow to tell you that you should _probably_ get a move on.</p>
+</body> 
+
+</html>

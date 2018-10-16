@@ -1,7 +1,7 @@
 var urlParams = new URLSearchParams(window.location.search);
 var listName = urlParams.get('listname');
 var rootcl; // firebase root document collection reference
-if (listName && window.location.href.slice(undefined, 4) != "file") {
+if (listName) {
     style = document.createElement("style")
     style.innerHTML = `
     .oLocalOnly{
@@ -65,10 +65,7 @@ if (listName && window.location.href.slice(undefined, 4) != "file") {
                         merge: true
                     });
                 })
-
                 //adding tasks
-
-
             });
         } else {
             //Show not found screen
