@@ -7,7 +7,7 @@ You know how web kanban boards come with many features like priorities, completi
 
 Maido doesn't. But it can and will support them, if you want! 
 
-Maido (tries to) follow the SAPIEN (Simple as possible, Extensible if necessary) methodology. 
+Maido (tries to) follow the sapien (Simple As Possible, Extensible If Necessary) methodology. 
 Each task only has 4 things: a name, tags (metadata), a date and a description. Aside from that, it's up to you, the user, to manage what task properties you want.
 
 ## Core features
