@@ -4,7 +4,9 @@ This is a simple todolist which runs off html and javascript. No docker, node.js
 
 ## Core principles
 You know how web kanban boards come with many features like priorities, completion percentage, and so on that you probably don't want in your face all the time?
-Maido doesn't. But it can and will support them, if you feel the need to! 
+
+Maido doesn't. But it can and will support them, if you want! 
+
 Maido (tries to) follow the SAPIEN (Simple as possible, Extensible if necessary) methodology. 
 Each task only has 4 things: a name, tags (metadata), a date and a description. Aside from that, it's up to you, the user, to manage what task properties you want.
 
