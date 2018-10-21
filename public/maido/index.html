@@ -100,6 +100,7 @@ Cheers!
                 <a onclick="saveToBrowser()">Save</a>
                 <a onclick="loadFromBrowser()">Quickload</a>
                 <a onclick="showLoader()">Load</a>
+                <a onclick="unloadAll()">New</a>
             </div>
         </li>
         <li>
@@ -132,6 +133,7 @@ Cheers!
     </div>
     <div style="display:flex;flex-direction:row">
         <div id="tasklist">
+            <h2>Main List</h2>
             <span>Search: <input id="searchbar"></span>
             <table class="tdl" id="todolist">
                 <tr class="pintotop">
@@ -157,18 +159,22 @@ Cheers!
         </div>
     </div>
     <div class="dialog" id="loader_dialog">
-        <h2>Available save sessions:</h2>
-        <div id="loader_dialog_panel_container">
-            <div id="loader_dialog_list">
+        <div style="display: flex; height: 100%;">
+        <div class="inner_dialog">
+            <h2>Available save sessions:</h2>
+            <div id="loader_dialog_panel_container">
+                <div id="loader_dialog_list">
+                </div>
             </div>
-            <div id="loader_dialog_viewer">
-            </div>
+            <p>Or load from a string...</p>
+            <textarea></textarea><br>
+            <button onclick="loadFromString($('#loader_dialog>textarea')[0].value);$('#loader_dialog').hide();$('#dialog_box').hide()">Load from string</button><button onclick="$('#loader_dialog').hide();$('#dialog_box').hide()">Cancel</button>
         </div>
-        <button onclick="$('#loader_dialog').hide()">Cancel</button>
+        <div class="dialog" id="dnfDialog">
+            <h2>Uh oh...</h2>
+            <p>We couldn't find the task list that you specified. Maybe check your spelling and try again?</p>
+        </div>
     </div>
-    <div class="dialog" id="dnfDialog">
-        <h2>Uh oh...</h2>
-        <p>We couldn't find the task list that you specified. Maybe check your spelling and try again?</p>
     </div>
 </body>
 

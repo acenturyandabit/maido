@@ -27,8 +27,9 @@ $(document).ready(() => {
             }
             $("#todolist").removeClass("searchfilter");
             newInstance=$(newNode).find("[data-role='"+e.currentTarget.dataset.role+"']")[0];
+            date_reparse($(newNode).find("[data-role='date']")[0]);
             newInstance.focus();
-            newInstance.scrollIntoView();
+            newInstance.scrollIntoViewIfNeeded();
             $("#nothingLeft").hide();
         }
     })
@@ -49,7 +50,6 @@ $(document).ready(() => {
         $(e.currentTarget.parentElement.parentElement).remove();
         if ($("#todolist tr:not(.template)").length>0)$("#nothingLeft").show();
         //push a deleted onto the changelog
-
     })
 
     $("#todolist tr.template button.remove").on("click", (e) => {

@@ -172,7 +172,9 @@ function getContrastYIQ(hexcolor) {
 $(document).ready(() => {
     $("body").append(
         `
-<div class="dialog" id="markerpicker">
+        <div class="dialog" id="markerpicker">
+        <div style="display: flex; height: 100%;">
+        <div class="inner_dialog"id="markerpicker_in">
 <h2>Tag editor</h2>
 <table>
 <tr class="template">
@@ -184,13 +186,13 @@ $(document).ready(() => {
 </td>
 </tr>
 </table>
-</div>
+</div></div>
     `
     )
     tagformats = JSON.parse(localStorage.getItem("maidoTagFormats"));
     if (!tagformats) tagformats = {};
     for (i in tagformats) {
-        newrow = $("#markerpicker>table tr.template")[0].cloneNode(true);
+        newrow = $("#markerpicker tr.template")[0].cloneNode(true);
         newrow.classList.remove("template");
         $(newrow).find("input[placeholder='Tag name']")[0].value = i;
         $(newrow).find("input[placeholder='Tag style']")[0].value = JSON.stringify(tagformats[i]);

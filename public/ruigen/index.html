@@ -5,36 +5,448 @@
     <style>
         body {
             margin: 0;
+            font-family: monospace;
+            background-color: black;
+            color: lightgreen;
+            display: grid;
+            grid-template-columns: auto auto auto;
+        }
+
+        section.hackertext {
+            height: 400px;
+            width: 400px;
+            font-size: 15px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid green;
+        }
+
+        .hackertext>div {
+            position: absolute;
+            bottom: 0px;
+            border: none;
+
+        }
+
+        .hackertext>div>span {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: typing 0.5s steps(40, end);
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        section>* {
+            border: 2px solid green;
+        }
+
+        canvas {
+            display: block;
         }
     </style>
     <script>
-        var sf = 1; //scaling factor
-        var uiElements = {
-            radar_big: {
-                w: 2,
-                h: 2,
-                updateAndDraw: function (state) {
-                    state.angle++;
-                    //ctx.
-                },
-                initialise: function () {
-                    state.angle = 0;
-                }
+        ///helpful stuff///
+        function getRand(arr) {
+            if (arr && arr.length) {
+                return arr[Math.floor(Math.random() * arr.length)];
             }
+            // The undefined will be returned if the empty array was passed
+        }
+
+
+        //////////fakeCode//////
+        fakeCode = [];
+        fakeCode.settings = {
+            letters: ['<br>', 'int ', '{', '}', '()', 'while ', 'if ', '==', '='],
+            identifiers: ['people', 'history', 'way', 'art', 'world', 'information', 'map', 'two', 'family',
+                'government', 'health', 'system', 'computer', 'meat', 'year', 'thanks', 'music', 'person',
+                'reading', 'method', 'data', 'food', 'understanding', 'theory', 'law', 'bird', 'literature',
+                'problem', 'software', 'control', 'knowledge', 'power', 'ability', 'economics', 'love',
+                'internet', 'television', 'science', 'library', 'nature', 'fact', 'product', 'idea',
+                'temperature', 'investment', 'area', 'society', 'activity', 'story', 'industry', 'media',
+                'thing', 'oven', 'community', 'definition', 'safety', 'quality', 'development', 'language',
+                'management', 'player', 'variety', 'video', 'week', 'security', 'country', 'exam', 'movie',
+                'organization', 'equipment', 'physics', 'analysis', 'policy', 'series', 'thought', 'basis',
+                'boyfriend', 'direction', 'strategy', 'technology', 'army', 'camera', 'freedom', 'paper',
+                'environment', 'child', 'instance', 'month', 'truth', 'marketing', 'university', 'writing',
+                'article', 'department', 'difference', 'goal', 'news', 'audience', 'fishing', 'growth',
+                'income', 'marriage', 'user', 'combination', 'failure', 'meaning', 'medicine', 'philosophy',
+                'teacher', 'communication', 'night', 'chemistry', 'disease', 'disk', 'energy', 'nation', 'road',
+                'role', 'soup', 'advertising', 'location', 'success', 'addition', 'apartment', 'education',
+                'math', 'moment', 'painting', 'politics', 'attention', 'decision', 'event', 'property',
+                'shopping', 'student', 'wood', 'competition', 'distribution', 'entertainment', 'office',
+                'population', 'president', 'unit', 'category', 'cigarette', 'context', 'introduction',
+                'opportunity', 'performance', 'driver', 'flight', 'length', 'magazine', 'newspaper',
+                'relationship', 'teaching', 'cell', 'dealer', 'finding', 'lake', 'member', 'message', 'phone',
+                'scene', 'appearance', 'association', 'concept', 'customer', 'death', 'discussion', 'housing',
+                'inflation', 'insurance', 'mood', 'woman', 'advice', 'blood', 'effort', 'expression',
+                'importance', 'opinion', 'payment', 'reality', 'responsibility', 'situation', 'skill',
+                'statement', 'wealth', 'application', 'city', 'county', 'depth', 'estate', 'foundation',
+                'grandmother', 'heart', 'perspective', 'photo', 'recipe', 'studio', 'topic', 'collection',
+                'depression', 'imagination', 'passion', 'percentage', 'resource', 'setting', 'ad', 'agency',
+                'college', 'connection', 'criticism', 'debt', 'description', 'memory', 'patience', 'secretary',
+                'solution', 'administration', 'aspect', 'attitude', 'director', 'personality', 'psychology',
+                'recommendation', 'response', 'selection', 'storage', 'version', 'alcohol', 'argument',
+                'complaint', 'contract', 'emphasis', 'highway', 'loss', 'membership', 'possession',
+                'preparation', 'steak', 'union', 'agreement', 'cancer', 'currency', 'employment', 'engineering',
+                'entry', 'interaction', 'mixture', 'preference', 'region', 'republic', 'tradition', 'virus',
+                'actor', 'classroom', 'delivery', 'device', 'difficulty', 'drama', 'election', 'engine',
+                'football', 'guidance', 'hotel', 'owner', 'priority', 'protection', 'suggestion', 'tension',
+                'variation', 'anxiety', 'atmosphere', 'awareness', 'bath', 'bread', 'candidate', 'climate',
+                'comparison', 'confusion', 'construction', 'elevator', 'emotion', 'employee', 'employer',
+                'guest', 'height', 'leadership', 'mall', 'manager', 'operation', 'recording', 'sample',
+                'transportation', 'charity', 'cousin', 'disaster', 'editor', 'efficiency', 'excitement',
+                'extent', 'feedback', 'guitar', 'homework', 'leader', 'mom', 'outcome', 'permission',
+                'presentation', 'promotion', 'reflection', 'refrigerator', 'resolution', 'revenue', 'session',
+                'singer', 'tennis', 'basket', 'bonus', 'cabinet', 'childhood', 'church', 'clothes', 'coffee',
+                'dinner', 'drawing', 'hair', 'hearing', 'initiative', 'judgment', 'lab', 'measurement', 'mode',
+                'mud', 'orange', 'poetry', 'police', 'possibility', 'procedure', 'queen', 'ratio', 'relation',
+                'restaurant', 'satisfaction', 'sector', 'signature', 'significance', 'song', 'tooth', 'town',
+                'vehicle', 'volume', 'wife', 'accident', 'airport', 'appointment', 'arrival', 'assumption',
+                'baseball', 'chapter', 'committee', 'conversation', 'database', 'enthusiasm', 'error',
+                'explanation', 'farmer', 'gate', 'girl', 'hall', 'historian', 'hospital', 'injury',
+                'instruction', 'maintenance', 'manufacturer', 'meal', 'perception', 'pie', 'poem', 'presence',
+                'proposal', 'reception', 'replacement', 'revolution', 'river', 'son', 'speech', 'tea',
+                'village', 'warning', 'winner', 'worker', 'writer', 'assistance', 'breath', 'buyer', 'chest',
+                'chocolate', 'conclusion', 'contribution', 'cookie', 'courage', 'dad', 'desk', 'drawer',
+                'establishment', 'examination', 'garbage', 'grocery', 'honey', 'impression', 'improvement',
+                'independence', 'insect', 'inspection', 'inspector', 'king', 'ladder', 'menu', 'penalty',
+                'piano', 'potato', 'profession', 'professor', 'quantity', 'reaction', 'requirement', 'salad',
+                'sister', 'supermarket', 'tongue', 'weakness', 'wedding', 'affair', 'ambition', 'analyst',
+                'apple', 'assignment', 'assistant', 'bathroom', 'bedroom', 'beer', 'birthday', 'celebration',
+                'championship', 'cheek', 'client', 'consequence', 'departure', 'diamond', 'dirt', 'ear',
+                'fortune', 'friendship', 'funeral', 'gene', 'girlfriend', 'hat', 'indication', 'intention',
+                'lady', 'midnight', 'negotiation', 'obligation', 'passenger', 'pizza', 'platform', 'poet',
+                'pollution', 'recognition', 'reputation', 'shirt', 'sir', 'speaker', 'stranger', 'surgery',
+                'sympathy', 'tale', 'throat', 'trainer', 'uncle', 'youth'
+            ],
+            verbs: ['identify', 'searchFor', 'redirect', 'initialise', 'resolve', 'analyze'],
+            quant_properties: ['length', 'list_length'],
+
+            generators: [
+                (v) => { //create identifier
+                    if (v.data.identifiers.length > 10) return 1;
+                    let newID = fakeCode.settings.identifiers[Math.floor(Math.random() * fakeCode.settings
+                        .identifiers
+                        .length)];
+                    v.data.identifiers.push(newID);
+                    k=document.createElement("span");
+                    k.innerHTML="var " + newID + ";";
+                    return k;
+                },
+                (v) => { //delete identifier
+                    let dedID = v.data.identifiers.pop();
+                    if (!dedID) return 1;
+                    k=document.createElement("span");
+                    k.innerHTML="delete " + dedID + ";";
+                    return k;
+                },
+                (v) => { //act
+                    let cid = getRand(v.data.identifiers);
+                    if (!cid) return 1;
+                    let args = [];
+                    n = Math.random() * v.data.identifiers.length - 1;
+                    for (var i = 0; i < n; i++) args.push(getRand(v.data.identifiers));
+                    getRand(fakeCode.settings.verbs);
+                    k=document.createElement("span");
+                    k.innerHTML=cid + "." + getRand(fakeCode.settings.verbs) + "(" + args
+                        .join(
+                            ",") + ");";
+                    return k;
+                }, (v) => { //create an if statement
+                    if (v.data.indent>2)return 1;
+                    let cid = getRand(v.data.identifiers);
+                    if (!cid) return 1;
+                    let other = getRand(v.data.identifiers);
+                    k=document.createElement("span");
+                    k.innerHTML="if (" + cid + "==" + other + "){";
+                    v.data.post_indent=1;
+                    return k;
+                },(v) => { //close the code
+                    if (v.data.indent==0)return 1;
+                    v.data.indent--;
+                    k=document.createElement("span");
+                    k.innerHTML="}"
+                    return k;
+                }
+            ]
         }
         $(() => {
-            c = $("canvas")[0];
-            c.width = window.innerWidth;
-            c.height = window.innerHeight;
-
-
+            $(".hackertext").each((i, e) => {
+                fakeCode.push({
+                    div: $(e).find("div")[0],
+                    data: {
+                        indent: 0,
+                        identifiers: [],
+                    }
+                });
+            })
         })
+        setInterval(() => {
+            fakeCode.forEach((v, i) => {
+                //generate entire lines at a time
+                //different options:
+                //generate a new identifier
+                while ((k=fakeCode.settings.generators[Math.floor(Math.random() * fakeCode.settings
+                        .generators
+                        .length)](v))==1);
+                k.style["margin-left"]=(v.data.indent*20)+"px";
+                $(v.div).append(k);
+                if (v.data.post_indent){
+                    v.data.indent++;
+                    v.data.post_indent=0;
+                }
+                while ($(v.div).children().length > 60) {
+                    $(v.div).find("span:lt(1)").remove();
+                }
+            });
+        }, 500)
+        /////////////RADAR////////////
+        radars = [];
+        $(() => {
+            $("canvas.radar").each((i, e) => {
+                e.width = 400;
+                e.height = 400;
+                radars.push({
+                    data: {
+                        r: 200,
+                        t: 0
+                    },
+                    ctx: e.getContext('2d')
+                });
+            });
+            setInterval(() => {
+                radars.forEach((v, i) => {
+                    //sweep
+                    v.ctx.beginPath();
+                    v.ctx.moveTo(200, 200);
+                    v.ctx.lineTo(200 + v.data.r * Math.cos(v.data.t), 200 + v.data.r * Math.sin(
+                        v.data.t));
+                    v.ctx.arc(200, 200, v.data.r, v.data.t, v.data.t + 2);
+                    v.data.t += 0.1;
+                    v.ctx.lineTo(200, 200);
+                    v.ctx.strokeStyle = "green";
+                    v.ctx.stroke();
+                    v.ctx.fillStyle = "rgba(0,50,0,0.1)";
+                    v.ctx.fill();
+                    v.ctx.closePath();
+                    //fading
+                    v.ctx.fillStyle = "rgba(0,0,0,0.1)";
+                    v.ctx.fillRect(0, 0, 401, 401);
+                    //plot points
+                    rth = Math.random() * 2 + v.data.t;
+                    rr = Math.random() * 190;
+                    v.ctx.beginPath();
+                    v.ctx.arc(200 + Math.cos(rth) * rr, 200 + Math.sin(rth) * rr, 5, 0, 2 *
+                        Math.PI);
+                    v.ctx.fillStyle = "rgb(200,50,0)";
+                    v.ctx.fill();
+                    v.ctx.closePath();
+                })
+            }, 200)
+        });
+        ///////////////bitstream/////////
+        bitstreams = [];
+        bitsettings = {
+            chipsize: 15,
+            spacing: 1,
+            stripcount: 6
+        }
+        $(() => {
+            $("canvas.bitstream").each((i, e) => {
+                e.width = 400;
+                e.height = (bitsettings.chipsize + bitsettings.spacing) * bitsettings.stripcount;
+                bitstreams.push({
+                    data: {
+                        selfc: e,
+                        pos: 0
+                    },
+                    ctx: e.getContext('2d')
+                });
+            });
+            setInterval(() => {
+                bitstreams.forEach((v, i) => {
+                    //Generate bit
+                    v.ctx.fillStyle = "rgb(0," + Math.floor(Math.random() * 255) + ",0)";
+                    v.ctx.fillRect(bitsettings.spacing, (bitsettings.chipsize + bitsettings.spacing) *
+                        v.data.pos + 1, bitsettings.chipsize, bitsettings.chipsize);
+                    v.data.pos++;
+                    //iterate
+                    if (v.data.pos == bitsettings.stripcount) {
+                        v.data.pos = 0;
+                        v.ctx.drawImage(v.data.selfc, bitsettings.chipsize + bitsettings.spacing,
+                            0);
+                        v.ctx.fillStyle = "black";
+                        v.ctx.fillRect(0, bitsettings.chipsize, bitsettings.chipsize +
+                            bitsettings.spacing, (bitsettings.chipsize + bitsettings.spacing) *
+                            bitsettings.stripcount);
+                    }
+                })
+            }, 100)
+        });
+        ////////triflow//////
+        triflow = [];
+        triflowsettings = {
+            flowrate: 1,
+            bitprob: 0.1
+        }
+        $(() => {
+            $("canvas.triflow").each((i, e) => {
+                e.width = 400;
+                e.height = 200;
+                triflow.push({
+                    data: {
+                        bits: []
+                    },
+                    ctx: e.getContext('2d')
+                });
+            });
+            setInterval(() => {
+                triflow.forEach((v, i) => {
+                    //Generate bit
+                    if (Math.random() < triflowsettings.bitprob) {
+                        v.data.bits.push({
+                            x: -2 / triflowsettings.bitprob,
+                            c: 80 + Math.random() * 20,
+                            a: 45 + Math.random() * 15,
+                            omg: 0.02 + Math.random() * 0.1,
+                            phi: Math.random() * 2 * Math.PI
+                        })
+                    }
+                    //clear screen
+                    v.ctx.fillStyle = "black";
+                    v.ctx.fillRect(0, 0, 400, 200);
+                    //Draw bits
+                    if (v.data.bits.length > 3) {
+                        for (i = 2; i < v.data.bits.length; i++) {
+                            //v.ctx.fillStyle = "rgb(0," + Math.floor(Math.random() * 255) + ",0)";
+                            //v.ctx.strokeStyle = "rgb(0," + Math.floor(Math.random() * 255) + ",0)";
+                            v.ctx.strokeStyle = "green"
+                            v.ctx.beginPath();
+                            v.ctx.moveTo(v.data.bits[i].x, v.data.bits[i].c + v.data.bits[i].a *
+                                Math.sin(v.data.bits[i].phi));
+                            v.ctx.lineTo(v.data.bits[i - 1].x, v.data.bits[i - 1].c + v.data.bits[
+                                i - 1].a * Math.sin(v.data.bits[i - 1].phi));
+                            v.ctx.lineTo(v.data.bits[i - 2].x, v.data.bits[i - 2].c + v.data.bits[
+                                i - 2].a * Math.sin(v.data.bits[i - 2].phi));
+                            v.ctx.lineTo(v.data.bits[i].x, v.data.bits[i].c + v.data.bits[i].a *
+                                Math.sin(v.data.bits[i].phi));
+                            //v.ctx.fill();
+                            v.ctx.stroke();
+                        }
+                    }
+                    //update all bits
+                    for (i = 0; i < v.data.bits.length; i++) {
+                        v.data.bits[i].phi += v.data.bits[i].omg;
+                        v.data.bits[i].x++;
+                    }
+                    while (v.data.bits.length && v.data.bits[0].x > 500) v
+                        .data.bits.shift();
+                })
+            }, 100)
+        });
+        ///////annihilation-pairs/////
+        annipair = [];
+        annipairSettings = {
+            r: 2
+        }
+        $(() => {
+            $("canvas.annipair").each((i, e) => {
+                e.width = 400;
+                e.height = 100;
+                annipair.push({
+                    data: {
+                        bits: []
+                    },
+                    ctx: e.getContext('2d')
+                });
+            });
+            setInterval(() => {
+                annipair.forEach((v, i) => {
+                    //Generate bit
+                    if (Math.random() < triflowsettings.bitprob) {
+                        v.data.bits.push({
+                            cx: 50 + Math.random() * 300,
+                            cy: 25 + Math.random() * 50,
+                            dist: 400
+                        })
+                    }
+                    //clear screen
+                    v.ctx.fillStyle = "rgba(0,0,0,0.3)";
+                    v.ctx.fillRect(0, 0, 400, 200);
+                    //update and draw all bits
+                    v.ctx.fillStyle = "rgb(0,255,0)";
+                    for (i = 0; i < v.data.bits.length; i++) {
+                        if (v.data.bits[i].dist > 0) {
+                            v.ctx.fillRect(v.data.bits[i].cx - annipairSettings.r + v.data.bits[
+                                    i].dist, v.data.bits[i].cy - annipairSettings.r,
+                                2 * annipairSettings.r, 2 * annipairSettings.r);
+                            v.ctx.fillRect(v.data.bits[i].cx - annipairSettings.r - v.data.bits[
+                                    i].dist, v.data.bits[i].cy - annipairSettings.r,
+                                2 * annipairSettings.r, 2 * annipairSettings.r);
+                            v.data.bits[i].dist = 400 - (400 - v.data.bits[i].dist) * 1.02 - 1;
+                        } else {
+                            v.ctx.fillRect(v.data.bits[i].cx + v.data.bits[
+                                    i].dist / 2, v.data.bits[i].cy + v
+                                .data
+                                .bits[i].dist / 2, -v.data.bits[i].dist, -v.data.bits[i].dist
+                            );
+                            v.data.bits[i].dist--;
+
+                        }
+                    }
+                    while (v.data.bits.length && v.data.bits[0].dist < -10)
+                        v.data.bits.shift();
+                })
+            }, 100)
+        });
+        ///////////floaters//////////
+
+
+        //////////bar graphs + deciphertext///////
+
+        //////////deciphertext////////
+
+        ///////matrix-text///////////
     </script>
 </head>
 
 <body>
-    <canvas>
-    </canvas>
+    <!--
+        radar
+        hacker text
+
+
+    -->
+    <section class='hackertext'>
+        <div>
+        </div>
+    </section>
+    <section>
+        <canvas class="radar">
+
+        </canvas>
+    </section>
+    <section>
+        <canvas class="bitstream">
+
+        </canvas>
+        <canvas class="triflow">
+
+        </canvas>
+        <canvas class="annipair">
+
+        </canvas>
+    </section>
 </body>
 
 </html>
