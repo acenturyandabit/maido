@@ -16,7 +16,7 @@ app.use(cookieParser())
 
 //exclusions
 
-//app.use('/pepkern',require('./server/pepkern/pepkern.js').middleware)
+app.use('/pepkern',require('./server/pepkern/pepkern.js').middleware)
 
 
 app.use('/', (req, res, next) => {

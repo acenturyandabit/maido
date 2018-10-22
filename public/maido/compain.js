@@ -1,3 +1,4 @@
+window.name="maido";
 function compainClock() {
     let nextItems=[];
     let tnext;
