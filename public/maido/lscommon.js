@@ -1,9 +1,15 @@
 function loadFromString(str) {
     data = JSON.parse(str);
-    $("#todolist tr:not(.pintotop)").remove()
+    $("#todolist span:not(.pintotop)").remove()
     $("#todolist_db textarea:not(.template)").remove()
     for (d in data) {
         loadSingleEntry(d,data[d])
+    }
+    //make indented tasks
+    for (d in data){
+        if (data[d].parent){
+            $("#todolist span[data-taskgroup='"+data[d].parent+"']").append($("#todolist span[data-taskgroup='"+d+"']"));
+        }
     }
     if (data && Object.keys(data).length>0)$("#nothingLeft").hide();
     else{
@@ -13,7 +19,7 @@ function loadFromString(str) {
 
 function loadSingleEntry(id, data) {
     //console.log(id,data);
-    newNode = $("#todolist tr.template")[0].cloneNode(true)
+    newNode = $("#todolist span.template")[0].cloneNode(true)
     newNode.classList.remove('pintotop');
     newNode.classList.remove('template');
     $(newNode).find("button").text("Remove");

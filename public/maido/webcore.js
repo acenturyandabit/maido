@@ -18,8 +18,7 @@ if (listName) {
     };
     firebase.initializeApp(config);
     // get querystring name of set
-    let 
-    db = firebase.firestore();
+    let db = firebase.firestore();
     db.settings({
         timestampsInSnapshots: true
     });
@@ -46,7 +45,7 @@ if (listName) {
                                 loadSingleEntry(change.doc.id,change.doc.data())
                             }else if (change.type=="removed"){
                                 console.log("removing...")
-                                $("tr[data-taskgroup='"+change.doc.id+"']").remove();
+                                $("span[data-taskgroup='"+change.doc.id+"']").remove();
                             }else if (change.type=="modified"){
                                 console.log("changing...")
                                 remoteUpdate(change.doc.id,change.doc.data())
@@ -88,7 +87,7 @@ function toWebObj(node) {
 }
 
 function remoteUpdate(id, data) {
-    if ($("tr[data-taskgroup='" + id + "']")[0]) {
+    if ($("span[data-taskgroup='" + id + "']")[0]) {
         for (p in data) {
             e=$("[data-role='"+p+"'][data-taskgroup='" + id + "']")[0]
             if (e) {
@@ -97,7 +96,7 @@ function remoteUpdate(id, data) {
             }
         }
         for (f in precheck) {
-            precheck[f]($("tr[data-taskgroup='"+id+"']"));
+            precheck[f]($("span[data-taskgroup='"+id+"']"));
         }
     } else {
         loadSingleEntry(id, data)

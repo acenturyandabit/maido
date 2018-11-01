@@ -2,6 +2,7 @@
 
 <head>
     <script src="../jquery.min.js"></script>
+    <script src="kaleidoscope.js"></script>
     <style>
         .browse {
             display: none;
@@ -20,20 +21,25 @@
             "How are your family/friends doing?",
             "What should/could you be doing right now?",
             "Give me a random idea that you have right now.",
-            "Describe your emotional state in 7 words."
+            "Describe your emotional state in 7 words.",
+            "What did you recently decide on?"
         ]
 
         /*
-        MISSION: to record, and be a good conversation partner? 
-
-        knowledge
+        MISSION: to record people's thoughts and give them access. 
         
-        decisions
-        opinions
-        experiences
-        ideas
-        edit and change your memories as well.
+Reply to your own memories.
 
+
+
+MISC:
+different 'shells'
+e.g. 
+Mirror temple: runes
+Office mirror: post it notes
+Bathroom mirror: steam
+Chest of mirrors: drawers
+Minimalist: literally what is there now
 
 
 put prompt into the textbox and just record that. Might as well. 
@@ -48,29 +54,32 @@ Also there is no need for shenanigans.
         //load additional questions from localstorage
 
         function pickprompt() {
-            $(".coinin .response")[0].value=prompts[Math.round(Math.random() * prompts.length)];
+            $(".coinin .response")[0].value = prompts[Math.round(Math.random() * prompts.length)];
         }
         $(() => {
-            pickprompt();
+            //fill out mirabella
+            mirabella = [];
+            for (i in localStorage) {
+                if (i.startsWith("mirmir"))
+                    mirabella.push(i);
+            }
+            $(".browse div").on("click", "button", (e) => {
+                loadRef(e.currentTarget.dataset.ref);
+            })
         });
 
         function submit() {
             if ($(".coinin .response")[0].value.length > 0) {
-                mirabella = localStorage.getItem('mirabella');
-                if (!mirabella) mirabella = [];
-                else {
-                    mirabella = JSON.parse(mirabella);
+                if (mirabella.length) {
                     //retrieve an entry from mirabella
                     response = undefined;
                     while (!response && mirabella.length) {
-                        dataname = mirabella.splice(Math.round(Math.random() * mirabella.length),1)[0];
+                        //kill dead entries
+                        dataname = mirabella.splice(Math.round(Math.random() * mirabella.length), 1)[0];
                         response = localStorage.getItem(dataname);
                     }
                     mirabella.push(dataname);
-                    $(".wellout").show();
-                    entrydate = new Date(Number(dataname.slice(6)));
-                    $(".wellout .entrydate").text(entrydate.toString());
-                    $(".wellout .response").text(response);
+                    loadRef(dataname);
                     //display it
                 }
                 $(".coinin").hide();
@@ -81,36 +90,118 @@ Also there is no need for shenanigans.
                 $(".coinin .response")[0].value = "";
             }
         }
+
+        function startWriter() {
+            $("body>div").hide();
+            pickprompt();
+            $('.coinin').show();
+        }
+
+        function startBrowser() {
+            $("body>div").hide();
+            $(".browse").show();
+            $(".browse>div").empty();
+            for (i = 0; i < mirabella.length; i++) {
+                msg = localStorage[mirabella[i]];
+                date = new Date(Number(mirabella[i].slice(6)));
+                b = document.createElement("button");
+                b.dataset.ref = mirabella[i];
+                b.innerText = date.toLocaleDateString();
+                $(".browse>div").append(b);
+                $(".browse>div").append('<br>');
+            }
+        }
+
+        function showHome() {
+            $("body>div").hide();
+            $("#home").show();
+        }
+
+        function loadRef(dataname) {
+            response = localStorage.getItem(dataname);
+            $("body>div").hide();
+            $(".wellout").show();
+            entrydate = new Date(Number(dataname.slice(6)));
+            $(".wellout .entrydate").text(entrydate.toString());
+            $(".wellout .response").text(response);
+        }
     </script>
     <style>
-    textarea{
-        width:40%;
-        height: 30%;    
-    }
+        body {
+            color: white;
+            display: flex;
+            flex-direction: column;
+            text-align:center;
+        }
+        textarea {
+            color:white;
+            background:rgba(20,20,20,0.5);
+            width: 40%;
+            height: 30%;
+        }
+
+        #home {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: row;
+        }
+
+        #home>div {
+            padding: 10%;
+            flex: 1 0 auto;
+            text-align: center;
+            display: block;
+            background: rgba(40, 40, 40, 0.7);
+            margin: 40px;
+            font-size: 3em;
+        }
+
+        body>canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 5em;
+        }
     </style>
 </head>
 
 <body>
+    <canvas></canvas>
     <h1>Mirror mirror</h1>
-    <div class="browse">
+    <div class="browse" style="display:none">
         <p>Past saved reflections:</p>
+        <button onclick="loadRef(mirabella[Math.floor(Math.random()*mirabella.length)])">Random</button>
         <div>
-            <button>x.x.2018 #potatoes #life</button>
+
         </div>
+        <button onclick="startWriter()">Write a reflection</button>
     </div>
-    <div class="coinin">
+    <div id="home">
+        <div onclick="startWriter()">Write a reflection</div>
+        <div onclick="startBrowser()">Browse reflections</div>
+    </div>
+    <div class="coinin" style="display:none">
         <button onclick="pickprompt()">Change prompt</button>
         <br>
         <textarea class="response" placeholder="Type your response here."></textarea>
         <br>
         <input placeholder="Tags...">
         <button onclick="submit()">Submit</button>
+        <button onclick="showHome()">Back</button>
     </div>
-    <div class="wellout">
+    <div class="wellout" style="display:none">
         <p>Entry date:<span class="entrydate"></span></p>
         <textarea class="response" disabled></textarea>
         <br>
-        <button onclick="pickprompt();$('.coinin').show();$('.wellout').hide()">Submit another</button>
+        <button onclick="startWriter()">Submit another</button>
+        <button onclick="startBrowser()">Read more</button>
     </div>
 </body>
 

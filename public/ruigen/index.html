@@ -1,12 +1,13 @@
 <html>
 
 <head>
-    <script src="../jquery.min.js"></script>
+    <script src="jquery.min.js"></script>
     <script src="hackertext.js"></script>
     <script src="radar.js"></script>
     <script src="bitstream.js"></script>
     <script src="triflow.js"></script>
     <script src="annipairs.js"></script>
+    <script src="matrixtext.js"></script>
     <style>
         body {
             background-color: black;
@@ -21,37 +22,32 @@
         body>section {
             border: 2px solid green;
             height: 400px;
+            width: 400px;
         }
 
         canvas {
             display: block;
         }
+        .middle>section{
+            width: 100%;
+            height: 133px;
+        }
     </style>
-    <script> 
+    <script>
         ///////////floaters//////////
-
+  
         //////////bar graphs + deciphertext///////
 
         //////////deciphertext////////
-
-        ///////matrix-text///////////
     </script>
 </head>
 
 <body>
-    <!--
-        radar
-        hacker text
-
-
-    -->
     <section class='hackertext'>
-        <div>
-        </div>
     </section>
     <section class="radar">
     </section>
-    <section>
+    <section class="middle">
         <section class="bitstream">
 
         </section>
@@ -61,6 +57,9 @@
         <section class="annipairs">
 
         </section>
+    </section>
+    <section class="matrixtext">
+
     </section>
 </body>
 

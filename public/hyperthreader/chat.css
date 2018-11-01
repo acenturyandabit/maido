@@ -31,10 +31,11 @@ div:has-children {
     display: block;
 }
 
-#chatbox .thread {
+.thread, #ehere {
     margin-left: 5px;
     display: block;
     padding: 10px;
+    border-left: 1px solid black;
 }
 #chatbox .msg{
     background-color:lightcyan;
@@ -66,13 +67,39 @@ div:has-children {
     flex: 0 1 65%;
     overflow-y: scroll;
 }
+#chatbox .msg, #ehere{
+    padding: 10px 3px;
+    border-radius: 7px;
+}
 #throwbox input{
     width: 70vw;
-    font-size: 1.3em
+    font-size: 1.3em;
+    position:relative;
 }
 #hoverbox{
     width:70vw;
-    position: relative; 
-    float: top;
+    position: absolute; 
+    bottom:6em;
     background-color:whitesmoke;
+}
+
+#ehere{
+    background: lavender;
+    margin-left: 10px;
+}
+.thread>.thread{
+    display: none;
+}
+
+.thread.subVisible{
+    display: block;
+}
+.thread.subVisible>.thread:nth-last-child(-n+5){
+    display: block;
+}
+
+#throwbox img{
+    height:2em;
+    width:2em;
+    float:right;
 }

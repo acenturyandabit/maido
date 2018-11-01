@@ -5,9 +5,12 @@ var exports = (module.exports = {});
 var formdata = require("form-data");
 exports.middleware = function(req, res, next) {
   //console.log("henlo");
-  /*
+  
   https.get(
-    "https://sonia.sydney.edu.au/SoniaOnline/School.aspx?SchoolId=28",
+    "https://sonia.sydney.edu.au/SoniaOnline/Secure/EForm.aspx?ElectronicFormInstanceId=65504",
+    {
+        
+    }
     _res => {
       if (_res.headers[0]) {
         var schoolID = _res.headers[0].split("="[1]);
@@ -36,7 +39,7 @@ exports.middleware = function(req, res, next) {
             }
           });
           console.log(request2);
-          /*form.pipe(request2);
+          form.pipe(request2);
           request2.on("response", function(__res) {
             console.log(__res.headers);
           });
@@ -44,20 +47,16 @@ exports.middleware = function(req, res, next) {
       }
       //username=
     }
-  );*/
+  );
+  /*
   request(
-    "https://sonia.sydney.edu.au/SoniaOnline/School.aspx?SchoolId=28",{
-        'auth':{
-            'user':'sliu3976',
-            'pass':'Eunice17',
-        }
-
+    "https://sonia.sydney.edu.au/SoniaOnline/Secure/EForm.aspx?ElectronicFormInstanceId=65504",{
     },
     (error, response, body) => {
       console.log("error:", error); // Print the error if one occurred
       console.log("statusCode:", response && response.statusCode); // Print the response status code if a response was received
       console.log("body:", body); // Print the HTML for the Google homepage.
     }
-  );
+  );*/
   res.end();
 };

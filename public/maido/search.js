@@ -3,10 +3,10 @@ $(document).ready(()=>{
     var style = document.createElement('style');
     style.type = 'text/css';
     style.innerHTML = `
-    table.searchfilter tr:not(.pintotop){
+    table.searchfilter span:not(.pintotop){
         display:none;
     }
-    #todolist tr.searchvisible{
+    #todolist span.searchvisible{
         display:table-row;
     }
     `;
@@ -18,10 +18,10 @@ $(document).ready(()=>{
             $("#todolist").removeClass("searchfilter");
         }else{
             $("#todolist").addClass("searchfilter");
-            $("#todolist tr").removeClass("searchvisible");
+            $("#todolist span").removeClass("searchvisible");
             cvals=cval.split(" ");
             for (i=0;i<cvals.length;i++)if (cvals[i]=="")cvals.splice(i,1)
-            $("#todolist tr").each((i,e)=>{
+            $("#todolist span").each((i,e)=>{
                 for (term of cvals){
                     term=term.toLowerCase()
                     innerText="";

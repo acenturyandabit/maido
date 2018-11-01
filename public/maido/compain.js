@@ -1,15 +1,16 @@
+compainwindow=undefined;
 window.name="maido";
 function compainClock() {
     let nextItems=[];
     let tnext;
-    for (i = 0; i < $("#todolist tr:not('.pintotop') input[data-role='name']").length; i++) {
-        if (!$("#todolist tr:not('.pintotop') input[data-role='tags']")[i].value.includes("#nocompain")) {
-            if (extractDate($("#todolist tr:not('.pintotop')")[i]) < Date.now()) {
-                nextItems.push($("#todolist tr:not('.pintotop') input[data-role='name']")[i].value);
-                if (!tnext)tnext=extractDate($("#todolist tr:not('.pintotop')")[i]);
+    for (i = 0; i < $("#todolist span:not('.pintotop') input[data-role='name']").length; i++) {
+        if (!$("#todolist span:not('.pintotop') input[data-role='tags']")[i].value.includes("#nocompain")) {
+            if (extractDate($("#todolist span:not('.pintotop')")[i]) < Date.now()) {
+                nextItems.push($("#todolist span:not('.pintotop') input[data-role='name']")[i].value);
+                if (!tnext)tnext=extractDate($("#todolist span:not('.pintotop')")[i]);
             }else{
-                if (!tnext)tnext=extractDate($("#todolist tr:not('.pintotop')")[i]);
-                nextItems.push($("#todolist tr:not('.template') input[data-role='name']")[i].value);
+                if (!tnext)tnext=extractDate($("#todolist span:not('.pintotop')")[i]);
+                nextItems.push($("#todolist span:not('.template') input[data-role='name']")[i].value);
                 break;
             }
         }
@@ -23,7 +24,7 @@ function compainClock() {
 };
 
 window.addEventListener("beforeunload",(e)=>{
-    compainwindow.close();
+    if (compainwindow)compainwindow.close();
     return;
 });
 

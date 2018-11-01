@@ -207,8 +207,8 @@ $(document).ready(() => {
 
             }
         })
-        $("#todolist tr:not(.pintotop)").each((i, e) => {
-            precheck.markercheck(e)
+        $("#todolist span:not(.pintotop)").each((i, e) => {
+            precheck.markercheck(e);
         });
         localStorage.setItem("maidoTagFormats", JSON.stringify(tagformats))
     });
@@ -231,7 +231,7 @@ $(document).ready(() => {
 
                 }
             })
-            $("#todolist tr:not(.pintotop)").each((i, e) => {
+            $("#todolist li:not(.pintotop)").each((i, e) => {
                 precheck.markercheck(e)
             });
             localStorage.setItem("maidoTagFormats", JSON.stringify(tagformats))
@@ -239,13 +239,13 @@ $(document).ready(() => {
     })
     //tagformats = JSON.parse(e.currentTarget.value);
     //localStorage.setItem("maidoTagFormats", JSON.stringify(tagformats))
-    $("li:contains('View')>div").append(
+    $("span:contains('View')>div").append(
         `
 <a onclick="$('#markerpicker').show()">Show tag configuration</a>
     `
     )
-    precheck.markercheck = (tr) => {
-        let cval = $(tr).find("[data-role='tags']")[0].value;
+    precheck.markercheck = (span) => {
+        let cval = $(span).find("[data-role='tags']")[0].value;
         bits = cval.split(" ");
         ismarker = false;
         color = "blue";
@@ -254,9 +254,10 @@ $(document).ready(() => {
                 tagname = bits[i].slice(1);
                 if (tagformats[tagname]) {
                     //.background=color;e.style.color=getContrastYIQ(color)
-                    $(tr).find("input").each((i, e) => {
+                    $(span).find("input").each((i, e) => {
                         Object.assign(e.style, tagformats[tagname]);
                     });
+                    ismarker=true;
                 }
                 //ismarker=true;
                 /*if (bits[i].split('#marker:').length>1){
@@ -264,14 +265,15 @@ $(document).ready(() => {
                 }*/
             }
         }
-        /*
-        if (ismarker){
-            $(td).find("input").each((i,e)=>{e.style.background=color;e.style.color=getContrastYIQ(color)});
-        }else{
-            $(td).find("input").each((i,e)=>{e.style.background="white"});
-        }*/
+        if (!ismarker){
+            $(span).find("input").each((i, e) => {
+                span.style.background="";
+                span.style.color="";    
+            });
+            
+        }
     }
-    $("#todolist tr:not(.pintotop)").each((i, e) => {
+    $("#todolist span:not(.pintotop)").each((i, e) => {
         precheck.markercheck(e)
     });
 });
