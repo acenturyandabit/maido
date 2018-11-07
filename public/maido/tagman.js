@@ -1,9 +1,3 @@
-$(document).ready(() => {
-    $("#todolist").on('keyup', "input[data-role='tags']", (e) => {
-        precheck.markercheck(e.currentTarget.parentElement.parentElement);
-    })
-})
-
 var colNames = {
     'aliceblue': '#f0f8ff',
     'antiquewhite': '#faebd7',
@@ -170,6 +164,12 @@ function getContrastYIQ(hexcolor) {
 }
 
 $(document).ready(() => {
+    $("#todolist").on('keyup', "input[data-role='tags']", (e) => {
+        markercheck(e.currentTarget.parentElement);
+    })
+    todolist.on('add',(s)=>{
+        markercheck(s)
+    })
     $("body").append(
         `
         <div class="dialog" id="markerpicker">
@@ -189,28 +189,55 @@ $(document).ready(() => {
 </div></div>
     `
     )
-    tagformats = JSON.parse(localStorage.getItem("maidoTagFormats"));
-    if (!tagformats) tagformats = {};
-    for (i in tagformats) {
-        newrow = $("#markerpicker tr.template")[0].cloneNode(true);
-        newrow.classList.remove("template");
-        $(newrow).find("input[placeholder='Tag name']")[0].value = i;
-        $(newrow).find("input[placeholder='Tag style']")[0].value = JSON.stringify(tagformats[i]);
-        $("#markerpicker table").append(newrow);
-    }
-    $("#markerpicker").on("change", "input", () => {
-        tagformats = {};
+    /// clear tag formats when a new list is initialised.
+    todolist.on("new", () => {
+        save_metadata.tagformats = {};
+        $("#markerpicker tr:not(.template)").remove();
+    })
+    //if local, load from localstorage.
+    todolist.on('listMetaUpdate', (d) => {
+        if (d.tagformats) {
+            for(_i in d.tagformats){
+                i=d.tagformats[_i];
+                newrow = $("#markerpicker tr.template")[0].cloneNode(true);
+                newrow.classList.remove("template");
+                $(newrow).find("input[placeholder='Tag name']")[0].value = _i;
+                $(newrow).find("input[placeholder='Tag style']")[0].value = JSON.stringify(i);
+                $("#markerpicker table").append(newrow);
+            };
+            $("#todolist span:not(.pintotop)").each((i, e) => {
+                markercheck(e);
+            });
+        }
+    })
+
+    function updateAndSaveTags() {
+        save_metadata.tagformats = {};
         $("#markerpicker tr:not(.template)").each((i, e) => {
+            //save to local
+
             try {
-                tagformats[$(e).find("input[placeholder='Tag name']")[0].value] = JSON.parse($(e).find("input[placeholder='Tag style']")[0].value);
+                save_metadata.tagformats[$(e).find("input[placeholder='Tag name']")[0].value] = JSON.parse($(e).find("input[placeholder='Tag style']")[0].value);
             } catch (ex) {
 
             }
         })
         $("#todolist span:not(.pintotop)").each((i, e) => {
-            precheck.markercheck(e);
+            markercheck(e);
         });
-        localStorage.setItem("maidoTagFormats", JSON.stringify(tagformats))
+        //actually save the tags.
+        if (webListName) {
+            todolist.rootdoc.update({
+                "tagformats": save_metadata.tagformats
+            });
+        } else {
+            saveToBrowser();
+        }
+    }
+    $("#markerpicker").on("keyup", "input", () => {
+        if (e.keyCode == 13) { //hitting enter on any input
+            updateAndSaveTags();
+        }
     });
 
     $("#markerpicker").on("keyup", ".template input", (e) => {
@@ -218,33 +245,22 @@ $(document).ready(() => {
             newNode = $("#markerpicker tr.template")[0].cloneNode(true)
             newNode.classList.remove('template');
             $("#markerpicker table").append(newNode)
-
             //$(newNode).find("." + e.currentTarget.classList[0]).focus()
             //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
             $("#markerpicker tr.template input").each((i, e) => {
                 e.value = ""
             })
-            $("#markerpicker tr:not(.template)").each((i, e) => {
-                try {
-                    tagformats[$(e).find("input[placeholder='Tag name']")[0].value] = JSON.parse($(e).find("input[placeholder='Tag style']")[0].value);
-                } catch (ex) {
-
-                }
-            })
-            $("#todolist li:not(.pintotop)").each((i, e) => {
-                precheck.markercheck(e)
-            });
-            localStorage.setItem("maidoTagFormats", JSON.stringify(tagformats))
+            updateAndSaveTags();
         }
     })
-    //tagformats = JSON.parse(e.currentTarget.value);
-    //localStorage.setItem("maidoTagFormats", JSON.stringify(tagformats))
-    $("span:contains('View')>div").append(
+    //save_metadata.tagformats = JSON.parse(e.currentTarget.value);
+    //localStorage.setItem("maidoTagFormats", JSON.stringify(save_metadata.tagformats))
+    $(".title li:contains('View')>div").append(
         `
 <a onclick="$('#markerpicker').show()">Show tag configuration</a>
     `
-    )
-    precheck.markercheck = (span) => {
+    );
+    function markercheck (span) {
         let cval = $(span).find("[data-role='tags']")[0].value;
         bits = cval.split(" ");
         ismarker = false;
@@ -252,28 +268,29 @@ $(document).ready(() => {
         for (i in bits) {
             if (bits[i][0] == "#") {
                 tagname = bits[i].slice(1);
-                if (tagformats[tagname]) {
-                    //.background=color;e.style.color=getContrastYIQ(color)
-                    $(span).find("input").each((i, e) => {
-                        Object.assign(e.style, tagformats[tagname]);
-                    });
-                    ismarker=true;
-                }
-                //ismarker=true;
-                /*if (bits[i].split('#marker:').length>1){
-                    color=bits[i].split('#marker:')[1];
-                }*/
+                $("#markerpicker tr:not(.template) input[placeholder='Tag name']").each((i,e)=>{
+                    if (e.value==tagname){
+                        try{
+                            tagstyle=JSON.parse($(e.parentElement.parentElement).find("input[placeholder='Tag style']")[0].value);
+                            $(span).find("input").each((i, e) => {
+                                Object.assign(e.style,tagstyle);
+                                ismarker = true;
+                            });
+                        }catch(e){
+
+                        }
+                    }
+                })
             }
         }
-        if (!ismarker){
+        if (!ismarker) {
             $(span).find("input").each((i, e) => {
-                span.style.background="";
-                span.style.color="";    
+                e.style.background = "";
+                e.style.color = "";
             });
-            
         }
     }
     $("#todolist span:not(.pintotop)").each((i, e) => {
-        precheck.markercheck(e)
+        markercheck(e);
     });
 });

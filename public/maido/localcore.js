@@ -1,51 +1,64 @@
+function loadFromString(str) {
+    data = JSON.parse(str);
+    $("#todolist span:not(.pintotop)").remove()
+    $("#todolist_db textarea:not(.template)").remove()
+    for (d in data) {
+        loadSingleEntry(d, data[d])
+    }
+    //make indented tasks
+    for (d in data) {
+        if (data[d].parent) {
+            $("#todolist span[data-taskgroup='" + data[d].parent + "']").append($("#todolist span[data-taskgroup='" + d + "']"));
+        }
+    }
+    if (data && Object.keys(data).length > 0) $("#nothingLeft").hide();
+    else {
+        $("#nothingLeft").show()
+    }
+}
+
+function loadSingleEntry(id, data) {
+    
+    //console.log(id,data);
+    newNode = $("#todolist span.template")[0].cloneNode(true)
+    newNode.classList.remove('pintotop');
+    newNode.classList.remove('template');
+    $(newNode).find("button").text("Remove");
+    newNode.dataset.taskgroup = id;
+
+    //clone the description box as well. 
+    dbox = $("#todolist_db .template")[0].cloneNode(true);
+    dbox.classList.remove("template");
+    dbox.dataset.taskgroup = id;
+    $("#todolist_db").append(dbox);
+    $(newNode).find("*").each((i, e) => {
+        e.dataset.taskgroup = newNode.dataset.taskgroup
+    })
+    $("#todolist").append(newNode)
+    for (p in data) {
+        e = $("[data-taskgroup='" + id + "'][data-role*='" + p + "']")[0]
+        if (e) e.value = data[p];
+    }
+    for (f in precheck) {
+        precheck[f](newNode);
+    }
+    todolist.fire('add',newNode)
+}
+
+
+
 var autosave = false;
 
 function toggleAutosave() {
     autosave = !autosave;
     if (autosave) {
-        $("span:contains('Preferences')>div span")[0].innerText = "on";
+        $("li:contains('Preferences')>div span")[0].innerText = "on";
     } else {
-        $("span:contains('Preferences')>div span")[0].innerText = "off";
+        $("li:contains('Preferences')>div span")[0].innerText = "off";
     }
 }
 
-function _maidocore() {
-    //var self = this;
-    /*
-    this.savecache = [];
-    this.logSaveTime = [];
-    this.logSaveDelta = [60000];
-    this.logSavePattern = [10, 6, 24, 7, 4, 12];
-    // initialise on first run-these will be overwritten from cache.
-    for (i in this.logSavePattern) {
-        this.savecache.push([]);
-        this.logSaveTime.push(Date.now())
-        if (i > 0) this.logSaveDelta[i] = this.logSaveDelta[i - 1] * this.logSavePattern[i - 1]
-    }
-    Object.assign(this, JSON.parse(window.localStorage.getItem('maido-core')))
-    this.pushSaveCache = function (timeStamp) {
-        this.savecache[0].push(timestamp);
-        while (this.savecache[0].length > this.logSavePattern[0]) {
-            it = this.savecache[0].shift();
-            localStorage.removeItem(it);
-        }
-    }
-    this.saveCacheUpdate = function () {
-        for (i = 1; i < self.logSavePattern.length; i++) {
-            if (Date.now() - self.logSaveTime[i] >= self.logSaveDelta[i]) {
-                self.savecache[i].push(self.savecache[i - 1][0])
-                if (self.savecache[i].length > self.logSavePattern[i]) {
-                    it = self.savecache[i].shift();
-                    localStorage.removeItem(it);
-                }
-                self.logSaveTime[i] = Date.now()
-            }
-        }
-        localStorage.setItem('maido-core', JSON.stringify(this))
-        console.log("maidocore updated save cache");
-    }*/
-    setInterval(trimSave, 60000)
-}
+setInterval(trimSave, 60000)
 
 function trimSave() {
     lskeys = Object.keys(localStorage);
@@ -61,16 +74,18 @@ function trimSave() {
             return Number(/\d+$/g.exec(b)[0]) - Number(/\d+$/g.exec(a)[0]);
         })
         if (mailist[j].length > 10) {
-            for (i = 10; i < mailist.length; i++) localStorage.remove(mailist[j][j]);
+            for (i = 10; i < mailist[j].length; i++) {
+                localStorage.removeItem(mailist[j][i]);
+            }
         }
     }
 };
 
 var precheck = {};
+var save_metadata = {};
 
-function saveToBrowser(autosave=false) {
+function saveToBrowser(autosave = false) {
     savedata = {};
-    Object.assign(maidocore, JSON.parse(window.localStorage.getItem('maido-core')))
     timestamp = Date.now()
     // save everything that is relevant
     $("[data-taskgroup][data-role]").each((i, e) => {
@@ -78,31 +93,35 @@ function saveToBrowser(autosave=false) {
         savedata[e.dataset.taskgroup][e.dataset.role] = e.value;
     });
     $("span[data-taskgroup]").each((i, e) => {
-        if (e.parentElement.id!="todolist")savedata[e.dataset.taskgroup].parent=e.parentElement.dataset.taskgroup;
+        if (e.parentElement.id != "todolist") savedata[e.dataset.taskgroup].parent = e.parentElement.dataset.taskgroup;
     });
-    window.localStorage.setItem('lastSave', JSON.stringify({
+    saveBlob = JSON.stringify({
         "name": $("#title")[0].innerText,
-        "items": savedata
-    }))
-    if (!autosave){
-        window.localStorage.setItem("mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(), JSON.stringify({
-            "name": $("#title")[0].innerText,
-            "items": savedata
-        }))
+        "items": savedata,
+        "meta": save_metadata,
+        "v": "1.1"
+    });
+    window.localStorage.setItem('lastSave', saveBlob)
+    if (!autosave) {
+        window.localStorage.setItem("mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(), saveBlob);
         console.log("saved ok")
-    }else{
+    } else {
         console.log("autosaved ok")
     }
-    
-    
+
+
 }
 
 function loadFromBrowser(key = 'lastSave') {
-    preDBTG=undefined;
-    if ($("#todolist_db textarea:visible").length>0)preDBTG=$("#todolist_db textarea:visible")[0].dataset.taskgroup;
+    preDBTG = undefined;
+    //fire the loading event
+    save_metadata=JSON.parse(window.localStorage.getItem(key));
+    if (!save_metadata)save_metadata={};
+    todolist.fire("listMetaUpdate",save_metadata);
+    if ($("#todolist_db textarea:visible").length > 0) preDBTG = $("#todolist_db textarea:visible")[0].dataset.taskgroup;
     loadFromString(JSON.stringify(JSON.parse(window.localStorage.getItem(key)).items));
     $("#title")[0].innerText = JSON.parse(window.localStorage.getItem(key)).name;
-    if (preDBTG)$("#todolist_db textarea[data-taskgroup='"+preDBTG+"']").show()
+    if (preDBTG) $("#todolist_db textarea[data-taskgroup='" + preDBTG + "']").show()
 
     console.log(key)
 }
@@ -127,7 +146,6 @@ function showLoader() {
 }
 
 function startLocal() {
-    maidocore = new _maidocore();
     $(document).ready(() => {
         $("#title")[0].contentEditable = true;
         $("#loader_dialog_list").on("click", "button", (e) => {
@@ -149,17 +167,48 @@ function startLocal() {
         loadFromBrowser();
         first_sort();
         //show autosave
-        $("span:contains('Preferences')>div").append(
+        $("li:contains('Preferences')>div").append(
             `
             <a onclick="toggleAutosave()">Toggle autosave (<span>off</span>)</a>
         `
         )
     })
-}
+    //detect if another Mai instance is running; if so, alert the user, turn on autosave, and load from localstorage whenever the window is focused.
 
-function unloadAll(){
-    //also incorporate disconnecting from the network.
-    $("#todolist span:not(.pintotop)").remove()
-    $("#todolist_db textarea:not(.template)").remove()
-    $("#title")[0].innerText="Untitled list";
+    if (Number(window.localStorage.getItem("maion")) == "1") {
+        if (confirm(
+                "Another window with Maido is open. If you keep this window open, Maido can try to automatically sync your local tasklist between tabs."
+            ) == false) {
+            setTimeout(() => {
+                window.location.href = "about:blank";
+            }, 1000);
+        } else {
+            startMultiTab();
+            window.localStorage.setItem("maion", -1);
+        }
+    }
+
+    function startMultiTab() {
+        window.addEventListener("blur", (e) => {
+            saveToBrowser(true);
+        });
+        window.addEventListener("focus", (e) => {
+            loadFromBrowser();
+        });
+    }
+    $(window).on('beforeunload', function () {
+        window.localStorage.setItem("maion", 0);
+    });
+    window.addEventListener('storage', (e) => {
+        if (e.key == "maion" && e.newValue != "1") {
+            if (e.newValue == "0") {
+                window.localStorage.setItem("maion", 1);
+            }
+            if (e.newValue == "-1") {
+                startMultiTab()
+                window.localStorage.setItem("maion", 1);
+            }
+        }
+    })
+    window.localStorage.setItem("maion", 1)
 }

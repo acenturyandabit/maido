@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="chat.css">
     <script src="../jquery.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
+    <script src="authnav.js"></script>
     <script src="chat.js"></script>
     <script>
 
@@ -26,15 +27,21 @@
 </head>
 
 <body>
-    <div id="chatscreen" style="display:none">
+    <div id="chatscreen">
         <div id="menubar">
-            <h1>HYPERTHREADER - <span id="titlebar">The Test of doom</span></h1>
+            <h1>Thredr - <span class="titlebar">Loading...</span></h1>
         </div>
         <div id="maincontent">
             <div id="sidebar">
                 <div style="padding-top:50px; background-color:lightblue">
                     <img id="propic">
                     <p id="username" contenteditable>a user</p>
+                </div>
+                <div>
+                    <em>Recent threads</em>
+                    <span>
+                        Nothing to see here... yet!
+                    </span>
                 </div>
                 <div>
                     <em>Anchored threads</em>
@@ -45,14 +52,9 @@
             </div>
             <div id="pool">
                 <h2>Chat</h2>
-                <a href="#" onclick="$('#threadDoc').toggle()">show/hide doc</a>
-                <div id="threadDoc" style="display:none"><textarea></textarea></div>
                 <div id="chatbox">
-                    <p id="ehere">>>></p>
                 </div>
                 <div id="throwbox">
-                    <div id="hoverbox">
-                    </div>
                     <input id="textbox" type="text" placeholder="@>">
                     <img onclick="$('#filebox').click()" src="rc/impic.png">
                     <!--<img onclick="$('#filebox').click()" src="camicon.png">-->
@@ -60,6 +62,12 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="dialog" id="password">
+        <h1 class="titlebar">Loading</h1>
+        <h2 class="titlebar">Enter the room password to access this room.</h2>
+        <input>
+        <button>Submit</button>
     </div>
 </body>
 

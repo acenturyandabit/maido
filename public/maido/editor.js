@@ -28,14 +28,22 @@ function makeNewTask() {
     date_reparse($(newNode).find("[data-role='date']")[0]);
     newInstance.focus();
     newInstance.scrollIntoViewIfNeeded();
-    $("#nothingLeft").hide();
+
     return newNode;
 }
+
+todolist.on('add', () => {
+    $("#nothingLeft").hide();
+
+})
+
 $(document).ready(() => {
     $("#todolist").on("keyup", ".template input", (e) => {
         if (e.keyCode == 13) {
-            makeNewTask();
-        }lastFocused=e.currentTarget;
+            nn = makeNewTask();
+            todolist.fire('add', nn);
+        }
+        lastFocused = e.currentTarget;
     })
     /*$("#todolist span.template input[data-role='name']").on("keyup",(e)=>{
         if (e.currentTarget.value!=""){
@@ -46,6 +54,7 @@ $(document).ready(() => {
         }
     })*/
     $("#todolist").on("click", "span:not(.template) button.remove", (e) => {
+        todolist.fire('remove', e);
         if (rootcl) {
             rootcl.doc(e.currentTarget.parentElement.parentElement.dataset.taskgroup).delete();
         }
@@ -63,10 +72,10 @@ $(document).ready(() => {
             e.value = ""
         });*/
         if ($("#todolist_db textarea:visible").length) {
-            parent=$("#todolist_db textarea:visible")[0].dataset.taskgroup;
-            nt=makeNewTask();
-            if(parent){
-                $("#todolist span[data-taskgroup='"+parent+"']").append(nt);
+            parent = $("#todolist_db textarea:visible")[0].dataset.taskgroup;
+            nt = makeNewTask();
+            if (parent) {
+                $("#todolist span[data-taskgroup='" + parent + "']").append(nt);
             }
             nt.scrollIntoViewIfNeeded();
         }
@@ -77,6 +86,7 @@ $(document).ready(() => {
         if (e.currentTarget.parentElement.classList.contains("template")) return;
         if (e.keyCode == 13) {
             date_reparse(e.currentTarget);
+            todolist.fire('dateChange', e);
         }
     })
     $("#todolist").on("keypress", "span:not(.template) input", (e) => {
@@ -154,4 +164,64 @@ function assertID(span) {
         assdID = $(span).find("[data-role='date']")[0].dataset.id;
     }
     return assdID;
+}
+
+
+///////////SEARCH
+$(document).ready(() => {
+
+    var style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = `
+    #todolist.searchfilter span:not(.pintotop){
+        display:none;
+    }
+    #todolist.searchfilter span.searchvisible{
+        display:block;
+    }
+    `;
+    document.getElementsByTagName('head')[0].appendChild(style);
+
+    $("#searchbar").on("keyup", () => {
+        cval = $("#searchbar")[0].value
+        if (cval == "") {
+            $("#todolist").removeClass("searchfilter");
+        } else {
+            $("#todolist").addClass("searchfilter");
+            $("#todolist span").removeClass("searchvisible");
+            cvals = cval.split(" ");
+            for (i = 0; i < cvals.length; i++)
+                if (cvals[i] == "") cvals.splice(i, 1)
+            $("#todolist span").each((i, e) => {
+                for (term of cvals) {
+                    term = term.toLowerCase()
+                    innerText = "";
+                    $(e).find("input,textarea").each((_i, _e) => {
+                        innerText += _e.value
+                    })
+                    if (innerText.toLowerCase().includes(term)) {
+                        $(e).addClass("searchvisible");
+                    }
+                }
+            })
+
+        }
+    })
+})
+
+function focusItem(taskgroup) {
+    $("span[data-taskgroup='" + taskgroup + "'] input[data-role='name']").focus();
+    $("#todolist_db>textarea").hide();
+    $("#todolist_db>textarea[data-taskgroup='" + taskgroup + "']").show();
+}
+
+function unloadAll() {
+    //also incorporate disconnecting from the network.
+    $("#todolist span:not(.pintotop)").remove();
+    $("#todolist_db textarea:not(.template)").remove();
+    $("#title")[0].innerText = "Untitled list";
+    $("#nothingLeft").show();
+    todolist.events['new'].forEach((f, i) => {
+        f()
+    });
 }

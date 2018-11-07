@@ -20,24 +20,23 @@ Cheers!
     <link rel="stylesheet" type="text/css" href="style.css">
     <title>Maido-Adaptive task tracker</title>
     <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
-    <script src="lscommon.js"></script>
+    <script src="tdl_events.js"></script>
     <script src="localcore.js"></script>
-    <script src="crisscross.js?v=1.1"></script>
     <script src="webcore.js"></script>
     <script src="support.js"></script>
     <script src="datesort.js"></script>
-    <script src="search.js"></script>
     <script src="editor.js"></script>
     <script src="tagman.js"></script>
-    <script src="compain.js"></script>
-    <script src="../svg.min.js"></script>
-    <script src="timeline.js"></script>
+    <script src="addins.js"></script>
     <script>
         $(document).ready(() => {
             $("body").on('keyup', /*'.dialog',*/ (e) => {
                 if (e.keyCode == 27) $(".dialog").hide()
             })
         });
+        function showdocs() {
+    window.open("docs.html", "blank");
+}
     </script>
 </head>
 
@@ -64,12 +63,13 @@ Cheers!
         <li>
             <a>View</a>
             <div>
-                <a onclick="toggleTimeline()">Toggle timeline</a>
+                
             </div>
         </li>
         <li>
             <a>Preferences</a>
             <div>
+                <a onclick="showAddins()">Addins</a>
             </div>
         </li>
         <li>
@@ -79,10 +79,8 @@ Cheers!
             </div>
         </li>
     </ul>
-    <div id="timeline_svg" style="display:none">
-
-    </div>
-    <ul class="secondary title">
+    
+    <!--<ul class="secondary title">
         <li>
             <a>Task List</a>
         </li>
@@ -95,8 +93,8 @@ Cheers!
         <li>
             <a>Group settings</a>
         </li>
-    </ul>
-    <div style="display:flex;flex-direction:row">
+    </ul>-->
+    <div class="core_container">
         <div id="tasklist">
             <span>Search: <input id="searchbar"></span>
             <p>Add a new task...</p>
@@ -119,6 +117,27 @@ Cheers!
             <img src="ash.png" style="width: 40%;">
             <p>Got nothing left to do? Yay! Whenever you're ready, you can add some more tasks by typing into
                 the bar above and hitting 'Enter'.</p>
+        </div>
+    </div>
+    <div class="dialog" id="addins_dialog">
+        <div style="display: flex; height: 100%;">
+            <div class="inner_dialog">
+                <h2>Addins manager</h2>
+                <div>
+                    <div>
+                        <p>Currently active addins</p>
+                        <div id="accaddin">
+                            
+                        </div>
+                    </div>
+                    <div>
+                        <p>Available addins</p>
+                        <div id="unaddin">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="dialog" id="loader_dialog">
