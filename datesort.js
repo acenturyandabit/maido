@@ -22,7 +22,7 @@ function extractDate(e) {
 
 function first_sort() {
     items = [];
-    $("tr:not(.pintotop)").each((i, e) => {
+    $("#todolist>span:not(.pintotop)").each((i, e) => {
         ti = {
             id: e.dataset.taskgroup,
             date: 9999999999999,
@@ -43,10 +43,31 @@ function first_sort() {
     })
     items.sort(itemComparer)
     for (i = 0; i < items.length; i++) {
-        $("#todolist tr.template").after($("tr[data-taskgroup=" + items[i].id + "]"));
+        $("#todolist>span.template").after($("span[data-taskgroup=" + items[i].id + "]"));
         //console.log(items[i].id)
     }
-    //console.log(items)
+
+    //dataset all IDs
+    $("#todolist>span:not(.template) [data-role='date']").each((i,e)=>{
+        idcheck=/id\:(\d+)/g.exec(e.value);
+        if (idcheck && idcheck.length>1){
+            e.dataset.timeid=idcheck[1];
+        }else e.dataset.timeid=undefined;
+    })
+
+    //handle !before and !after tags
+    $("#todolist>span:not(.template) [data-role='date']").each((i,e)=>{
+        b4=/before\:(\d+)/g.exec(e.value);
+        if (b4 && b4.length>1){
+            $("#todolist tr [data-role='date'][data-timeid='"+b4[1]+"']").parent().parent().before(e.parentElement.parentElement);
+        }
+    })
+    $("#todolist>span:not(.template) [data-role='date']").each((i,e)=>{
+        af=/after\:(\d+)/g.exec(e.value);
+        if (af && af.length>1){
+            $("#todolist tr [data-role='date'][data-timeid='"+af[1]+"']").parent().parent().after(e.parentElement.parentElement);
+        }
+    })
 }
 
 var regexes = {
@@ -59,6 +80,9 @@ var regexes = {
     now: /now/g,
     waiting: /waiting/g,
     someday: /someday/g,
+    id: /id\:(\d+)/g,
+    before: /before\:(\d+)/g,
+    after: /after\:(\d+)/g,
     free: /free:(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g
 }
 
