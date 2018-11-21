@@ -18,7 +18,6 @@ function loadFromString(str) {
 }
 
 function loadSingleEntry(id, data) {
-    
     //console.log(id,data);
     newNode = $("#todolist span.template")[0].cloneNode(true)
     newNode.classList.remove('pintotop');
@@ -42,7 +41,7 @@ function loadSingleEntry(id, data) {
     for (f in precheck) {
         precheck[f](newNode);
     }
-    todolist.fire('add',newNode)
+    todolist.fire('add', newNode)
 }
 
 
@@ -84,10 +83,8 @@ function trimSave() {
 var precheck = {};
 var save_metadata = {};
 
-function saveToBrowser(autosave = false) {
+function getSaveString() {
     savedata = {};
-    timestamp = Date.now()
-    // save everything that is relevant
     $("[data-taskgroup][data-role]").each((i, e) => {
         if (savedata[e.dataset.taskgroup] == undefined) savedata[e.dataset.taskgroup] = {};
         savedata[e.dataset.taskgroup][e.dataset.role] = e.value;
@@ -95,13 +92,22 @@ function saveToBrowser(autosave = false) {
     $("span[data-taskgroup]").each((i, e) => {
         if (e.parentElement.id != "todolist") savedata[e.dataset.taskgroup].parent = e.parentElement.dataset.taskgroup;
     });
-    saveBlob = JSON.stringify({
+    saveObj = {
         "name": $("#title")[0].innerText,
         "items": savedata,
-        "meta": save_metadata,
+        "tagformats": save_metadata.tagformats,
         "v": "1.1"
-    });
-    window.localStorage.setItem('lastSave', saveBlob)
+    }
+    todolist.fire("save", saveObj);
+    saveBlob = JSON.stringify(saveObj);
+    return saveBlob;
+}
+
+function saveToBrowser(autosave = false, autoTarget = 'lastSave') {
+    timestamp = Date.now()
+    // save everything that is relevant
+    saveBlob = getSaveString();
+    window.localStorage.setItem(autoTarget, saveBlob)
     if (!autosave) {
         window.localStorage.setItem("mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(), saveBlob);
         console.log("saved ok")
@@ -115,15 +121,15 @@ function saveToBrowser(autosave = false) {
 function loadFromBrowser(key = 'lastSave') {
     preDBTG = undefined;
     //fire the loading event
-    save_metadata=JSON.parse(window.localStorage.getItem(key));
-    if (!save_metadata)save_metadata={};
-    todolist.fire("listMetaUpdate",save_metadata);
+    save_metadata = JSON.parse(window.localStorage.getItem(key));
+    if (!save_metadata) save_metadata = {};
+    todolist.fire("load", save_metadata);
     if ($("#todolist_db textarea:visible").length > 0) preDBTG = $("#todolist_db textarea:visible")[0].dataset.taskgroup;
     loadFromString(JSON.stringify(JSON.parse(window.localStorage.getItem(key)).items));
     $("#title")[0].innerText = JSON.parse(window.localStorage.getItem(key)).name;
     if (preDBTG) $("#todolist_db textarea[data-taskgroup='" + preDBTG + "']").show()
 
-    console.log(key)
+    console.log(key);
 }
 
 function showLoader() {
@@ -174,39 +180,53 @@ function startLocal() {
         )
     })
     //detect if another Mai instance is running; if so, alert the user, turn on autosave, and load from localstorage whenever the window is focused.
-
+    var selfZero;
     if (Number(window.localStorage.getItem("maion")) == "1") {
-        if (confirm(
-                "Another window with Maido is open. If you keep this window open, Maido can try to automatically sync your local tasklist between tabs."
-            ) == false) {
-            setTimeout(() => {
-                window.location.href = "about:blank";
-            }, 1000);
-        } else {
-            startMultiTab();
-            window.localStorage.setItem("maion", -1);
-        }
+        //try to change it to 0 and see if anyone (that isnt me) does anything.
+        selfZero = true;
+        localStorage.setItem("maion", 0);
     }
 
     function startMultiTab() {
         window.addEventListener("blur", (e) => {
-            saveToBrowser(true);
+            saveToBrowser(true, "auto_" + $("#title")[0].innerText);
         });
         window.addEventListener("focus", (e) => {
-            loadFromBrowser();
+            try {
+                loadFromBrowser("auto_" + $("#title")[0].innerText);
+            } catch (e) {
+
+            }
         });
     }
     $(window).on('beforeunload', function () {
         window.localStorage.setItem("maion", 0);
     });
     window.addEventListener('storage', (e) => {
+        console.log("ohno");
         if (e.key == "maion" && e.newValue != "1") {
             if (e.newValue == "0") {
-                window.localStorage.setItem("maion", 1);
+                //set back to 1 after a delay.
+                setTimeout(() => window.localStorage.setItem("maion", 1), 1000);
+                if (selfZero) selfZero = false;
+                else {
+                    window.localStorage.setItem("maion", 2);
+                    //the other window is active - let it send the alert. 
+
+                }
             }
             if (e.newValue == "-1") {
-                startMultiTab()
+                startMultiTab();
                 window.localStorage.setItem("maion", 1);
+            }
+            if (e.newValue == "2") {
+                if (confirm(
+                        "Another window with Maido is open. If you keep this window open, Maido can try to automatically sync your local tasklist between tabs."
+                    ) == false) {
+                    //do nothing; just dont start multitab
+                } else {
+                    window.localStorage.setItem("maion", -1);
+                }
             }
         }
     })

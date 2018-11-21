@@ -1,23 +1,23 @@
-var thisSetName="my_awesome_name";
-
 /*//TODO:
 - Difficulty scaling
 - Minimal answers
 - Full answers
 */
-qSheets.y12adv._category_._subcategory_[thisSetName]={
-	prettyName:"Check out this awesome sheet!",
-	notes: "Something to show in a note at the beginning of the sheet.",
-	instruction: "Tell your students to do something!",
-	data:{},// Store information about the last generated question between calls to subfunctions.
-	gen:function (rootdiv,difficulty){ // Generate a single question.
-		for (let i=0;i<10;i++){
-			let questionString="";
+
+qSheets.create("path/to/sheet", {
+	prettyName: "Name to be displayed to the user.",
+	notes: "Teaching material, probably.",
+	instruction: "Have a go at these questions!",
+	data: {}, // Store information about the last generated question between calls to subfunctions.
+	gen: [function (difficulty) { // Generate a single question, returning divs for the question, min answer, and max answer.
+			let qdiv=document.createElement('div');
+			let a_min_div=document.createElement('div');
+			let a_max_div=document.createElement('div');
+			let questionString = "";
 			//generate expression
-			
 			//display it
-			render(rootdiv,questionString);
-			
+			render(qdiv, questionString);
+
 			/*
 			if (setSettings.answMax){
 				//Now for the answer!
@@ -55,12 +55,23 @@ qSheets.y12adv._category_._subcategory_[thisSetName]={
 				//generating answer
 				
 			}*/
-			
-			
-			
+
+
+
 			updateDiff();
-			rootdiv.appendChild(document.createElement('hr'));
-		}
+			qdiv.appendChild(document.createElement('hr'));
+
+			return {q:qdiv,a_min:a_min_div,a_max:a_max_div};
+		}]
 	}
-	
-}
+
+
+
+})
+
+
+
+
+
+
+

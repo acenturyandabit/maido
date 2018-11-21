@@ -1,11 +1,12 @@
 <html>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="chat.css">
+    <link rel="stylesheet" type="text/css" href="chat.css?v=2">
     <script src="../jquery.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
     <script src="authnav.js"></script>
     <script src="chat.js"></script>
+    <script src="camera.js"></script>
     <script>
 
         var config = {
@@ -39,23 +40,18 @@
                 </div>
                 <div>
                     <em>Recent threads</em>
-                    <span>
-                        Nothing to see here... yet!
-                    </span>
                 </div>
                 <div>
                     <em>Anchored threads</em>
-                    <span>
-                        Nothing to see here... yet!
-                    </span>
                 </div>
             </div>
             <div id="pool">
-                <h2>Chat</h2>
+                <h2>Chat::<span class="threadName"></span></h2>
                 <div id="chatbox">
                 </div>
                 <div id="throwbox">
                     <input id="textbox" type="text" placeholder="@>">
+                    <img onclick="showCamera()" src="rc/camera.png">
                     <img onclick="$('#filebox').click()" src="rc/impic.png">
                     <!--<img onclick="$('#filebox').click()" src="camicon.png">-->
                     <input id="filebox" type="file" style="display:none">
@@ -63,11 +59,19 @@
             </div>
         </div>
     </div>
+    <div class="dialog" id="camera">
+        <p>Click anywhere to take a photo and send it. Press escape to cancel.</p>
+        <video id="v_camera" playsinline autoplay muted></video>
+    </div>
     <div class="dialog" id="password">
         <h1 class="titlebar">Loading</h1>
-        <h2 class="titlebar">Enter the room password to access this room.</h2>
+        <h2>Enter the room password to access this room.</h2>
         <input>
         <button>Submit</button>
+    </div>
+    <div class="floatyButtons">
+        <img src="rc/branch.png" onclick="fork()">
+        <img src="rc/deselect.png" onclick="deselect()">
     </div>
 </body>
 

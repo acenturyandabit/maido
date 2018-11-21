@@ -8,7 +8,11 @@ function _todolist() {
         this.fire = function (e, args) {
             if (this.events[e]) {
                 this.events[e].forEach((f, i) => {
-                    f(args)
+                    try{
+                        f(args)
+                    }catch (e){
+                        console.log(e);
+                    }
                 });
             }
         }
@@ -20,8 +24,18 @@ function _todolist() {
         })
 
     }
+    this.lastSave={};
+    this.registerAndTryLoad=function(f){
+        this.on("load",f);
+        //get the last stored file and send it to the function.
+        f(this.lastSave);
+        
+    }
 };
 todolist = new _todolist();
 
 //listMetaUpdate - on local as well as web load
 //tagChange
+todolist.on("load",(d)=>{
+    todolist.lastSave=d;
+})

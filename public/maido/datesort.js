@@ -20,6 +20,18 @@ function extractDate(e) {
     return -1;
 }
 
+function extractID(e) {
+    if (el = $(e).find("[data-role='date']")[0]) {
+        //if (el.value.includes("auto")) date_reparse(el, true);
+        if ((bits = /id:(\d+)/g.exec(el.value)) != null) {
+            if (!isNaN(bits[i])) {
+                return Number(bits[1]);
+            }
+        }
+    }
+    return -1;
+}
+
 function first_sort() {
     items = [];
     $("#todolist>span:not(.pintotop)").each((i, e) => {

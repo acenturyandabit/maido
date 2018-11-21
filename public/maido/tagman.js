@@ -1,3 +1,159 @@
+function ensureHexColor(col) {
+    if (col[0] == "#") return col;
+    else return colNames[col];
+}
+
+function getContrastYIQ(hexcolor) {
+    hexcolor = ensureHexColor(hexcolor)
+    hexcolor = hexcolor.slice(1);
+    var r = parseInt(hexcolor.substr(0, 2), 16);
+    var g = parseInt(hexcolor.substr(2, 2), 16);
+    var b = parseInt(hexcolor.substr(4, 2), 16);
+    var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? 'black' : 'white';
+}
+
+$(document).ready(() => {
+    $("#todolist").on('keyup', "input[data-role='tags']", (e) => {
+        markercheck(e.currentTarget.parentElement);
+    })
+    todolist.on('add', (s) => {
+        markercheck(s)
+    })
+    $("body").append(
+        `
+        <div class="dialog" id="markerpicker">
+        <div style="display: flex; height: 100%;">
+        <div class="inner_dialog"id="markerpicker_in">
+<h2>Tag editor</h2>
+<table>
+<tr class="template">
+<td>
+<input placeholder="Tag name"></input>
+</td>
+<td>
+<input placeholder="Tag style"></input>
+</td>
+</tr>
+</table>
+</div></div>
+    `
+    )
+    /// clear tag formats when a new list is initialised.
+    todolist.on("new", () => {
+        save_metadata.tagformats = {};
+        $("#markerpicker tr:not(.template)").remove();
+    })
+    //if local, load from localstorage.
+    todolist.on('load', (d) => {
+        if (d.tagformats) {
+            $("#markerpicker tr:not(.template)").remove();
+            for (_i in d.tagformats) {
+                i = d.tagformats[_i];
+                newrow = $("#markerpicker tr.template")[0].cloneNode(true);
+                newrow.classList.remove("template");
+                $(newrow).find("input[placeholder='Tag name']")[0].value = _i;
+                $(newrow).find("input[placeholder='Tag style']")[0].value = JSON.stringify(i);
+                $("#markerpicker table").append(newrow);
+            };
+            $("#todolist span:not(.pintotop)").each((i, e) => {
+                markercheck(e);
+            });
+        }
+    })
+
+    function updateAndSaveTags() {
+        save_metadata.tagformats = {};
+        $("#markerpicker tr:not(.template)").each((i, e) => {
+            //save to local
+            try {
+                save_metadata.tagformats[$(e).find("input[placeholder='Tag name']")[0].value] = JSON.parse($(e).find("input[placeholder='Tag style']")[0].value);
+            } catch (ex) {
+
+            }
+        })
+        $("#todolist span:not(.pintotop)").each((i, e) => {
+            markercheck(e);
+        });
+        //actually save the tags.
+        if (webListName) {
+            todolist.rootdoc.update({
+                "tagformats": save_metadata.tagformats
+            });
+        } else {
+            saveToBrowser();
+        }
+    }
+    $("#markerpicker").on("keyup", "input", (e) => {
+        if (e.keyCode == 13) { //hitting enter on any input
+            updateAndSaveTags();
+        }
+    });
+
+    $("#markerpicker").on("keyup", ".template input", (e) => {
+        if (e.keyCode == 13) {
+            newNode = $("#markerpicker tr.template")[0].cloneNode(true)
+            newNode.classList.remove('template');
+            $("#markerpicker table").append(newNode)
+            //$(newNode).find("." + e.currentTarget.classList[0]).focus()
+            //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
+            $("#markerpicker tr.template input").each((i, e) => {
+                e.value = ""
+            })
+            updateAndSaveTags();
+        }
+    })
+    //save_metadata.tagformats = JSON.parse(e.currentTarget.value);
+    //localStorage.setItem("maidoTagFormats", JSON.stringify(save_metadata.tagformats))
+    $(".title li:contains('View')>div").append(
+        `
+<a onclick="$('#markerpicker').show()">Show tag configuration</a>
+    `
+    );
+
+    
+    $("#todolist span:not(.pintotop)").each((i, e) => {
+        markercheck(e);
+    });
+});
+
+
+
+
+function markercheck(span) {
+    let cval = $(span).find("[data-role='tags']")[0].value;
+    bits = cval.split(" ");
+    ismarker = false;
+    tags=[];
+    color = "blue";
+    for (i in bits) {
+        if (bits[i][0] == "#") {
+            tagname = bits[i].slice(1);
+            tags.push(tagname);
+            $("#markerpicker tr:not(.template) input[placeholder='Tag name']").each((i, e) => {
+                if (e.value == tagname) {
+                    try {
+                        tagstyle = JSON.parse($(e.parentElement.parentElement).find("input[placeholder='Tag style']")[0].value);
+                        $(span).find("input").each((i, e) => {
+                            Object.assign(e.style, tagstyle);
+                            ismarker = true;
+                        });
+                    } catch (e) {
+
+                    }
+                }
+            })
+        }
+    }
+    if (!ismarker) {
+        $(span).find("input").each((i, e) => {
+            e.style.background = "";
+            e.style.color = "";
+        });
+    }
+    return tags;
+}
+
 var colNames = {
     'aliceblue': '#f0f8ff',
     'antiquewhite': '#faebd7',
@@ -147,150 +303,3 @@ var colNames = {
     'yellow': '#ffff00',
     'yellowgreen': '#9acd32'
 };
-
-function ensureHexColor(col) {
-    if (col[0] == "#") return col;
-    else return colNames[col];
-}
-
-function getContrastYIQ(hexcolor) {
-    hexcolor = ensureHexColor(hexcolor)
-    hexcolor = hexcolor.slice(1);
-    var r = parseInt(hexcolor.substr(0, 2), 16);
-    var g = parseInt(hexcolor.substr(2, 2), 16);
-    var b = parseInt(hexcolor.substr(4, 2), 16);
-    var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-    return (yiq >= 128) ? 'black' : 'white';
-}
-
-$(document).ready(() => {
-    $("#todolist").on('keyup', "input[data-role='tags']", (e) => {
-        markercheck(e.currentTarget.parentElement);
-    })
-    todolist.on('add',(s)=>{
-        markercheck(s)
-    })
-    $("body").append(
-        `
-        <div class="dialog" id="markerpicker">
-        <div style="display: flex; height: 100%;">
-        <div class="inner_dialog"id="markerpicker_in">
-<h2>Tag editor</h2>
-<table>
-<tr class="template">
-<td>
-<input placeholder="Tag name"></input>
-</td>
-<td>
-<input placeholder="Tag style"></input>
-</td>
-</tr>
-</table>
-</div></div>
-    `
-    )
-    /// clear tag formats when a new list is initialised.
-    todolist.on("new", () => {
-        save_metadata.tagformats = {};
-        $("#markerpicker tr:not(.template)").remove();
-    })
-    //if local, load from localstorage.
-    todolist.on('listMetaUpdate', (d) => {
-        if (d.tagformats) {
-            for(_i in d.tagformats){
-                i=d.tagformats[_i];
-                newrow = $("#markerpicker tr.template")[0].cloneNode(true);
-                newrow.classList.remove("template");
-                $(newrow).find("input[placeholder='Tag name']")[0].value = _i;
-                $(newrow).find("input[placeholder='Tag style']")[0].value = JSON.stringify(i);
-                $("#markerpicker table").append(newrow);
-            };
-            $("#todolist span:not(.pintotop)").each((i, e) => {
-                markercheck(e);
-            });
-        }
-    })
-
-    function updateAndSaveTags() {
-        save_metadata.tagformats = {};
-        $("#markerpicker tr:not(.template)").each((i, e) => {
-            //save to local
-
-            try {
-                save_metadata.tagformats[$(e).find("input[placeholder='Tag name']")[0].value] = JSON.parse($(e).find("input[placeholder='Tag style']")[0].value);
-            } catch (ex) {
-
-            }
-        })
-        $("#todolist span:not(.pintotop)").each((i, e) => {
-            markercheck(e);
-        });
-        //actually save the tags.
-        if (webListName) {
-            todolist.rootdoc.update({
-                "tagformats": save_metadata.tagformats
-            });
-        } else {
-            saveToBrowser();
-        }
-    }
-    $("#markerpicker").on("keyup", "input", () => {
-        if (e.keyCode == 13) { //hitting enter on any input
-            updateAndSaveTags();
-        }
-    });
-
-    $("#markerpicker").on("keyup", ".template input", (e) => {
-        if (e.keyCode == 13) {
-            newNode = $("#markerpicker tr.template")[0].cloneNode(true)
-            newNode.classList.remove('template');
-            $("#markerpicker table").append(newNode)
-            //$(newNode).find("." + e.currentTarget.classList[0]).focus()
-            //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
-            $("#markerpicker tr.template input").each((i, e) => {
-                e.value = ""
-            })
-            updateAndSaveTags();
-        }
-    })
-    //save_metadata.tagformats = JSON.parse(e.currentTarget.value);
-    //localStorage.setItem("maidoTagFormats", JSON.stringify(save_metadata.tagformats))
-    $(".title li:contains('View')>div").append(
-        `
-<a onclick="$('#markerpicker').show()">Show tag configuration</a>
-    `
-    );
-    function markercheck (span) {
-        let cval = $(span).find("[data-role='tags']")[0].value;
-        bits = cval.split(" ");
-        ismarker = false;
-        color = "blue";
-        for (i in bits) {
-            if (bits[i][0] == "#") {
-                tagname = bits[i].slice(1);
-                $("#markerpicker tr:not(.template) input[placeholder='Tag name']").each((i,e)=>{
-                    if (e.value==tagname){
-                        try{
-                            tagstyle=JSON.parse($(e.parentElement.parentElement).find("input[placeholder='Tag style']")[0].value);
-                            $(span).find("input").each((i, e) => {
-                                Object.assign(e.style,tagstyle);
-                                ismarker = true;
-                            });
-                        }catch(e){
-
-                        }
-                    }
-                })
-            }
-        }
-        if (!ismarker) {
-            $(span).find("input").each((i, e) => {
-                e.style.background = "";
-                e.style.color = "";
-            });
-        }
-    }
-    $("#todolist span:not(.pintotop)").each((i, e) => {
-        markercheck(e);
-    });
-});

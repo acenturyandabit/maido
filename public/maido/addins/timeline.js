@@ -1,5 +1,5 @@
 var vis;
-addins.timeline = function () {
+addins.timeline = new function () {
 
     this.init = function () {
         if (!vis) {
@@ -79,6 +79,7 @@ addins.timeline = function () {
         todolist.on('remove', (e) => {
             timelineItems.remove(e.currentTarget.parentElement.dataset.taskgroup);
         })
+        /*
         todolist.on('add', (e) => {
             d = extractDate(e);
             if (d != -1) {
@@ -89,10 +90,10 @@ addins.timeline = function () {
                 }]);
             }
 
-        })
+        })*/
+        ////add function for clearing everything.
     }
-    return this;
-}();
+};
 
 function toggleTimeline() {
     $("#timeline_container").toggle();

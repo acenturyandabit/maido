@@ -1,0 +1,30 @@
+
+#todolist_db {
+    display: flex;
+}
+#desc_sidebar {
+    flex: 1 1 auto;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction:column;
+}
+
+#todolist_db{
+    flex: 2 2 auto;
+}
+
+.core_container {
+    display: flex;
+    flex-direction: row;
+}
+
+#tasklist {
+    flex: 0 0 auto;
+}
+
+
+
+
+
+

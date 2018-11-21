@@ -1,0 +1,79 @@
+<html>
+
+<head>
+  <script src="../../jquery.min.js"></script>
+  <script src="adapter-latest.js"></script>
+  <script>
+    $(() => {
+      var localPeerConnection;
+      localPeerConnection = new RTCPeerConnection();
+      var gyroChannel = localPeerConnection.createDataChannel("gyroChannel");
+      localPeerConnection.addEventListener('icecandidate', (e)=>{
+        if (e.candidate){
+          remotePeerConnection.addIceCandidate(e.candidate).then(()=>{
+            channelReady++;
+          })
+        }
+      });
+      gyroChannel.addEventListener("open", gyroChannelStateChange);
+      gyroChannel.addEventListener("close", gyroChannelStateChange);
+
+      var remotePeerConnection;
+      remotePeerConnection = new RTCPeerConnection();
+      remoteConnection.on("icecandidate", ()=>{
+        if (e.candidate){
+          localPeerConnection.addIceCandidate(e.candidate).then(()=>{
+            channelReady++;
+          })
+        }
+      })
+      var rcvchan;
+      remoteConnection.on("datachannel", (e)=>{
+        rcvchan=e.channel;
+        rcvchan.on("message",(e)=>{
+          console.log(e.data)
+        })
+      });
+
+      localPeerConnection.createOffer().then((d)=>{
+        localPeerConnection.setLocalDescription(d);
+        remotePeerConnection.setRemoteDescription(d);
+        remotePeerConnection.createAnswer().then((d)=>{
+          remotePeerConnection.setLocalDescription(d);
+          localPeerConnection.setRemoteDescription(d);
+        })
+      });
+
+      channelReady = 0;
+
+      c = $("canvas")[0];
+      c.clientWidth = 500;
+      c.clientHeight = 500;
+      c.width = 500;
+      c.height = 500;
+      x = 250;
+      y = 250;
+      ctx = c.getContext('2d');
+      if (window.DeviceMotionEvent) {
+        window.ondeviceorientation = function (event) {
+          beta = event.beta;
+          gamma = event.gamma;
+          x += gamma / 10;
+          y += beta / 10;
+          ctx.fillRect(x, y, 1, 1);
+          if (channelReady==2) {
+            gyroChannel.send({'x':x,'y':y});
+          }
+
+
+        };
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <canvas></canvas>
+</body>
+
+</html>

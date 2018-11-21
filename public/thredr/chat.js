@@ -1,101 +1,255 @@
-function loadMessages() {
-    db.collection('hyperthreader').doc(roomName).get().then((doc) => {
-        if (doc.exists) {
-
-        } else {
-            msgroot = db.collection('hyperthreader').doc(roomName).collection('messages');
-            //create a new room, if appropriate authorisation.
-            db.collection('hyperthreader').doc(roomName).set({
-                "onlineUsers": []
-            });
-            //db.collection('hyperthreader').doc(roomName).collection('messages').add("Hello world!");
+////////////////////// UI handling //////////////////////
+var thredr = new Proxy({}, {
+    set: function (obj, prop, v) {
+        if (prop == "currentThread") {
+            $(".threadName").text(v);
         }
-        msgroot = db.collection('hyperthreader').doc(roomName).collection('messages');
-        msgroot.onSnapshot((shot) => {
-            shot.docChanges().forEach((change) => {
-                if (change.type == "added") {
-                    if (change.doc.metadata.hasPendingWrites) return;
-                    loadMessage(change.doc.data(), change.doc.id);
-                    //add a new message to the chat.
-                } else if (change.type == "modified") {
-                    updateMessage(change.doc.data(), change.doc.id);
-                }
-            })
-        })
+        obj[prop] = v;
+    }
+});
+
+$(document).ready(() => {
+    $("body").on('keyup', /*'.dialog',*/ (e) => {
+        if (e.keyCode == 27) $(".dialog").hide()
     })
+});
+
+$(() => {
+    $("#sidebar").on("click", "div[data-tid]", e => {
+        showThread(e.currentTarget.dataset.tid);
+    });
+    thredr.currentThread = "main";
+});
+
+function showThread(t) {
+    thredr.currentThread = t;
+    $(".msg").hide();
+    $(".msg[data-" + t + "]").show();
 }
 
+////////////////////////data and data storage /////////////////////////
+var storeRoot;
+var msgroot;
+var thrdroot;
+var userRoot;
 
-var currentThread = "main";
+function loadMessages() {
+    db.collection("hyperthreader")
+        .doc(roomName)
+        .get()
+        .then(doc => {
+            if (!doc.exists) {
+                msgroot = db
+                    .collection("hyperthreader")
+                    .doc(roomName)
+                    .collection("messages");
+                //create a new room, if appropriate authorisation.
+                db.collection("hyperthreader")
+                    .doc(roomName)
+                    .set({
+                        onlineUsers: []
+                    });
+                db.collection("hyperthreader")
+                    .doc(roomName)
+                    .collection("threads")
+                    .doc("main")
+                    .set({
+                        prettyName: "main"
+                    });
+            }
+            //ensure userdata exists.
+            db.collection("hyperthreader")
+                .doc(roomName)
+                .collection("users")
+                .doc(userdata.uid)
+                .get()
+                .then(d => {
+                    if (!d.exists) {
+                        db.collection("hyperthreader")
+                            .doc(roomName)
+                            .collection("users")
+                            .doc(userdata.uid)
+                            .set({
+                                prettyName: userdata.prettyName
+                            });
+                    }
+                });
+            //create/open a storage bucket.
+            storeRoot = storage
+                .ref()
+                .child("hyperthreader")
+                .child(roomName);
+            $(".titlebar").text(roomName);
+            msgroot = db
+                .collection("hyperthreader")
+                .doc(roomName)
+                .collection("messages");
+            msgroot.onSnapshot(shot => {
+                shot.docChanges().forEach(change => {
+                    function loadMessage(data, id) {
+                        try {
+                            if ($(".msg[data-mid='" + id + "']").length == 0) {
+                                newItem = $.parseHTML(
+                                    `<div class='msg' data-mid='` +
+                                    id + `' data-uid='` + data.uid +
+                                    `' data-date='` + data.t + `'>
+                            <span>` +
+                                    userdata.others[data.uid].prettyName +
+                                    `:</span><span>` +
+                                    data.msg +
+                                    `</span>
+                            <span>:: ` + new Date(data.t).toLocaleTimeString() + `</span>
+                            </div>`
+                                )[0];
+                            } else {
+                                newItem = $(".msg[data-mid='" + id + "']")[0];
+                            }
+                            if (data.threads) {
+                                for (i in data.threads) {
+                                    newItem.dataset[i] = 1;
+                                }
+                            }
+                            if (data.metadata == "isImage")
+                                newItem.children[1].innerHTML =
+                                "<img src='" + data.message + "'>";
+                            //tactfully put it into the box. Go backwards from the last message until you find a message earlier than it, and put it behind that message.
+
+                            wasAppended = false;
+                            $("#chatbox div.msg").sort((a, b) => {
+                                return b.dataset.date - a.dataset.date
+                            }).each((i, e) => {
+                                if (Number(e.dataset.date) < Number(data.t)) {
+                                    $(e).after(newItem);
+                                    wasAppended = true;
+                                    return false;
+                                }
+                            })
+                            if (!wasAppended){
+                                $("#chatbox").append(newItem);
+                            } 
+                            if (data.threads && data.threads[thredr.currentThread]) {
+                                $(newItem).show();
+                                //show it.
+                            } else {
+                                $(newItem).hide();
+                                //put a blink on the thread indicator.
+                            }
+                        } catch (e) {
+                            setTimeout(function () {
+                                loadMessage(data, id);
+                            }, 300);
+                        }
+                    }
+                    loadMessage(change.doc.data(), change.doc.id);
+                });
+            });
+            thrdroot = db
+                .collection("hyperthreader")
+                .doc(roomName)
+                .collection("threads");
+            thrdroot.onSnapshot(shot => {
+                shot.docChanges().forEach(change => {
+                    //if (change.doc.metadata.hasPendingWrites) return;
+                    let data = change.doc.data();
+                    let id = change.doc.id;
+                    if ($(".thread [data-tid='" + id + "']").length > 0) {
+                        kai = $(".thread [data-tid='" + id + "']")[0];
+                        //update prettyname, etc.
+                        kai.children[0].innerText = data.prettyName;
+                    } else {
+                        newItem = $.parseHTML(
+                            `<div class='thread' data-tid='` +
+                            id +
+                            `'>
+                        <span class='prettyName'>` +
+                            data.prettyName +
+                            `</span>`
+                        )[0];
+                        $("em:contains('Recent threads')")
+                            .parent()
+                            .append(newItem);
+                    }
+                });
+            });
+            userRoot = db
+                .collection("hyperthreader")
+                .doc(roomName)
+                .collection("users");
+            userRoot.onSnapshot(shot => {
+                shot.docChanges().forEach(change => {
+                    //if (change.doc.metadata.hasPendingWrites) return;
+                    userdata.others[change.doc.id] = change.doc.data();
+                    $(`div.msg[data-uid="` + change.doc.id + `"]>span:nth-child(1)`).text(userdata.others[change.doc.id].prettyName + ":");
+                });
+            });
+        });
+}
+
+//////////////////////////// Local user sending information /////////////////////////////////
+
 //sendmessage: fired when LOCAL USER sends a message.
-function sendMessage(user, prev, message, mname, metadata) {
+function sendMessage(user, message, mname, metadata) {
     chrono_id = user + Date.now();
     newItem = {
         uid: user,
         msg: message,
-        p: prev,
+        t: Date.now(),
         meta: metadata,
-        thread: currentThread
+        threads: {},
+        primary_thread: thredr.currentThread
     };
+    newItem.threads[thredr.currentThread] = 1;
     if (!mname) {
         //new message
         msgroot.doc(chrono_id).set(newItem);
     } else {
         msgroot.doc(mname).update(newItem);
     }
-    loadMessage(newItem, chrono_id);
-    /*
-    if (metadata == "isImage") {
-        trd.innerHTML = `<span class="msg"><span class="user">` + user + `:</span><img src='` + message + `'><span class="tid">>` + smartThreadID(toput, message) + `</span>`;
-    } else {
-
-        trd.innerHTML = `<span class="msg"><span class="user">` + user + `:</span><span class="innermsg">` + message + `</span><span class="tid">>` + smartThreadID(toput, message) + `</span>`;
-    }*/
+    //loadMessage(newItem, chrono_id);
+    return chrono_id;
 }
 
-//loadMessage: fired when message recieved from server.
-function loadMessage(data, id) {
-    newItem = $.parseHTML(
-        `<div class='msg' data-mid='` + id + `'>
-        <span>` + data.uid + `</span><span>` + data.msg + `</span>
-        <span>timestamp</span>
-        </div>`
-    )[0];
-    //put it after its previous item.
-    if (data.p != "") {
-        function tryAppendlist(_newItem, prev) {
-            if ($("#chatbox div[data-mid='" + prev + "'] ").length > 0) {
-                $("#chatbox div[data-mid='" + prev + "'] ").after(_newItem);
-            } else {
-                setTimeout(()=>{tryAppendlist(_newItem,prev)},300);
-            }
-        }
-        tryAppendlist(newItem,data.p);
-    } else {
-        $("#chatbox").append(newItem);
-    }
-    if (currentThread == data.thread) {
-        $(newItem).show();
-        //show it.
-    } else {
-        $(newItem).hide();
-    }
-    // create a div for the message, and hide it. 
-    // if it is the last message of the current thread, then show it.
-    // if message is the final message of a thread, then so be it. 
-    // otherwise we need to figure out which thread it belongs to. 
+//changing username
+$(() => {
+    $("#username").on("input", e => {
+        userRoot.doc(userdata.uid).update({
+            prettyName: userdata.prettyName
+        });
+        localStorage.setItem('userdata', JSON.stringify(userdata.saveableData()));
+    });
+});
+
+function deselect() {
+    $(".msg.selected").removeClass("selected");
+    $(".floatyButtons").hide();
 }
 
-/*
-//update images.
-function updateMessage(data, id) {
-    if (data.metadata == "isImage") $("[data-dbid='" + id + "']").children(".msg").children(".innermsg")[0].innerHTML = "<img src='" + data.message + "'>";
-}*/
+function fork() {
+    //generate new thread ID
+    tid = puid();
+    // add selected messages to thread
+    $(".msg.selected").each((i, e) => {
+        e.dataset[tid] = 1;
+        msg_up_ob = {
+            primary_thread: tid
+        };
+        msg_up_ob["threads." + tid] = 1;
+        msgroot.doc(e.dataset.mid).update(msg_up_ob);
+    });
+    //send thread information
+    thrdroot.doc(String(tid)).set({
+        prettyName: tid
+    });
+    // set current thread as active
+    showThread(tid);
+    //show thread in sidebar
 
-var storeRoot;
+    //deselect.
+    deselect();
+}
 
 $(() => {
-    $("#textbox").on("keyup", (e) => {
+    $("#textbox").on("keyup", e => {
         cbox = e.currentTarget;
         cbox.style.backgroundColor = "white";
         if (e.key == "Enter") {
@@ -105,39 +259,43 @@ $(() => {
                 } else {
                     pm = "";
                 }
-                sendMessage(userdata.uid, pm, $("#textbox")[0].value, undefined, "none");
+                sendMessage(userdata.uid, $("#textbox")[0].value, undefined, "none");
                 cbox.value = "";
             }
         }
-    })
-    /*
-        $("#filebox").on("change", (e) => {
-            console.log(e);
-            if (e.currentTarget.files.length) {
-                //wait for the user to hit enter before sending
-                cbox = $("#textbox")[0];
-                (function () {
-                    let name = sendMessage($("#username").text(), cbox.placeholder.slice(1), "Sending picture...");
-                    storeRoot.child(Date.now().toString()).put(e.currentTarget.files[0]).then((fs) => {
-                        fs.ref.getDownloadURL().then((url) => {
-                            dbroot.doc(name).update({
+    });
+    $("#chatbox").on("click", "div.msg", e => {
+        e.currentTarget.classList.add("selected");
+        fb = $(".floatyButtons")[0];
+        fb.style.left = e.pageX;
+        fb.style.top = e.pageY;
+        $(".floatyButtons").show();
+    });
+    $("#filebox").on("change", e => {
+        console.log(e);
+        if (e.currentTarget.files.length) {
+            //wait for the user to hit enter before sending
+            cbox = $("#textbox")[0];
+            (function () {
+                let name = sendMessage(
+                    userdata.uid,
+                    "Sending picture...",
+                    undefined,
+                    "none"
+                );
+                storeRoot
+                    .child(Date.now().toString())
+                    .put(e.currentTarget.files[0])
+                    .then(fs => {
+                        fs.ref.getDownloadURL().then(url => {
+                            msgroot.doc(name).update({
                                 message: url,
                                 metadata: "isImage"
                             });
                             //$("#propic")[0].src = url;
-
-                        })
-                    })
-                })();
-            }
-            //return firebase.storage().ref(filePath).put(file).then(function(fileSnapshot) {
-            // 3 - Generate a public URL for the file.
-            //return fileSnapshot.ref.getDownloadURL().then((url) => {
-              // 4 - Update the chat message placeholder with the image's URL.
-              //return messageRef.update({
-                //imageUrl: url,
-                //storageUri: fileSnapshot.metadata.fullPath
-              //});
-            //});
-        })*/
+                        });
+                    });
+            })();
+        }
+    });
 });
