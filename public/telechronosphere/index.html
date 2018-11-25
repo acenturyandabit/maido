@@ -24,8 +24,8 @@
       // 6 shapes: 2 s 2 min 2 h
       $(() => {
         c = $("canvas")[0];
-        c.width = c.offsetWidth = document.body.offsetWidth;
-        c.height = c.offsetHeight = document.body.offsetHeight;
+        c.width = c.offsetWidth = document.body.clientWidth;
+        c.height = c.offsetHeight = document.body.clientWidth;
         ctx = c.getContext("2d");
         setInterval(timerDraw, 500);
       });
