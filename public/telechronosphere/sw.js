@@ -2,7 +2,6 @@ var CACHE_NAME = 'cache_v1';
 var urlsToCache = [
   'index.html',
   'jquery.min.js',
-  'kaleidocore.js',
 ];
 
 self.addEventListener('install', function(event) {
