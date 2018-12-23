@@ -1,6 +1,9 @@
 # Maido: moddable, self-hosted todo list.
 
+## The gist of it 
 This is a simple todolist which runs off html and javascript. No docker, node.js or any of that fluff required. Just click index.html and run :)
+
+Demo: https://acenturyandabit.github.io/maido/
 
 ## Core principles
 You know how web kanban boards come with many features like priorities, completion percentage, and so on that you probably don't want in your face all the time?
