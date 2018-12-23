@@ -1,3 +1,15 @@
+function guid() {
+    let pool="1234567890qwertyuiopasdfghjklzxcvbnm";
+    do{
+        tguid="";
+        for (i=0;i<4;i++)tguid+=pool[Math.floor(Math.random()*pool.length)];
+    }while ($("[data-taskgroup='"+tguid+"']").length>0);
+    return tguid;
+}
+
+
+
+
 function makeNewTask() {
     newNode = $("#todolist span.template")[0].cloneNode(true)
     newNode.classList.remove('pintotop');
@@ -20,9 +32,6 @@ function makeNewTask() {
         e.style.color = "black";
         e.style.background = "white";
     })
-    if (rootcl) {
-        rootcl.doc(newNode.dataset.taskgroup).set(toWebObj(newNode));
-    }
     $("#todolist").removeClass("searchfilter");
     newInstance = $(newNode).find("[data-role='" + lastFocused.dataset.role + "']")[0];
     date_reparse($(newNode).find("[data-role='date']")[0]);
@@ -54,10 +63,7 @@ $(document).ready(() => {
         }
     })*/
     $("#todolist").on("click", "span:not(.template) button.remove", (e) => {
-        todolist.fire('remove', e);
-        if (rootcl) {
-            rootcl.doc(e.currentTarget.parentElement.parentElement.dataset.taskgroup).delete();
-        }
+        todolist.fire('remove', e.currentTarget.parentElement);
         $("#todolist_db textarea[data-taskgroup='" + e.currentTarget.parentElement.dataset.taskgroup + "']").remove();
         $(e.currentTarget.parentElement).remove();
         if ($("#todolist span:not(.template)").length == 0) $("#nothingLeft").show();
@@ -98,9 +104,12 @@ $(document).ready(() => {
     })
     $("#todolist").on("focus", "span", (e) => {
         // retract the previous textarea
+        $("#todolist_db textarea").hide();
         if (!e.currentTarget.classList.contains("template")) {
-            $("#todolist_db textarea").hide();
+            todolist.fire('selected',e.currentTarget);
             $("textarea[data-taskgroup='" + e.currentTarget.dataset.taskgroup + "']").show();
+            
+            return false;
         }
     })
 
@@ -110,16 +119,16 @@ $(document).ready(() => {
 /////////////Drag and drop to order
 var dragting;
 $(() => {
-    $("#todolist").on("drag", "span", (ev) => {
+    $("#todolist").on("drag", "span:not(.template)", (ev) => {
         dragting = ev.target.dataset.taskgroup;
     })
-    $("#todolist").on("dragleave", "span", (ev) => {
+    $("#todolist").on("dragleave", "span:not(.template)", (ev) => {
         ev.preventDefault();
         ev.currentTarget.style["border-bottom"] = "";
         ev.currentTarget.style["border-top"] = "";
         ev.currentTarget.style.background = "";
     })
-    $("#todolist").on("dragover", "span", (ev) => {
+    $("#todolist").on("dragover", "span:not(.template)", (ev) => {
         ev.preventDefault();
         ev.currentTarget.style.background = "grey";
         if (ev.pageX - $(ev.currentTarget).offset().left > ev.currentTarget.offsetWidth / 3) {
@@ -133,7 +142,7 @@ $(() => {
             ev.currentTarget.style["border-bottom"] = "";
         }
     })
-    $("#todolist").on("drop", "span", (ev) => {
+    $("#todolist").on("drop", "span:not(.template)", (ev) => {
         ev.preventDefault();
         ev.currentTarget.style["border-bottom"] = "";
         ev.currentTarget.style["border-top"] = "";
@@ -145,10 +154,13 @@ $(() => {
             $(target).append(toDrop);
         } else if (ev.offsetY > ev.currentTarget.offsetHeight / 2) {
             nuid = assertID(target);
+            
             $(toDrop).find("[data-role='date']")[0].value += " after:" + nuid;
+            $(target.parentElement).append(toDrop);
         } else {
             nuid = assertID(target);
             $(toDrop).find("[data-role='date']")[0].value += " before:" + nuid;
+            $(target.parentElement).append(toDrop);
         }
         first_sort();
 
@@ -156,12 +168,10 @@ $(() => {
 });
 
 function assertID(span) {
-    if (!$(target).find("[data-role='date']")[0].dataset.id) {
-        assID = Date.now();
-        $(span).find("[data-role='date']")[0].dataset.id = nuid;
-        $(span).find("[data-role='date']")[0].value += " id:" + nuid;
-    } else {
-        assdID = $(span).find("[data-role='date']")[0].dataset.id;
+    assdID=extractID(span);
+    if (assdID==-1) {
+        assdID = Date.now();
+        $(span).find("[data-role='date']")[0].value += " id:" + assdID;
     }
     return assdID;
 }

@@ -1,7 +1,5 @@
 var urlParams = new URLSearchParams(window.location.search);
 var webListName = urlParams.get("listname"); // web list name. not appplicable to local.
-var rootcl; // firebase root document collection reference
-var rootdoc; //firebase root document.
 if (webListName) {
   style = document.createElement("style");
   style.innerHTML = `
@@ -25,6 +23,7 @@ if (webListName) {
   });
   //db.enablePersistence();
   $(document).ready(() => {
+    $("#webLoading_dialog").show();
     db.collection("maido")
       .doc(webListName)
       .get()
@@ -37,8 +36,8 @@ if (webListName) {
             });
         }
         todolist.rootdoc = db.collection("maido").doc(webListName);
-        todolist.rootdoc.onSnapshot(shot=>{
-          todolist.fire('listMetaUpdate',shot.data());
+        todolist.rootdoc.onSnapshot(shot => {
+          todolist.fire('load', shot.data());
         })
         todolist.rootcl = db
           .collection("maido")
@@ -49,6 +48,7 @@ if (webListName) {
                         loadSingleEntry();
                     })
                 });*/
+        $("#webLoading_dialog").hide();
         todolist.rootcl.onSnapshot(shot => {
           shot.docChanges().forEach(function (change) {
             console.log("got sth...");
@@ -69,11 +69,17 @@ if (webListName) {
           });
         });
         //add handlers for when things change
-        $("body").on("input propertychange", "[data-role]", e => {
+        $("body").on("input:not(.template) propertychange", "[data-role]", e => {
           var mod = {};
           mod[e.currentTarget.dataset.role] = e.currentTarget.value;
           todolist.rootcl.doc(e.currentTarget.dataset.taskgroup).update(mod);
         });
+        todolist.on('add', (span) => {
+          todolist.rootcl.doc(span.dataset.taskgroup).set(toWebObj(span));
+        });
+        todolist.on('remove', (span) => {
+          todolist.rootcl.doc(span.dataset.taskgroup).delete();
+        })
       });
     //adding tasks
   });

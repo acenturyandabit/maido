@@ -20,6 +20,18 @@ function extractDate(e) {
     return -1;
 }
 
+function extractID(e) {
+    if (el = $(e).find("[data-role='date']")[0]) {
+        //if (el.value.includes("auto")) date_reparse(el, true);
+        if ((bits = /id:(\d+)/g.exec(el.value)) != null) {
+            if (!isNaN(bits[1])) {
+                return Number(bits[1]);
+            }
+        }
+    }
+    return -1;
+}
+
 function first_sort() {
     items = [];
     $("#todolist>span:not(.pintotop)").each((i, e) => {
@@ -50,7 +62,7 @@ function first_sort() {
     //dataset all IDs
     $("#todolist>span:not(.template) [data-role='date']").each((i,e)=>{
         idcheck=/id\:(\d+)/g.exec(e.value);
-        if (idcheck && idcheck.length>1){
+        if (idcheck && idcheck.length>1 && !isNaN(idcheck[1])){
             e.dataset.timeid=idcheck[1];
         }else e.dataset.timeid=undefined;
     })

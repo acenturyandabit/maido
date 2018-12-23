@@ -12,21 +12,27 @@ your message and I'll give you higher priority. (Yes I'm trying to make that a t
 
 Cheers!
 
+$("span[data-taskgroup]").each((i,e)=>{ptg=e.dataset.taskgroup;
+    newTg=guid()
+$("[data-taskgroup='"+ptg+"']").each((i,e)=>{e.dataset.taskgroup=newTg})});
+
 ~S
 -->
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <!--<link rel="stylesheet" type="text/css" href="style.css">-->
+    <link rel="stylesheet" type="text/css" href="common.css">
     <title>Maido-Adaptive task tracker</title>
     <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
     <script src="tdl_events.js"></script>
-    <script src="localcore.js"></script>
-    <script src="webcore.js"></script>
-    <script src="support.js"></script>
+
     <script src="datesort.js"></script>
     <script src="editor.js"></script>
     <script src="tagman.js"></script>
+    <script src="localcore.js"></script>
+    <script src="webcore.js"></script>
     <script src="addins.js"></script>
     <script>
         $(document).ready(() => {
@@ -34,9 +40,20 @@ Cheers!
                 if (e.keyCode == 27) $(".dialog").hide()
             })
         });
+
         function showdocs() {
-    window.open("docs.html", "blank");
-}
+            window.open("docs.html", "blank");
+        }
+
+        //css loader
+        var cssPath = "standard.css";
+        var mobiles=["Android","iPhone","Linux armv8l","Linux armv7l","Linux aarch64"];
+        if (mobiles.includes(navigator.platform)){
+            cssPath = "phone.css";
+            //start autosave
+            $(()=>{toggleAutosave()});
+        }
+        $("head").append(`<link rel="stylesheet" type="text/css" href="`+cssPath+`">`)
     </script>
 </head>
 
@@ -63,7 +80,7 @@ Cheers!
         <li>
             <a>View</a>
             <div>
-                
+
             </div>
         </li>
         <li>
@@ -79,7 +96,7 @@ Cheers!
             </div>
         </li>
     </ul>
-    
+
     <!--<ul class="secondary title">
         <li>
             <a>Task List</a>
@@ -94,10 +111,12 @@ Cheers!
             <a>Group settings</a>
         </li>
     </ul>-->
+    <div>
+        HUD SPACE
+    </div>
     <div class="core_container">
         <div id="tasklist">
             <span>Search: <input id="searchbar"></span>
-            <p>Add a new task...</p>
             <div id="todolist">
                 <span class="pintotop template">
                     <img class="dodo" src="dododo.png">
@@ -108,8 +127,10 @@ Cheers!
                 </span>
             </div>
         </div>
-        <div id="todolist_db">
-            <textarea class="template" data-role="description" placeholder="Description..." style="display: none"></textarea>
+        <div id="desc_sidebar">
+            <div id="todolist_db">
+                <textarea class="template" data-role="description" placeholder="Description..." style="display: none"></textarea>
+            </div>
         </div>
     </div>
     <div id="nothingLeft">
@@ -127,7 +148,7 @@ Cheers!
                     <div>
                         <p>Currently active addins</p>
                         <div id="accaddin">
-                            
+
                         </div>
                     </div>
                     <div>
@@ -137,6 +158,13 @@ Cheers!
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="dialog" id="webLoading_dialog">
+        <div style="display: flex; height: 100%;">
+            <div class="inner_dialog">
+                <h1>Loading web room...</h1>
             </div>
         </div>
     </div>
@@ -159,6 +187,7 @@ Cheers!
             </div>
         </div>
     </div>
+    <div id="dpi" style="height: 1in; width: 1in; left: 100%; position: fixed; top: 100%;"></div>
 </body>
 
 </html>
