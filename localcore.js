@@ -1,7 +1,7 @@
 function loadFromString(str) {
     data = JSON.parse(str);
     $("#todolist span:not(.pintotop)").remove()
-    $("#todolist_db textarea:not(.template)").remove()
+    $("#todolist_db>div:not(.template)").remove()
     for (d in data) {
         loadSingleEntry(d, data[d])
     }
@@ -24,19 +24,24 @@ function loadSingleEntry(id, data) {
     newNode.classList.remove('template');
     $(newNode).find("button").text("Remove");
     newNode.dataset.taskgroup = id;
-
-    //clone the description box as well. 
-    dbox = $("#todolist_db .template")[0].cloneNode(true);
-    dbox.classList.remove("template");
-    dbox.dataset.taskgroup = id;
-    $("#todolist_db").append(dbox);
+    
     $(newNode).find("*").each((i, e) => {
         e.dataset.taskgroup = newNode.dataset.taskgroup
     })
-    $("#todolist").append(newNode)
+    $("#todolist").append(newNode);
+    //clone the description box as well. 
+    dbox = document.createElement("div");
+    dbox.style.display="none";
+    dbox.dataset.taskgroup = id;
+    $("#todolist_db").append(dbox);
     for (p in data) {
         e = $("[data-taskgroup='" + id + "'][data-role*='" + p + "']")[0]
         if (e) e.value = data[p];
+        else if (editors[p]){
+            let div=document.createElement("div");
+            editors[p].fromData(data[p],div);
+            dbox.appendChild(div);
+        }
     }
     for (f in precheck) {
         precheck[f](newNode);
@@ -57,7 +62,7 @@ function toggleAutosave() {
     }
 }
 
-setInterval(trimSave, 60000)
+setInterval(trimSave, 60000);
 
 function trimSave() {
     lskeys = Object.keys(localStorage);
@@ -89,6 +94,10 @@ function getSaveString() {
         if (savedata[e.dataset.taskgroup] == undefined) savedata[e.dataset.taskgroup] = {};
         savedata[e.dataset.taskgroup][e.dataset.role] = e.value;
     });
+    $("#todolist_db>div[data-taskgroup]>div").each((i, e) => {
+        savedata[e.parentElement.dataset.taskgroup][e.dataset.editorType]=editors[e.dataset.editorType].toData(e);
+    });
+    //save hierarchy information
     $("span[data-taskgroup]").each((i, e) => {
         if (e.parentElement.id != "todolist") savedata[e.dataset.taskgroup].parent = e.parentElement.dataset.taskgroup;
     });
@@ -114,12 +123,24 @@ function saveToBrowser(autosave = false, autoTarget = 'lastSave') {
     if (!autosave) {
         window.localStorage.setItem("mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(), saveBlob);
         if (window.location.href.slice(7).split("/")[0]=='localhost:8080'){
-            setTimeout(()=>{$.post("/toSaveLocal/"+"mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(),saveBlob)},100);
+            setTimeout(()=>{$.post("/toSaveLocal/"+"mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(),{data:saveBlob})},100);
         }
         console.log("saved ok")
     } else {
         console.log("autosaved ok")
     }
+}
+
+function loadFromURL(url){
+    $.getJSON(url,(data)=>{
+        loadFromString(data.data);//lmao should probably make a loadfromdata tbh
+        todolist.fire("load", data.data);
+        preDBTG=undefined;
+        if ($("#todolist_db>div:visible").length > 0) preDBTG = $("#todolist_db>div:visible")[0].dataset.taskgroup;
+        loadFromString(JSON.stringify(JSON.parse(data.data).items));
+        $("#title")[0].innerText = JSON.parse(data.data).name;
+        if (preDBTG) $("#todolist_db>div[data-taskgroup='" + preDBTG + "']").show();
+    })
 }
 
 function loadFromBrowser(key = 'lastSave') {
@@ -128,10 +149,10 @@ function loadFromBrowser(key = 'lastSave') {
     save_metadata = JSON.parse(window.localStorage.getItem(key));
     if (!save_metadata) save_metadata = {};
     todolist.fire("load", save_metadata);
-    if ($("#todolist_db textarea:visible").length > 0) preDBTG = $("#todolist_db textarea:visible")[0].dataset.taskgroup;
+    if ($("#todolist_db>div:visible").length > 0) preDBTG = $("#todolist_db>div:visible")[0].dataset.taskgroup;
     loadFromString(JSON.stringify(JSON.parse(window.localStorage.getItem(key)).items));
     $("#title")[0].innerText = JSON.parse(window.localStorage.getItem(key)).name;
-    if (preDBTG) $("#todolist_db textarea[data-taskgroup='" + preDBTG + "']").show()
+    if (preDBTG) $("#todolist_db>div[data-taskgroup='" + preDBTG + "']").show()
     console.log(key);
 }
 
