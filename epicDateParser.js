@@ -1,9 +1,13 @@
 
 var date_parser_regexes = {
     time: /(?:(?:(\d+)\/(\d+)(?:\/(\d+))?)|(?:(\d+):(\d+)(?::(\d+))?\s*|(am|pm)))/g,
+    //matches: 12:, am, pm, 12:34, 12:34:56,12:0am, etc. 
     hourOnlyTime: /^(\d+)(am|pm)/g,
+    //matches: 12am, 12p, etc.
     dayofweek: /(?:(mon)|(tue)s*|(?:(wed)(?:nes)*)|(?:(thu)r*s*)|(fri)|(sat)(?:ur)*|(sun))(?:day)*/ig,
+
     plusTime: /\+(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g,
+    minusTime: /\-(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g,
     done: /done/g,
     auto: /auto/g,
     now: /now/g,
@@ -14,6 +18,18 @@ var date_parser_regexes = {
     after: /after\:(\d+)/g,
     free: /free:(\d+)(?:(m)(?:in)*|(h)(?:ou)*(?:r)*|(d)(?:ay)*|(w)(?:ee)*(?:k)*|(M)(?:o)*(?:nth)*|(y(?:ea)*(?:r)*))/g
 }
+
+
+/*
+Take in like 
+12:00 & 3:00
+
+Evaluate both sides of string.
+Output more recent Date().
+
+This file is the generic, sharable one. There is another mai specific one.
+*/
+
 
 function date_parse(dvchain) {
     dvchain = dvchain.split("&");
@@ -99,9 +115,34 @@ function date_parse(dvchain) {
                             }
                             freeamt *= Number(regres[1]);
                             break;
-                        case "done":
-                            break;
-                        case "auto":
+                        case "minusTime":
+                            freeamt = 1;
+                            for (i = 2; i < regres.length; i++) {
+                                if (regres[i] != undefined) {
+                                    factor = i;
+                                }
+                            }
+                            switch (factor) { /// this can be improved.
+                                case 2:
+                                    freeamt = 1000 * 60;
+                                    break;
+                                case 3:
+                                    freeamt = 1000 * 60 * 60;
+                                    break;
+                                case 4:
+                                    freeamt = 1000 * 60 * 60 * 24;
+                                    break;
+                                case 5:
+                                    freeamt = 1000 * 60 * 60 * 24 * 7;
+                                    break;
+                                case 6:
+                                    freeamt = 1000 * 60 * 60 * 24 * 30;
+                                    break;
+                                case 7:
+                                    freeamt = 1000 * 60 * 60 * 24 * 365;
+                                    break;
+                            }
+                            freeamt *= -Number(regres[1]);
                             break;
                         case "now":
                             d.setTime(Date.now());

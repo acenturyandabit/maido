@@ -157,14 +157,6 @@ $(() => {
     })
 });
 
-function assertID(span) {
-    assdID=extractID(span);
-    if (assdID==-1) {
-        assdID = Date.now();
-        $(span).find("[data-role='date']")[0].value += " id:" + assdID;
-    }
-    return assdID;
-}
 
 
 ///////////SEARCH
