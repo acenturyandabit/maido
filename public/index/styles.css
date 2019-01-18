@@ -13,6 +13,7 @@ body>div {
 #center-threebox {
   display: flex;
   flex-direction: row;
+  max-height: 80vh;
 
 }
 #center-threebox>div:not(#ctd):not(#wsf):not(#abm){
@@ -25,6 +26,7 @@ body>div {
 #wsf {
   text-align: right;
   flex: 1 1 33%;
+  overflow-y: scroll;
 }
 
 #abm{
