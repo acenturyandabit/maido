@@ -1,5 +1,5 @@
 addins = {};
-addinsList = ['addins/compain.js', /*'addins/timeline.js',*/'addins/template.js' , 'addins/tagbox.js', 'addins/qrosstalk/addin.js','addins/notify.js'];
+addinsList = ['addins/compain.js', /*'addins/timeline.js',*/'addins/template.js' , 'addins/tagbox.js', 'addins/qrosstalk/addin.js','addins/notify.js','addins/synergist.js'];
 //add all scripts to page
 //load addins from localStorage
 $(() => {

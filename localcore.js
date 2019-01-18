@@ -30,17 +30,20 @@ function loadSingleEntry(id, data) {
     })
     $("#todolist").append(newNode);
     //clone the description box as well. 
-    dbox = document.createElement("div");
-    dbox.style.display="none";
-    dbox.dataset.taskgroup = id;
-    $("#todolist_db").append(dbox);
+    $("#todolist_db").append("<div data-taskgroup='"+newNode.dataset.taskgroup+"'></div>");
+    dbdiv=$("#todolist_db div[data-taskgroup='"+newNode.dataset.taskgroup+"']")[0];
+    
+    //editors
     for (p in data) {
-        e = $("[data-taskgroup='" + id + "'][data-role*='" + p + "']")[0]
+        e = $("[data-taskgroup='" + id + "'][data-role*='" + p + "']")[0];
         if (e) e.value = data[p];
         else if (editors[p]){
-            let div=document.createElement("div");
-            editors[p].fromData(data[p],div);
-            dbox.appendChild(div);
+            $(dbdiv).append(`<div data-editortype='`+p+`'>
+            <p>`+p+`</p>
+            <div class='innerbox'></div>
+            </div>
+            `);
+            editors[p].fromData(data[p],$(dbdiv).find("[data-editortype='"+p+"'] .innerbox")[0]);
         }
     }
     for (f in precheck) {
@@ -95,7 +98,7 @@ function getSaveString() {
         savedata[e.dataset.taskgroup][e.dataset.role] = e.value;
     });
     $("#todolist_db>div[data-taskgroup]>div").each((i, e) => {
-        savedata[e.parentElement.dataset.taskgroup][e.dataset.editorType]=editors[e.dataset.editorType].toData(e);
+        savedata[e.parentElement.dataset.taskgroup][e.dataset.editortype]=editors[e.dataset.editortype].toData($(e).find(".innerbox")[0]);
     });
     //save hierarchy information
     $("span[data-taskgroup]").each((i, e) => {
@@ -171,16 +174,15 @@ function showLoader() {
             $("#loader_dialog_list").append("<br>");
         }
     }
-    $("#dialog_box").show();
-    $("#loader_dialog").show();
+    $(".loader_dialog").show();
 }
 
-function startLocal() {
+function startLocal(id) {
     $(document).ready(() => {
         $("#title")[0].contentEditable = true;
         $("#loader_dialog_list").on("click", "button", (e) => {
             loadFromBrowser(e.currentTarget.dataset.ref)
-            $("#loader_dialog").hide();
+            $(".loader_dialog").hide();
             $("#dialog_box").hide()
         })
         $("body").on("keyup", (e) => {
@@ -194,7 +196,28 @@ function startLocal() {
                 return false
             }
         })
-        loadFromBrowser();
+        if (id == undefined){
+            loadFromBrowser();
+        }else{
+            // find the last localsave entry that matches id.
+            let latest=0;
+            let lki=undefined;
+            for (ki in localStorage){
+                let bits=ki.split("-");
+                if (bits[0]=="mai"){
+                    if (bits[1]==id){
+                        if (Number(bits[2])>latest){
+                            latest=Number(bits[2]);
+                            lki=ki;
+                        }
+                    }
+                }
+            }
+            if (lki){
+                loadFromBrowser(lki);
+            }
+        }
+        
         first_sort();
         //show autosave
         $("li:contains('Preferences')>div").append(

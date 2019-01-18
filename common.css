@@ -3,7 +3,7 @@
 #todolist_db>div {
     flex: 1 1 200px;
     width: 100%;
-    display: flex;
+    display: none;
     flex-direction: column;
 }
 
@@ -20,13 +20,13 @@ body {
     margin-top: 0;
 }
 
-#addins_dialog .inner_dialog>div {
+#addins_dialog .innerDialog>div {
     display: flex;
     height: 60vh;
     flex-direction: row;
 }
 
-#addins_dialog .inner_dialog>div>div {
+#addins_dialog .innerDialog>div>div {
     flex: 1 1 50%;
 }
 

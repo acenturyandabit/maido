@@ -1,5 +1,5 @@
 <html>
-  <!--
+<!--
 Hey there!
 
 Yes, you!
@@ -16,86 +16,103 @@ Cheers!
 ~S
 -->
 
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="jquery.min.js"></script>
-    <!--<link rel="stylesheet" type="text/css" href="style.css">-->
-    <link rel="stylesheet" type="text/css" href="common.css" />
-    <title>Maido-Adaptive task tracker</title>
-    <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
-    <script src="tdl_events.js"></script>
-    <script src="datesort.js"></script>
-    <script src="editor.js"></script>
-    <script src="tagman.js"></script>
-    <script src="descbox.js"></script>
-    <script src="localcore.js"></script>
-    <script src="webcore.js"></script>
-    <script src="addins.js"></script>
-    <script>
-      $(document).ready(() => {
-        $("body").on(
-          "keyup",
-          /*'.dialog',*/ e => {
-            if (e.keyCode == 27) $(".dialog").hide();
-          }
-        );
-      });
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="jquery.min.js"></script>
+  <!--<link rel="stylesheet" type="text/css" href="style.css">-->
+  <link rel="stylesheet" type="text/css" href="common.css" />
+  <title>Maido-Adaptive task tracker</title>
+  <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
+  <script src="tdl_events.js"></script>
+  <!--genUI components-->
+  <script src="resources/contextMenu.js"></script>
+  <script src="resources/dialog.js"></script>
+  <script src="resources/filescreen.js"></script>
+  <script src="resources/fireman.js"></script>
+  <!-- external libraries (Credits where due)-->
+  <script src="resources/moment.min.js"></script>
+  <script src="resources/fullcalendar.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="resources/fullcalendar.min.css"/>
 
-      function showdocs() {
-        window.open("docs.html", "blank");
-      }
 
-      //css loader
-      var cssPath = "standard.css";
-      var mobiles = [
-        "Android",
-        "iPhone",
-        "Linux armv8l",
-        "Linux armv7l",
-        "Linux aarch64"
-      ];
-      if (mobiles.includes(navigator.platform)) {
-        cssPath = "phone.css";
-        //start autosave
-        $(() => {
-          toggleAutosave();
-        });
-      }
-      $("head").append(
-        `<link rel="stylesheet" type="text/css" href="` + cssPath + `">`
+  <script src="datesort.js"></script>
+  <script src="calendar.js"></script>
+  <script src="editor.js"></script>
+  <script src="tagman.js"></script>
+  <script src="descbox.js"></script>
+  <script src="localcore.js"></script>
+  <script src="webcore.js"></script>
+  <script src="addins.js"></script>
+  <script>
+    $(document).ready(() => {
+      $("body").on(
+        "keyup",
+        /*'.dialog',*/
+        e => {
+          if (e.keyCode == 27) $(".dialog").hide();
+        }
       );
-    </script>
-  </head>
+    });
 
-  <body>
-    <ul class="maiTitle title">
-      <li><span>Maido:</span><span id="title">Main List</span><img class="phoneOnly gear" src="resources/gear.png"></li>
-      <li>
-        <a>File</a>
-        <div>
-          <a onclick="saveToBrowser()">Save</a>
-          <a onclick="loadFromBrowser()">Quickload</a>
-          <a onclick="showLoader()">Load</a> <a onclick="unloadAll()">New</a>
-        </div>
-      </li>
-      <li>
-        <a>Actions</a>
-        <div><a onclick="alignDates()">Toggle date alignment</a></div>
-      </li>
-      <li>
-        <a>View</a>
-        <div></div>
-      </li>
-      <li>
-        <a>Preferences</a>
-        <div><a onclick="showAddins()">Addins</a></div>
-      </li>
-      <li>
-        <a>Help</a>
-        <div><a onclick="showdocs()">Documentation</a></div>
-      </li>
-    </ul>
-    <!--<ul class="secondary title">
+    function showdocs() {
+      window.open("docs.html", "blank");
+    }
+
+    //css loader
+    var cssPath = "standard.css";
+    var mobiles = [
+      "Android",
+      "iPhone",
+      "Linux armv8l",
+      "Linux armv7l",
+      "Linux aarch64"
+    ];
+    if (mobiles.includes(navigator.platform)) {
+      cssPath = "phone.css";
+      //start autosave
+      $(() => {
+        toggleAutosave();
+      });
+    }
+    $("head").append(
+      `<link rel="stylesheet" type="text/css" href="` + cssPath + `">`
+    );
+  </script>
+</head>
+
+<body>
+  <ul class="maiTitle title">
+    <li><span>Maido:</span><span id="title">Main List</span><img class="phoneOnly gear" src="resources/gear.png"></li>
+    <li>
+      <a>File</a>
+      <div>
+        <a onclick="saveToBrowser()">Save</a>
+        <a onclick="loadFromBrowser()">Quickload</a>
+        <a onclick="showLoader()">Load</a> <a onclick="unloadAll()">New</a>
+      </div>
+    </li>
+    <li>
+      <a>Actions</a>
+      <div><a onclick="alignDates()">Toggle date alignment</a></div>
+    </li>
+    <li>
+      <a>View</a>
+      <div></div>
+    </li>
+    <li>
+      <a>Preferences</a>
+      <div>
+        <a onclick="showAddins()">Addins</a>
+        <a onclick="reverseSort()">Reverse sorting order</a>
+      </div>
+      
+    </li>
+    <li>
+      <a>Help</a>
+      <div><a onclick="showdocs()">Documentation</a></div>
+    </li>
+  </ul>
+  <!--<ul class="secondary title">
         <li>
             <a>Task List</a>
         </li>
@@ -109,94 +126,88 @@ Cheers!
             <a>Group settings</a>
         </li>
     </ul>-->
-    <div>HUD SPACE</div>
-    <div class="core_container">
-      <div id="tasklist">
-        <span>Search: <input id="searchbar"/></span>
-        <div id="todolist">
-          <span class="pintotop template">
-            <img class="dodo" src="resources/dododo.png" />
-            <input data-role="name" placeholder="Task name" />
-            <input data-role="tags" placeholder="Tags" />
-            <input data-role="date" placeholder="Date" />
-            <button class="remove">Subtask</button>
-          </span>
-        </div>
-      </div>
-      <div id="desc_sidebar">
-        <div id="todolist_db">
-          <div></div>
-        </div>
+  <div>HUD SPACE</div>
+  <div class="core_container">
+    <div id="tasklist">
+      <span>Search: <input id="searchbar" /></span>
+      <div id="todolist">
+        <span class="pintotop template">
+          <img class="dodo" src="resources/dododo.png" />
+          <input data-role="name" placeholder="Task name" />
+          <input data-role="tags" placeholder="Tags" />
+          <input data-role="date" placeholder="Date" />
+          <button class="remove">Subtask</button>
+        </span>
       </div>
     </div>
-    <div id="nothingLeft">
-      <div style="margin:auto; text-align:center">
-        <img src="resources/ash.png" style="width: 40%;" />
-        <p>
-          Got nothing left to do? Yay! Whenever you're ready, you can add some
-          more tasks by typing into the bar above and hitting 'Enter'.
-        </p>
+    <div id="desc_sidebar">
+      <div id="calendarView">
+        
+      </div>
+      <div id="todolist_db">
+        <div></div>
       </div>
     </div>
-    <div class="dialog" id="addins_dialog">
-      <div style="display: flex; height: 100%;">
-        <div class="inner_dialog">
-          <h2>Addins manager</h2>
-          <div>
-            <div>
-              <p>Currently active addins</p>
-              <div id="accaddin"></div>
-            </div>
-            <div>
-              <p>Available addins</p>
-              <div id="unaddin"></div>
-            </div>
-          </div>
-        </div>
+  </div>
+  <div id="nothingLeft">
+    <div style="margin:auto; text-align:center">
+      <img src="resources/ash.png" style="width: 40%;" />
+      <p>
+        Got nothing left to do? Yay! Whenever you're ready, you can add some
+        more tasks by typing into the bar above and hitting 'Enter'.
+      </p>
+    </div>
+  </div>
+  <div class="dialog" id="addins_dialog">
+    <h2>Addins manager</h2>
+    <div>
+      <div>
+        <p>Currently active addins</p>
+        <div id="accaddin"></div>
+      </div>
+      <div>
+        <p>Available addins</p>
+        <div id="unaddin"></div>
       </div>
     </div>
-    <div class="dialog" id="webLoading_dialog">
-      <div style="display: flex; height: 100%;">
-        <div class="inner_dialog"><h1>Loading web room...</h1></div>
+  </div>
+  <div class="dialog" id="webLoading_dialog">
+    <h1>Loading web room...</h1>
+  </div>
+  <div class="dialog loader_dialog">
+      <h2>Available save sessions:</h2>
+      <div id="loader_dialog_panel_container">
+        <div id="loader_dialog_list"></div>
       </div>
+      <p>Or load from a string...</p>
+      <textarea class="stringLoadJSON"></textarea><br />
+      <button onclick="loadFromString($('.loader_dialog textarea.stringLoadJSON')[0].value);$('.loader_dialog').hide();$('.dialog').hide()">
+        Load from string
+      </button>
+      <p>Or load from a URL (JSON data)</p>
+      <input class="urlLoadLocation"><br />
+      <button onclick="loadFromURL($('.loader_dialog input.urlLoadLocation')[0].value);$('.loader_dialog').hide();$('.dialog').hide()">
+        Load from URL
+      </button>
+      <button onclick="$('#loader_dialog').hide();$('#dialog_box').hide()">
+        Cancel
+      </button>
     </div>
-    <div class="dialog" id="loader_dialog">
-      <div style="display: flex; height: 100%;">
-        <div class="inner_dialog">
-          <h2>Available save sessions:</h2>
-          <div id="loader_dialog_panel_container">
-            <div id="loader_dialog_list"></div>
-          </div>
-          <p>Or load from a string...</p>
-          <textarea class="stringLoadJSON"></textarea><br />
-          <button
-            onclick="loadFromString($('#loader_dialog textarea.stringLoadJSON')[0].value);$('#loader_dialog').hide();$('#dialog_box').hide()"
-          >
-            Load from string
-          </button>
-          <p>Or load from a URL (JSON data)</p>
-          <input class="urlLoadLocation"><br />
-          <button
-            onclick="loadFromURL($('#loader_dialog input.urlLoadLocation')[0].value);$('#loader_dialog').hide();$('#dialog_box').hide()"
-          >
-            Load from URL
-          </button>
-          <button onclick="$('#loader_dialog').hide();$('#dialog_box').hide()">
-            Cancel
-          </button>
-        </div>
-        <div class="dialog" id="dnfDialog">
-          <h2>Uh oh...</h2>
-          <p>
-            We couldn't find the task list that you specified. Maybe check your
-            spelling and try again?
-          </p>
-        </div>
-      </div>
-    </div>
-    <div
-      id="dpi"
-      style="height: 1in; width: 1in; left: 100%; position: fixed; top: 100%;"
-    ></div>
-  </body>
+
+  </div>
+  <div class="dialog" id="dnfDialog">
+    <h2>Uh oh...</h2>
+    <p>
+      We couldn't find the task list that you specified. Maybe check your
+      spelling and try again?
+    </p>
+  </div>
+  <div id="dpi" style="height: 1in; width: 1in; left: 100%; position: fixed; top: 100%;"></div>
+
+  <!--<div class="contextmenu descboxContext">
+      <li>Add descbox</li>
+    </div>-->
+
+</body>
+
 </html>

@@ -1,10 +1,5 @@
 function _todolist() {
-    this.events = {
-            add: [],
-            remove: [],
-            dateChange: [],
-            new: []
-        },
+    this.events = {},
         this.fire = function (e, args) {
             if (this.events[e]) {
                 this.events[e].forEach((f, i) => {

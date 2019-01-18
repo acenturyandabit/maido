@@ -11,19 +11,28 @@ function guid() {
 
 
 function makeNewTask() {
+    //the listed textboxes on the LHS
     newNode = $("#todolist span.template")[0].cloneNode(true);
     newNode.classList.remove('pintotop');
     newNode.classList.remove('template');
     $(newNode).find("button").text("Remove");
+    //assigning taskgroups
     newNode.dataset.taskgroup = guid();
     $(newNode).find("*").each((i, e) => {
         e.dataset.taskgroup = newNode.dataset.taskgroup
     })
     $("#todolist").append(newNode);
+    //description box
     $("#todolist_db").append("<div data-taskgroup='"+newNode.dataset.taskgroup+"'></div>");
-    div=$("#todolist_db div[data-taskgroup='"+newNode.dataset.taskgroup+"']")[0];
-    $(div).append("<div></div>");
-    editors['descbox'].fromData(undefined,div.children[0]);
+    dbdiv=$("#todolist_db div[data-taskgroup='"+newNode.dataset.taskgroup+"']")[0];
+    let p="description";
+    $(dbdiv).append(`<div data-editortype='`+p+`'>
+            <p>`+p+`</p>
+            <div class='innerbox'></div>
+            </div>
+            `);
+            editors[p].fromData(undefined,$(dbdiv).find("[data-editortype='"+p+"'] .innerbox")[0]);
+    //editors
     first_sort();
     $("#todolist span.template input").each((i, e) => {
         e.value = "";
@@ -35,7 +44,6 @@ function makeNewTask() {
     date_reparse($(newNode).find("[data-role='date']")[0]);
     newInstance.focus();
     newInstance.scrollIntoViewIfNeeded();
-
     return newNode;
 }
 
@@ -54,6 +62,7 @@ $(document).ready(() => {
         lastFocused = e.currentTarget;
     })
 
+    //removing tasks
     $("#todolist").on("click", "span:not(.template) button.remove", (e) => {
         todolist.fire('remove', e.currentTarget.parentElement);
         $("#todolist_db div[data-taskgroup='" + e.currentTarget.parentElement.dataset.taskgroup + "']").remove();
@@ -63,8 +72,8 @@ $(document).ready(() => {
         //push a deleted onto the changelog
     })
 
+    //subtask button
     $("#todolist span.template button.remove").on("click", (e) => {
-        //now a subtask button
         /*
         $("#todolist span.template input").each((i, e) => {
             e.value = ""
@@ -80,6 +89,7 @@ $(document).ready(() => {
 
     })
 
+    //enter to fire date changing
     $("#todolist").on("keypress", "[data-role='date']", (e) => {
         if (e.currentTarget.parentElement.classList.contains("template")) return;
         if (e.keyCode == 13) {
@@ -87,19 +97,11 @@ $(document).ready(() => {
             todolist.fire('dateChange', e);
         }
     })
+
+    //defocusing to ensure changes are processed
     $("#todolist").on("keypress", "span:not(.template) input", (e) => {
         if (e.keyCode == 13) {
             e.currentTarget.blur();
-        }
-    })
-    $("#todolist").on("focus", "span", (e) => {
-        // retract the previous description box
-        $("#todolist_db>div").hide();
-        if (!e.currentTarget.classList.contains("template")) {
-            todolist.fire('selected',e.currentTarget);
-            $("#todolist_db>div[data-taskgroup='" + e.currentTarget.dataset.taskgroup + "']").show();
-            
-            return false;
         }
     })
 
