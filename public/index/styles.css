@@ -13,7 +13,7 @@ body>div {
 #center-threebox {
   display: flex;
   flex-direction: row;
-  max-height: 80vh;
+  max-height: 300px;
 
 }
 #center-threebox>div:not(#ctd):not(#wsf):not(#abm){
