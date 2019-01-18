@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <script src="photo.js"></script>
+    <script src="photobooth.js"></script>
+    <script>
+      window.addEventListener("load", () => {
+        var pb = new photobooth(document.getElementsByTagName("div")[0]);
+        pb.camman.on('photo',(c)=>document.getElementsByTagName("body")[0].appendChild(c));
+      });
+    </script>
+  </head>
+  <body>
+    <div></div>
+  </body>
+</html>

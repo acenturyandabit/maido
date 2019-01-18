@@ -9,10 +9,7 @@ qSheets.create("path/to/sheet", {
 	notes: "Teaching material, probably.",
 	instruction: "Have a go at these questions!",
 	data: {}, // Store information about the last generated question between calls to subfunctions.
-	gen: [function (difficulty) { // Generate a single question, returning divs for the question, min answer, and max answer.
-			let qdiv=document.createElement('div');
-			let a_min_div=document.createElement('div');
-			let a_max_div=document.createElement('div');
+	gen: [function (difficulty, qdiv, a_min_div, a_max_div) { // Generate a single question, returning divs for the question, min answer, and max answer.
 			let questionString = "";
 			//generate expression
 			//display it

@@ -58,9 +58,12 @@ addins.qrosstalk = new function(){
     })
   };
   this.send = function () {
-    this.mode="send";
+    //send a request to the server to get our local IP
     $("#qrosstalk_dialog").show();
-    ptr.qrosstalk.send(getSaveString());
+    this.mode="send";
+    $.get("/tryIP",(d)=>{
+      ptr.qrosstalk.send(d);
+    })
   };
 
   this.recv = function () {

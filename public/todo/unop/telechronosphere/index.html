@@ -1,0 +1,124 @@
+<html>
+  <head>
+    <style>
+      body {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <link rel="manifest" href="manifest.json" />
+    <script src="jquery.min.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+          navigator.serviceWorker.register("sw.js").then(
+            function(registration) {
+              // Registration was successful
+              console.log(
+                "ServiceWorker registration successful with scope: ",
+                registration.scope
+              );
+            },
+            function(err) {
+              // registration failed :(
+              console.log("ServiceWorker registration failed: ", err);
+            }
+          );
+        });
+      }
+      //find the canvas and draw the time on.
+      // 6 shapes: 2 s 2 min 2 h
+      shapes = [
+        { scale: 0.9, col: "#cccc00", kai: 0 },
+        { scale: 0.7, col: "#aaaa00", kai: 0 },
+        { scale: 0.5, col: "#4444ff", kai: 0 },
+        { scale: 0.4, col: "#aeaeff", kai: 0 },
+        { scale: 0.3, col: "#44ff44", kai: 0 },
+        { scale: 0.2, col: "#aeffae", kai: 0 }
+      ];
+      $(() => {
+        c = $("canvas")[0];
+        c.width = c.offsetWidth = document.body.offsetWidth;
+        c.height = c.offsetHeight = document.body.offsetHeight;
+        ctx = c.getContext("2d");
+        setInterval(timerDraw, 100);
+      });
+      function timerDraw() {
+        cx = c.width / 2;
+        cy = c.height / 2;
+        cr = Math.min(c.width, c.height) / 2;
+        s = new Date().getSeconds();
+        m = new Date().getMinutes();
+        h = new Date().getHours();
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, cx * 2, cy * 2);
+        vertices = [
+          (s % 10) + 3,
+          Math.floor(s / 10) + 3,
+          (m % 10) + 3,
+          Math.floor(m / 10) + 3,
+          (h % 10) + 3,
+          Math.floor(h / 10) + 3
+        ];
+
+        for (j = 0; j < shapes.length; j++) {
+          shapes[j].kai += shapes[j].scale*0.01;
+          shapes[j].data = vertices[j];
+          ctx.beginPath();
+          scale = shapes[j].scale;
+          ctx.fillStyle = shapes[j].col;
+          if (shapes[j].data > 2) {
+            ctx.moveTo(
+                cx -
+                  Math.cos(shapes[j].kai) *
+                    cr *
+                    scale,
+                cy -
+                  Math.sin(shapes[j].kai) *
+                    cr *
+                    scale
+              );
+            for (i = 0; i < shapes[j].data; i++) {
+              ctx.lineTo(
+                cx -
+                  Math.cos((i * 2 * Math.PI) / shapes[j].data + shapes[j].kai) *
+                    cr *
+                    scale,
+                cy -
+                  Math.sin((i * 2 * Math.PI) / shapes[j].data + shapes[j].kai) *
+                    cr *
+                    scale
+              );
+            }
+            ctx.lineTo(
+                cx -
+                  Math.cos(shapes[j].kai) *
+                    cr *
+                    scale,
+                cy -
+                  Math.sin(shapes[j].kai) *
+                    cr *
+                    scale
+              );
+          }
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    </script>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      div {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas></canvas>
+  </body>
+</html>

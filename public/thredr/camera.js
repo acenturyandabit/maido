@@ -18,7 +18,7 @@ function showCamera() {
         .getUserMedia(constraints)
         .then(function success(stream) {
             video.srcObject = stream;
-            ls=stream;
+            ls = stream;
             vw = stream.getVideoTracks()[0].getSettings().width;
             vh = stream.getVideoTracks()[0].getSettings().height;
         });
@@ -26,8 +26,10 @@ function showCamera() {
     $(() => {
         $("#camera").on("click", () => {
             c = document.createElement("canvas");
+            c.width=vw;
+            c.height=vh;
             ctx = c.getContext('2d');
-            ctx.drawImage(video, 0, 0, vw, vh, 0, 0, 200, 100);
+            ctx.drawImage(video, 0, 0, vw, vh, 0, 0, vw, vh);
             c.toBlob((blob) => {
                 (function () {
                     let name = sendMessage(
@@ -51,9 +53,19 @@ function showCamera() {
                 })();
             });
             video.pause();
-            video.src="";
+            video.src = "";
             ls.getTracks()[0].stop();
             $("#camera").hide();
+        })
+        $("body").on("keydown", (e) => {
+            if (e.keyCode == 27) {
+                try {
+                    ls.getTracks()[0].stop();
+                    $("#camera").hide();
+                } catch (e) {
+
+                }
+            }
         })
     })
 }

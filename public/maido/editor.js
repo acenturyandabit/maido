@@ -11,22 +11,29 @@ function guid() {
 
 
 function makeNewTask() {
-    newNode = $("#todolist span.template")[0].cloneNode(true)
+    //the listed textboxes on the LHS
+    newNode = $("#todolist span.template")[0].cloneNode(true);
     newNode.classList.remove('pintotop');
     newNode.classList.remove('template');
-    $(newNode).find("button").text("Remove")
+    $(newNode).find("button").text("Remove");
+    //assigning taskgroups
     newNode.dataset.taskgroup = guid();
     $(newNode).find("*").each((i, e) => {
         e.dataset.taskgroup = newNode.dataset.taskgroup
     })
     $("#todolist").append(newNode);
-    dbox = $("#todolist_db .template")[0].cloneNode(true);
-    dbox.classList.remove("template");
-    dbox.dataset.taskgroup = newNode.dataset.taskgroup;
-    $("#todolist_db").append(dbox);
+    //description box
+    $("#todolist_db").append("<div data-taskgroup='"+newNode.dataset.taskgroup+"'></div>");
+    dbdiv=$("#todolist_db div[data-taskgroup='"+newNode.dataset.taskgroup+"']")[0];
+    let p="description";
+    $(dbdiv).append(`<div data-editortype='`+p+`'>
+            <p>`+p+`</p>
+            <div class='innerbox'></div>
+            </div>
+            `);
+            editors[p].fromData(undefined,$(dbdiv).find("[data-editortype='"+p+"'] .innerbox")[0]);
+    //editors
     first_sort();
-    //$(newNode).find("." + e.currentTarget.classList[0]).focus()
-    //$(newNode).find("." + e.currentTarget.classList[0])[0].setSelectionRange(1, 1)
     $("#todolist span.template input").each((i, e) => {
         e.value = "";
         e.style.color = "black";
@@ -37,7 +44,6 @@ function makeNewTask() {
     date_reparse($(newNode).find("[data-role='date']")[0]);
     newInstance.focus();
     newInstance.scrollIntoViewIfNeeded();
-
     return newNode;
 }
 
@@ -47,6 +53,7 @@ todolist.on('add', () => {
 })
 
 $(document).ready(() => {
+    //adding new tasks
     $("#todolist").on("keyup", ".template input", (e) => {
         if (e.keyCode == 13) {
             nn = makeNewTask();
@@ -54,31 +61,25 @@ $(document).ready(() => {
         }
         lastFocused = e.currentTarget;
     })
-    /*$("#todolist span.template input[data-role='name']").on("keyup",(e)=>{
-        if (e.currentTarget.value!=""){
-            cval=e.currentTarget.value;
-            
-        }else{
-            $("#todolist").removeClass("searchfilter");
-        }
-    })*/
+
+    //removing tasks
     $("#todolist").on("click", "span:not(.template) button.remove", (e) => {
         todolist.fire('remove', e.currentTarget.parentElement);
-        $("#todolist_db textarea[data-taskgroup='" + e.currentTarget.parentElement.dataset.taskgroup + "']").remove();
+        $("#todolist_db div[data-taskgroup='" + e.currentTarget.parentElement.dataset.taskgroup + "']").remove();
         $(e.currentTarget.parentElement).remove();
         if ($("#todolist span:not(.template)").length == 0) $("#nothingLeft").show();
         else $("#nothingLeft").hide();
         //push a deleted onto the changelog
     })
 
+    //subtask button
     $("#todolist span.template button.remove").on("click", (e) => {
-        //now a subtask button
         /*
         $("#todolist span.template input").each((i, e) => {
             e.value = ""
         });*/
-        if ($("#todolist_db textarea:visible").length) {
-            parent = $("#todolist_db textarea:visible")[0].dataset.taskgroup;
+        if ($("#todolist_db>div:visible").length) {
+            parent = $("#todolist_db>div:visible")[0].dataset.taskgroup;
             nt = makeNewTask();
             if (parent) {
                 $("#todolist span[data-taskgroup='" + parent + "']").append(nt);
@@ -88,6 +89,7 @@ $(document).ready(() => {
 
     })
 
+    //enter to fire date changing
     $("#todolist").on("keypress", "[data-role='date']", (e) => {
         if (e.currentTarget.parentElement.classList.contains("template")) return;
         if (e.keyCode == 13) {
@@ -95,21 +97,11 @@ $(document).ready(() => {
             todolist.fire('dateChange', e);
         }
     })
+
+    //defocusing to ensure changes are processed
     $("#todolist").on("keypress", "span:not(.template) input", (e) => {
         if (e.keyCode == 13) {
             e.currentTarget.blur();
-            //$("#todolist_db textarea").hide();
-            //date_reparse(e.currentTarget);
-        }
-    })
-    $("#todolist").on("focus", "span", (e) => {
-        // retract the previous textarea
-        $("#todolist_db textarea").hide();
-        if (!e.currentTarget.classList.contains("template")) {
-            todolist.fire('selected',e.currentTarget);
-            $("textarea[data-taskgroup='" + e.currentTarget.dataset.taskgroup + "']").show();
-            
-            return false;
         }
     })
 
@@ -167,14 +159,6 @@ $(() => {
     })
 });
 
-function assertID(span) {
-    assdID=extractID(span);
-    if (assdID==-1) {
-        assdID = Date.now();
-        $(span).find("[data-role='date']")[0].value += " id:" + assdID;
-    }
-    return assdID;
-}
 
 
 ///////////SEARCH
@@ -221,17 +205,26 @@ $(document).ready(() => {
 
 function focusItem(taskgroup) {
     $("span[data-taskgroup='" + taskgroup + "'] input[data-role='name']").focus();
-    $("#todolist_db>textarea").hide();
-    $("#todolist_db>textarea[data-taskgroup='" + taskgroup + "']").show();
+    $("#todolist_db>div").hide();
+    $("#todolist_db>div[data-taskgroup='" + taskgroup + "']").show();
 }
 
 function unloadAll() {
     //also incorporate disconnecting from the network.
     $("#todolist span:not(.pintotop)").remove();
-    $("#todolist_db textarea:not(.template)").remove();
+    $("#todolist_db>div:not(.template)").remove();
     $("#title")[0].innerText = "Untitled list";
     $("#nothingLeft").show();
     todolist.events['new'].forEach((f, i) => {
         f()
     });
 }
+
+
+
+//----------More random UI stuff----------//
+$(()=>{
+    $(".gear").on("click",()=>{
+        $("ul.title li:not(.olocalOnly):not(:first-child)").toggle();
+    })
+})

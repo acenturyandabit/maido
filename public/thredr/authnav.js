@@ -42,7 +42,8 @@ function puid(){
     return Date.now();
 }
 
-var userdata = new Proxy({},{
+var userdata = {};
+/*new Proxy({},{
     get:function(obj,prop){
         if (prop=='prettyName')return $("#username")[0].innerText;
         return obj[prop];
@@ -52,7 +53,7 @@ var userdata = new Proxy({},{
         else obj[prop]=val;
         return true;    
     }
-});
+});*/
 userdata.others={};
 userdata.saveableData=function(){
     e={};

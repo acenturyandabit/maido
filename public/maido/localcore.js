@@ -1,7 +1,7 @@
 function loadFromString(str) {
     data = JSON.parse(str);
     $("#todolist span:not(.pintotop)").remove()
-    $("#todolist_db textarea:not(.template)").remove()
+    $("#todolist_db>div:not(.template)").remove()
     for (d in data) {
         loadSingleEntry(d, data[d])
     }
@@ -24,19 +24,27 @@ function loadSingleEntry(id, data) {
     newNode.classList.remove('template');
     $(newNode).find("button").text("Remove");
     newNode.dataset.taskgroup = id;
-
-    //clone the description box as well. 
-    dbox = $("#todolist_db .template")[0].cloneNode(true);
-    dbox.classList.remove("template");
-    dbox.dataset.taskgroup = id;
-    $("#todolist_db").append(dbox);
+    
     $(newNode).find("*").each((i, e) => {
         e.dataset.taskgroup = newNode.dataset.taskgroup
     })
-    $("#todolist").append(newNode)
+    $("#todolist").append(newNode);
+    //clone the description box as well. 
+    $("#todolist_db").append("<div data-taskgroup='"+newNode.dataset.taskgroup+"'></div>");
+    dbdiv=$("#todolist_db div[data-taskgroup='"+newNode.dataset.taskgroup+"']")[0];
+    
+    //editors
     for (p in data) {
-        e = $("[data-taskgroup='" + id + "'][data-role*='" + p + "']")[0]
+        e = $("[data-taskgroup='" + id + "'][data-role*='" + p + "']")[0];
         if (e) e.value = data[p];
+        else if (editors[p]){
+            $(dbdiv).append(`<div data-editortype='`+p+`'>
+            <p>`+p+`</p>
+            <div class='innerbox'></div>
+            </div>
+            `);
+            editors[p].fromData(data[p],$(dbdiv).find("[data-editortype='"+p+"'] .innerbox")[0]);
+        }
     }
     for (f in precheck) {
         precheck[f](newNode);
@@ -57,7 +65,7 @@ function toggleAutosave() {
     }
 }
 
-setInterval(trimSave, 60000)
+setInterval(trimSave, 60000);
 
 function trimSave() {
     lskeys = Object.keys(localStorage);
@@ -89,6 +97,10 @@ function getSaveString() {
         if (savedata[e.dataset.taskgroup] == undefined) savedata[e.dataset.taskgroup] = {};
         savedata[e.dataset.taskgroup][e.dataset.role] = e.value;
     });
+    $("#todolist_db>div[data-taskgroup]>div").each((i, e) => {
+        savedata[e.parentElement.dataset.taskgroup][e.dataset.editortype]=editors[e.dataset.editortype].toData($(e).find(".innerbox")[0]);
+    });
+    //save hierarchy information
     $("span[data-taskgroup]").each((i, e) => {
         if (e.parentElement.id != "todolist") savedata[e.dataset.taskgroup].parent = e.parentElement.dataset.taskgroup;
     });
@@ -108,14 +120,30 @@ function saveToBrowser(autosave = false, autoTarget = 'lastSave') {
     // save everything that is relevant
     saveBlob = getSaveString();
     window.localStorage.setItem(autoTarget, saveBlob)
+    if (window.location.href.slice(7).split("/")[0]=='localhost:8080'){
+        setTimeout(()=>{$.post("/toSaveLocal/"+autoTarget,saveBlob)},100);
+    }
     if (!autosave) {
         window.localStorage.setItem("mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(), saveBlob);
+        if (window.location.href.slice(7).split("/")[0]=='localhost:8080'){
+            setTimeout(()=>{$.post("/toSaveLocal/"+"mai-" + $("#title")[0].innerText.toLowerCase().replace(/ /g, "_") + "-" + timestamp.toString(),{data:saveBlob})},100);
+        }
         console.log("saved ok")
     } else {
         console.log("autosaved ok")
     }
+}
 
-
+function loadFromURL(url){
+    $.getJSON(url,(data)=>{
+        loadFromString(data.data);//lmao should probably make a loadfromdata tbh
+        todolist.fire("load", data.data);
+        preDBTG=undefined;
+        if ($("#todolist_db>div:visible").length > 0) preDBTG = $("#todolist_db>div:visible")[0].dataset.taskgroup;
+        loadFromString(JSON.stringify(JSON.parse(data.data).items));
+        $("#title")[0].innerText = JSON.parse(data.data).name;
+        if (preDBTG) $("#todolist_db>div[data-taskgroup='" + preDBTG + "']").show();
+    })
 }
 
 function loadFromBrowser(key = 'lastSave') {
@@ -124,11 +152,10 @@ function loadFromBrowser(key = 'lastSave') {
     save_metadata = JSON.parse(window.localStorage.getItem(key));
     if (!save_metadata) save_metadata = {};
     todolist.fire("load", save_metadata);
-    if ($("#todolist_db textarea:visible").length > 0) preDBTG = $("#todolist_db textarea:visible")[0].dataset.taskgroup;
+    if ($("#todolist_db>div:visible").length > 0) preDBTG = $("#todolist_db>div:visible")[0].dataset.taskgroup;
     loadFromString(JSON.stringify(JSON.parse(window.localStorage.getItem(key)).items));
     $("#title")[0].innerText = JSON.parse(window.localStorage.getItem(key)).name;
-    if (preDBTG) $("#todolist_db textarea[data-taskgroup='" + preDBTG + "']").show()
-
+    if (preDBTG) $("#todolist_db>div[data-taskgroup='" + preDBTG + "']").show()
     console.log(key);
 }
 
@@ -147,16 +174,15 @@ function showLoader() {
             $("#loader_dialog_list").append("<br>");
         }
     }
-    $("#dialog_box").show();
-    $("#loader_dialog").show();
+    $(".loader_dialog").show();
 }
 
-function startLocal() {
+function startLocal(id) {
     $(document).ready(() => {
         $("#title")[0].contentEditable = true;
         $("#loader_dialog_list").on("click", "button", (e) => {
             loadFromBrowser(e.currentTarget.dataset.ref)
-            $("#loader_dialog").hide();
+            $(".loader_dialog").hide();
             $("#dialog_box").hide()
         })
         $("body").on("keyup", (e) => {
@@ -170,7 +196,28 @@ function startLocal() {
                 return false
             }
         })
-        loadFromBrowser();
+        if (id == undefined){
+            loadFromBrowser();
+        }else{
+            // find the last localsave entry that matches id.
+            let latest=0;
+            let lki=undefined;
+            for (ki in localStorage){
+                let bits=ki.split("-");
+                if (bits[0]=="mai"){
+                    if (bits[1]==id){
+                        if (Number(bits[2])>latest){
+                            latest=Number(bits[2]);
+                            lki=ki;
+                        }
+                    }
+                }
+            }
+            if (lki){
+                loadFromBrowser(lki);
+            }
+        }
+        
         first_sort();
         //show autosave
         $("li:contains('Preferences')>div").append(
@@ -202,6 +249,7 @@ function startLocal() {
     $(window).on('beforeunload', function () {
         window.localStorage.setItem("maion", 0);
     });
+    /*
     window.addEventListener('storage', (e) => {
         console.log("ohno");
         if (e.key == "maion" && e.newValue != "1") {
@@ -231,4 +279,5 @@ function startLocal() {
         }
     })
     window.localStorage.setItem("maion", 1)
+    */
 }

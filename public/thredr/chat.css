@@ -1,80 +1,69 @@
 body {
+    font-size: 2em;
+    /* 2x body copy size = 32px */
+    line-height: 1.25;
+    /* 45px / 36px */
     display: flex;
+    margin: 0;
     flex-direction: column;
-    font-size: 1.2em;
     font-family: sans-serif;
 }
 
-#maincontent {
-    display: flex;
-    flex-direction: row;
-    flex: 1 0 auto;
+@media (min-width: 43.75em) {
+    body {
+        font-size: 2.5em;
+        /* 2.5x body copy size = 40px */
+        line-height: 1.125;
+    }
 }
 
-#pool {
+@media (min-width: 56.25em) {
+    body {
+        font-size: 3em;
+        /* 3x body copy size = 48px */
+        line-height: 1.05;
+        /* keep to a multiple of the 20px line height 
+      and something more appropriate for display headings */
+    }
+}
+
+h3{text-align: center;}
+.threadblocks{
+    display: flex;
+    flex-direction: row-reverse;
+    flex: 0 0 120px;
+    overflow-x: auto;
+}
+.threadblocks>div{
+    flex: 0 0 100px;
+    height: 100px;
+    width:100px;
+    overflow:hidden;
+    padding: 10px;
+    margin: 10px;
+    background-color:lightblue;
+}
+.chatscreen{
+    flex: 0 1 100%;
     display: flex;
     flex-direction: column;
-    background: lightskyblue;
-    padding: 0px 30px;
+}
+.chatbox{
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y:auto;
 }
 
-div:has-children {
-    background-color: red;
+.thread.highlighted{
+    background-color:blue;
 }
-
-#sidebar {
-    padding-right: 10px;
-}
-
-#sidebar span {
-    margin-left: 5px;
-    display: block;
-}
-
-.thread,
-#ehere {
-    margin-left: 5px;
-    display: block;
-    padding: 10px;
-    border-left: 1px solid black;
-}
-
 .msg {
     background-color: lightcyan;
     display: block;
-}
-
-#threadDoc textarea {
-    width: 80vw;
-    height: 20vh;
-    resize: none
-}
-
-#threadDoc {
-    border-bottom: 1px solid black
-}
-
-.user {
-    font-weight: bold;
-}
-
-.tid {
-    color: lightseagreen;
-}
-
-#throwbox {
-    padding: 30px 0px;
-}
-
-#chatbox {
-    flex: 0 1 65%;
-    overflow-y: scroll;
-}
-
-#chatbox .msg,
-#ehere {
-    padding: 10px 3px;
-    border-radius: 7px;
+    padding: 0.5em 0.3em;
+    margin: 0.5em 0.3em;
+    border-radius: 0.7em;
 }
 
 #throwbox input {
@@ -113,7 +102,7 @@ div:has-children {
     float: right;
 }
 
-.msg.selected {
+.msg.selected.selected {
     background-color: greenyellow;
 }
 
@@ -123,8 +112,8 @@ div:has-children {
 }
 
 .floatybuttons>img {
-    width: 2vw;
-    height: 2vw;
+    width: 100px;
+    height: 100px;
 }
 
 .dialog {
@@ -139,4 +128,14 @@ div:has-children {
 
 .msg img {
     max-width: 100%;
+}
+
+
+video{
+    min-width: 100%;
+    min-height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-50%);
 }

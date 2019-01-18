@@ -75,7 +75,8 @@ var kaleidoCoreDefaultSettings = {
   colorGenerator: randcol,
   radialScalingFactor:0,
   backgroundFillColor:"black",
-  maxVertices:8
+  maxVertices:8,
+  radialAmplitude:1
 };
 var kaleidoCoreSettings;
 if (!kaleidoCoreSettings) kaleidoCoreSettings = kaleidoCoreDefaultSettings;
@@ -90,7 +91,7 @@ kaleidoCore = [];
 function shape(maxR, ramR) {
   this.factor = kaleidoCoreSettings.factor; //Math.round(Math.random()*2+3);//how many times it repeats
   this.tRate = (Math.random() * 2 - 1) * kaleidoCoreSettings.angularAmplitude; //rate of rotation
-  this.rRate = Math.random() * 4 + 1; //rate of radius increase
+  this.rRate = (Math.random() * 4 + 1) * kaleidoCoreSettings.radialAmplitude; //rate of radius increase
   //for sinusoidal radius
   if (kaleidoCoreSettings.sinusoidal) {
     this.ram = (Math.random() * 0.5 + 0.5) * ramR; // the radius at which the sin function peaks.

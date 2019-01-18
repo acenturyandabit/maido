@@ -1,4 +1,17 @@
 ////////////////////// UI handling //////////////////////
+$(()=>{
+    userStyle=document.createElement('style');
+    userStyle.innerHTML=`
+    .msg[data-uid="`+userdata.uid+`"]{
+        text-align:right;
+        background-color: blue;
+        color:white;
+
+
+    }`
+    $("head").append(userStyle);
+});
+
 var thredr = new Proxy({}, {
     set: function (obj, prop, v) {
         if (prop == "currentThread") {
@@ -15,7 +28,7 @@ $(document).ready(() => {
 });
 
 $(() => {
-    $("#sidebar").on("click", "div[data-tid]", e => {
+    $(".threadblocks").on("click", "div[data-tid]", e => {
         showThread(e.currentTarget.dataset.tid);
     });
     thredr.currentThread = "main";
@@ -25,6 +38,7 @@ function showThread(t) {
     thredr.currentThread = t;
     $(".msg").hide();
     $(".msg[data-" + t + "]").show();
+    $(`[data-tid="`+t+`"]`).removeClass('highlighted');
 }
 
 ////////////////////////data and data storage /////////////////////////
@@ -115,17 +129,23 @@ function loadMessages() {
                             //tactfully put it into the box. Go backwards from the last message until you find a message earlier than it, and put it behind that message.
 
                             wasAppended = false;
-                            $("#chatbox div.msg").sort((a, b) => {
+                            $(".chatbox div.msg").sort((a, b) => {
                                 return b.dataset.date - a.dataset.date
                             }).each((i, e) => {
                                 if (Number(e.dataset.date) < Number(data.t)) {
-                                    $(e).after(newItem);
+                                    $(e).before(newItem);
                                     wasAppended = true;
+                                    if (i==0){
+                                        //this means that this is the latest message
+                                        //bring the relevant thread to the front!
+                                        $(".threadblocks").prepend($(`[data-tid="`+data.primary_thread+`"]`))
+                                        if (data.primary_thread!=thredr.currentThread)$(`[data-tid="`+data.primary_thread+`"]`).addClass('highlighted');
+                                    }
                                     return false;
                                 }
                             })
                             if (!wasAppended){
-                                $("#chatbox").append(newItem);
+                                $(".chatbox").append(newItem);
                             } 
                             if (data.threads && data.threads[thredr.currentThread]) {
                                 $(newItem).show();
@@ -165,8 +185,7 @@ function loadMessages() {
                             data.prettyName +
                             `</span>`
                         )[0];
-                        $("em:contains('Recent threads')")
-                            .parent()
+                        $(".threadblocks")
                             .append(newItem);
                     }
                 });
@@ -264,7 +283,7 @@ $(() => {
             }
         }
     });
-    $("#chatbox").on("click", "div.msg", e => {
+    $(".chatbox").on("click", "div.msg", e => {
         e.currentTarget.classList.add("selected");
         fb = $(".floatyButtons")[0];
         fb.style.left = e.pageX;

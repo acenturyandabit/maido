@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <script>
+            function applyRegexes(){
+                inElem=document.getElementById("input");
+                intext=inElem.value;
+
+                reElem=document.getElementById("regexes");
+                retext=reElem.value;
+                regexes=retext.split("\n");
+                regexes=regexes.map((x)=>{return new RegExp(x)});
+
+                rpElem=document.getElementById("regReplaces");
+                rptext=rpElem.value;
+                rplaces=rptext.split("\n");
+
+                outputElem=document.getElementById("output");
+                outText=intext;
+                for (let i=0;i<regexes.length;i++){
+                    outText=outText.replace(regexes[i],rplaces[i]);
+                }
+                outputElem.value=outText;
+            }
+        </script>
+        <style>
+            textarea{
+                height:50vh;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>The Regex Factory</h1>
+        <p>Welcome! Use the regex factory to procedurally apply regex to large bodies of text.</p>
+        <h2>How it works</h2>
+        <p>Put your input into the first input. Type regex filters into the Regex box. Press apply to apply the filter.</p>
+        <p>The output from input 1 will pipe into input 2. Pressing 'Apply all' will apply all the stages down sequentially from the selected stage.</p>
+        <button onclick="insertStep()">Insert step before</button>
+        <hr>
+        <div class="step">
+            <textarea id="input" placeholder="Input 1"></textarea>
+            <textarea id="regexes" placeholder="Regex"></textarea>
+            <textarea id="regReplaces" placeholder="Replacements"></textarea>
+            <textarea id="output" placeholder="Output 1 -> Input 2"></textarea><br>
+            <input type="checkbox">Tick for replacement; otherwise extraction</input><br>
+            <button onclick="applyRegexes()">Apply</button>
+            <button onclick="applyRegexes()">Apply all</button>
+            <button onclick="insertStep()">Insert step</button>
+            <button onclick="removeStep()">Delete step</button>
+            <hr>
+        </div>
+        <div class="nanopromo">
+            <p>Some search engine optimisation tags yay</p>
+            <p>Incremental Regex applier</p>
+        </div>
+    </body>
+</html>

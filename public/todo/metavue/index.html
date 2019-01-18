@@ -1,0 +1,122 @@
+<html>
+
+<head>
+    <script src="../jquery.min.js"></script>
+    <script type="text/javascript">
+    tagDict={"unallocated":"#eeeeee"};
+        function item(t) {
+            this.start_time = new Date(t);
+            this.duration=0;//set by parent or sth
+            this.name;
+            this.description;
+            onclick
+            this.tags = [
+                ["unallocated",1]
+            ];
+            this.tagTargets = [
+                ["unallocated",1]
+            ];
+            this.subItems = [];
+            this.onclick = function () {}
+            this.ondbclick = function () {}
+            this.reevaluateSubs = function () {
+                amtSubs = this.subItems.length
+                if (amtSubs == 0) {
+                    return;
+                }
+                this.tags = {}
+                this.subItems.forEach(e => {
+                    for (i in e.item.tags) {
+                        if (this.tags[i] == undefined) this.tags[i] = 0;
+                        this.tags[i] += e.item.tags[i] / amtSubs;
+                    }
+                });
+            }
+        }
+
+        function expansionManager(c, n, it) {
+            for (i = 0; i < n; i++) it.subItems.push(c(i));
+        }
+
+        function decade() {
+            this.item = new item(Date.now());
+            coppy=new Date(this.item.start_time.getTime());
+            coppy.setYear(coppy.getFullYear()+10);
+            this.item.duration=coppy.getTime()-this.item.start_time.getTime();
+            this.lazy = true;
+            this.project = function (div) {
+                if (this.lazy) {
+                    expansionManager((i) => {
+                        y = new year(0);
+                        y.item.start_time.setYear(i + this.item.start_time.getFullYear())
+                        return y;
+                    }, 10, this.item);
+                }
+                //for each year which is not lazy, display it as a collection of dots.
+
+                this.item.subItems.forEach(e => {
+                    d = document.createElement("div")
+                    div.appendChild(d);
+                    e.dotMatrixDisplay(d)
+                })
+            }
+            this.dotMatrixDisplay = undefined;
+        }
+
+        function year(t) {
+            this.item = new item(t);
+            this.lazy = true;
+            this.project = function (div) {
+                if (this.lazy) {
+                    expansionManager(() => {
+                        return new year()
+                    }, 10, this.item);
+                }
+                //for each year which is not lazy, display it as a collection of dots.
+
+                this.item.subItems.forEach(e => {
+                    e.dotMatrixDisplay(div)
+                })
+            }
+            this.dotMatrixDisplay = function (div) {
+                p = document.createElement("p");
+                p.innerText = this.item.start_time.toString();
+                div.appendChild(p);
+                c = document.createElement("canvas");
+                ctx = c.getContext('2d');
+                div.appendChild(c);
+                if (this.lazy) {
+                    ctx.fillStyle=tagDict[this.item.tags[0][0]];
+                    ctx.fillRect(0,0,c.width,c.height);
+                    // just colour in desired stuff
+                    // otherwise draw all the dots, on a canvas
+                }else{
+                    //draw a dot matrix yay
+                }
+            };
+        }
+
+        /*years = []
+        months = []
+        weeks = []
+        days = []
+        */
+        decades = []
+        //show decade view, hide other views
+        $(() => {
+            //load all data
+            decades.push(new decade()); // current decade
+            decades[0].project($(".view")[0]);
+        })
+    </script>
+</head>
+
+<body>
+    <div>
+        <h1>List name</h1>
+        <h2>rangestart-rangeend</h2>
+    </div>
+    <div class="view"></div>
+</body>
+
+</html>

@@ -1,5 +1,30 @@
 //MATHS
 
+//Functions:
+/*
+metaSrand: Generate a random seed string and seeds the random generator with said string.
+Args: none
+Returns: string.
+
+srand:  Seed the random generator.
+Args: newPreseed: string or number
+Returns: none
+
+rand: Generate a random number.
+Returns:A random number up to INT_max.
+
+makeRandomPolynomial: Generates a random polynomial.
+
+...
+
+
+
+
+
+*/
+
+
+
 var preseed=0;
 
 //Thanks XKCD!
@@ -339,3 +364,37 @@ $(document).ready(()=>{
 	for (i in testTexts)render($("#contentDiv")[0],testTexts[i])
 });
 */
+
+engIndices=["","k","M","G"];
+negEngIndices=["","m","u","n","p"];
+function engShowNumber(n){
+	n=Number(n);
+	let negative=false;
+	let _n=Math.abs(n);
+	if (_n/n!=1){
+		negative=true;
+	}
+	let amt;
+	amt=Math.floor(Math.log10(_n));
+	// if (Math.abs(n)>1){
+		
+	// }else{
+	// 	amt=Math.ceil(Math.log10(n));
+	// }
+	let precision=_n.toExponential().split("e")[0].replace(".","").length;
+	amt=Math.floor(amt/3);
+	let sf=_n/Math.pow(10,amt*3);
+	sf=sf.toPrecision(precision);
+	sf=sf.toString().split("e")[0];
+	if (amt<0){
+		if (negEngIndices[-amt]!=undefined)sf+=negEngIndices[-amt];
+		else return n.toExponential();
+	}else{
+		if (engIndices[-amt]!=undefined)sf+=engIndices[amt];
+		else return n.toExponential();
+	}
+	if (negative){
+		sf="-"+sf;
+	}
+	return sf;
+}

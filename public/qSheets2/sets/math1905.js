@@ -6,7 +6,7 @@
 
 qSheets.create("USYD/MATH/1905", {
 	prettyName: "MATH1905: First year statistics",
-	notes: "Created by Steven Liu, in 2019. This has no official affiliation with the University of Sydney. Use at your own peril.",
+	notes: "Created by Steven Liu, in 2018-9. This has no official affiliation with the University of Sydney, NESA, or anything else really. Use at your own peril.",
 	instruction: "Have a go at these questions!",
 	data: {}, // Store information about the last generated question between calls to subfunctions.
 	gen: [function (difficulty, qdiv, a_min_div, a_max_div) { // Generate a single question, returning divs for the question, min answer, and max answer.
