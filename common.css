@@ -1,0 +1,144 @@
+
+
+#todolist_db>div {
+    flex: 1 1 200px;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+}
+
+#todolist_db>div>div {
+    flex: 1 1 200px;
+    width: 100%;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    margin-top: 0;
+}
+
+#addins_dialog .innerDialog>div {
+    display: flex;
+    height: 60vh;
+    flex-direction: row;
+}
+
+#addins_dialog .innerDialog>div>div {
+    flex: 1 1 50%;
+}
+
+.dodo {
+    height: 1em;
+    width: 1em;
+    user-select: none;
+    cursor: move;
+}
+
+
+#loader_dialog_panel_container {
+    height: 40vh;
+    background-color: rgb(200, 200, 200, 0.5);
+    display: flex;
+    flex-direction: row;
+    overflow-y: auto;
+    width: fit-content;
+    min-width: 30vw;
+    margin: auto;
+}
+
+ul.secondary {
+    background-color: #888;
+}
+
+ul.maiTitle {
+    background-color: #333;
+}
+
+ul.title {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.title li>span {
+    user-select: none;
+    color: white;
+    font-size: 1.5em;
+    padding: 12px 16px;
+    display: inline-block;
+    text-align: center;
+}
+
+ul.title li a {
+    user-select: none;
+    cursor: pointer;
+    display: inline-block;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    padding: 1em 16px;
+}
+
+ul.title li:hover {
+    background-color: lightskyblue;
+}
+
+ul.title li div {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    z-index: 1;
+}
+
+ul.title li div a {
+    color: black;
+    padding: 12px 16x;
+    display: block;
+    text-align: left;
+}
+
+ul.title li div a:hover {
+    background-color: #aaaaaa;
+}
+
+ul.title li:hover div {
+    display: block;
+}
+
+#todolist>span {
+    display: block;
+}
+
+#todolist span>span {
+    display: block;
+    margin: 5px;
+}
+
+#todolist {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.template {
+    border-bottom: 1px solid black;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+
+
+.dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 10, 0.8);
+}

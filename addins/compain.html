@@ -1,0 +1,45 @@
+<html>
+
+<head>
+    <script src="../jquery.min.js"></script>
+    <script>
+        function runUpdate() {
+            //get the topmost task. Let mai supply it for us.
+            taskname = JSON.parse(window.localStorage.getItem("compainTask"));
+            $("#ctname").html(taskname.join('<br>'));
+            taskdate = new Date(Number(window.localStorage.getItem("compainDate")));
+            //the currrent time relative to the first task. Can be negative.
+            //bescared = ("true"==window.localStorage.getItem("compainAlert"));
+            //if (bescared)$("body").css("background","yellow");
+            if (taskname.length>2){
+                $("body").css("background","yellow");
+            }else $("body").css("background","white");
+            curdate = new Date();
+            _taskdate=curdate.getTime()-taskdate.getTime();
+            taskdate=new Date(Math.abs(_taskdate)-10*60*60*1000);
+            $("#taskdate").text(((_taskdate>0)?"":"-")+taskdate.toLocaleTimeString());
+        }
+        $(document).ready(()=>{runUpdate()});
+        setInterval(runUpdate, 500);
+    </script>
+    <style>
+        .bigger {
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--
+    Show a clock; time since (currently looked at event) start, also some other shenanigans for later
+    -->
+    <div>
+        <span id="ctname">Current task name goes here.</span>
+        <button onclick="window.open('','maido','')">Open Mai</button>
+    </div>
+    <div>
+        <span class="bigger"><span id="taskdate">TASK CTE/ETA</span></span>
+    </div>
+</body>
+
+</html>
