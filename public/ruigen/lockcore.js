@@ -1,35 +1,10 @@
-function JQInit(_f) {
-    if (typeof jQuery == "undefined") {
-        // preinject jquery so that noone else after us is going to
-        //inject jquery
-        scr = document.createElement("script");
-        scr.src = src = "https://code.jquery.com/jquery-3.3.1.slim.min.js";
-        document.getElementsByTagName("head")[0].appendChild(scr);
-        jQuery = "";
-    }
-    if (typeof jQuery == "string") {
-        function tryStartJQ(f) {
-            if (typeof jQuery != "string" && typeof jQuery != "undefined") f();
-            else
-                setTimeout(() => {
-                    tryStartJQ(f);
-                }, 1000);
-        }
-        document.addEventListener("ready", tryStartJQ(_f));
-    } else {
-        $(_f);
-    }
-}
-
-
-JQInit(startlockCore);
 var lockCoreDefaultSettings = {
     angularSlices: 12,
-    tiers: 10,
-    maxSegments: 5,
-    baseShapeCount: 7,
-    maxRotationDuration: 20,
-    pauseChance: 0.2,
+    tiers: 7,
+    maxSegments: 9,
+    baseShapeCount: 5,
+    maxRotationDuration: 30,
+    pauseChance: 0.3,
     colorGenerator: function () {
         var output = "rgba(0,";
         output += Math.floor(Math.random() * 200) + 55;
@@ -53,11 +28,13 @@ var lockCoreDefaultSettings = {
             this.theta = 0; //Math.random() * Math.PI * 2;
             if (Math.random() < 1 - lockCoreSettings.pauseChance) {
                 if (lockCoreSettings.rotationSegmentLock) {
-                    this.duration = (Math.random() * 0.5 + 0.5) * lockCoreSettings.maxRotationDuration;
-                    this.delta = Math.floor(Math.random() * 10 - 5) / lockCoreSettings.angularSlices * Math.PI * 2 / this.duration;
+                    this.duration = this.totalDuration = Math.floor((Math.random() * 0.5 + 0.5) * lockCoreSettings.maxRotationDuration);
+                    this.rstart = 0;
+                    this.rend = Math.floor(Math.random() * 10 - 5) / lockCoreSettings.angularSlices * Math.PI * 2;
                 } else {
-                    this.duration = Math.random() * lockCoreSettings.maxRotationDuration;
-                    this.delta = Math.random() * 0.2 - 0.1;
+                    this.duration = this.totalDuration = Math.floor((Math.random() * 0.5 + 0.5) * lockCoreSettings.maxRotationDuration);
+                    this.rstart = 0;
+                    this.rend = Math.random() * 2 * Math.PI;
                 }
             } else {
                 this.duration = Math.random() * lockCoreSettings.maxRotationDuration;
@@ -67,10 +44,10 @@ var lockCoreDefaultSettings = {
             this.duration = 15;
             this.regenerate = function () {
                 this.segments = [];
-                this.segments.push(new lockCoreSettings.bit(0,this.type));
-                if (this.type=="radialFlash")this.segmentCount=1;
+                this.segments.push(new lockCoreSettings.bit(0, this.type));
+                if (this.type == "radialFlash") this.segmentCount = 1;
                 for (i = 0; i < this.segmentCount; i++) {
-                    this.segments.push(new lockCoreSettings.bit(this.segments[this.segments.length - 1].angleEnd,this.type));
+                    this.segments.push(new lockCoreSettings.bit(this.segments[this.segments.length - 1].angleEnd, this.type));
                 }
             }
             this.regenerate();
@@ -81,15 +58,15 @@ var lockCoreDefaultSettings = {
 
     bit: function (angleStartMin, flashType) {
         if (flashType == "sectorFlash") {
-            this.angleStart = angleStartMin + Math.floor(Math.random()) * 3+1; //Math.floor(Math.random() * (lockCoreSettings.angularSlices - angleStartMin)); //Math.floor(Math.random()*3)+this.angleStart;
-            this.angleEnd = this.angleStart + Math.floor(Math.random()) * 2+1 //Math.floor(Math.random() * (lockCoreSettings.angularSlices - this.angleStart)); //Math.floor(Math.random()*3)+this.angleStart;
+            this.angleStart = angleStartMin + Math.floor(Math.random()) * 3 + 1; //Math.floor(Math.random() * (lockCoreSettings.angularSlices - angleStartMin)); //Math.floor(Math.random()*3)+this.angleStart;
+            this.angleEnd = this.angleStart + Math.floor(Math.random()) * 2 + 1 //Math.floor(Math.random() * (lockCoreSettings.angularSlices - this.angleStart)); //Math.floor(Math.random()*3)+this.angleStart;
             this.tierStart = Math.floor(Math.random() * (lockCoreSettings.tiers - 3)) + 1;
-            this.tierEnd = this.tierStart +1;
+            this.tierEnd = this.tierStart + 1;
         } else if (flashType == "radialFlash") {
             this.angleStart = 0; //Math.floor(Math.random() * (lockCoreSettings.angularSlices - angleStartMin)); //Math.floor(Math.random()*3)+this.angleStart;
             this.angleEnd = lockCoreSettings.angularSlices; //Math.floor(Math.random() * (lockCoreSettings.angularSlices - this.angleStart)); //Math.floor(Math.random()*3)+this.angleStart;
             this.tierStart = Math.floor(Math.random() * (lockCoreSettings.tiers - 3)) + 1;
-            this.tierEnd = this.tierStart +1;
+            this.tierEnd = this.tierStart + 1;
         } else {
             this.angleStart = angleStartMin + Math.floor(Math.random()) * 2; //Math.floor(Math.random() * (lockCoreSettings.angularSlices - angleStartMin)); //Math.floor(Math.random()*3)+this.angleStart;
             this.angleEnd = this.angleStart + Math.floor(Math.random()) * 5 + 3; //Math.floor(Math.random() * (lockCoreSettings.angularSlices - this.angleStart)); //Math.floor(Math.random()*3)+this.angleStart;
@@ -111,7 +88,9 @@ lockCore = [];
 
 
 function startlockCore() {
-    $(".lockCore").each((i, e) => {
+    let things = document.getElementsByClassName("lockCore");
+    for (i = 0; i < things.length; i++) {
+        e = things[i];
         lockCanvas = document.createElement("canvas");
         lockCanvas.width = e.clientWidth;
         lockCanvas.height = e.clientHeight;
@@ -126,7 +105,7 @@ function startlockCore() {
             },
             radius: Math.min(lockCanvas.width, lockCanvas.height) / 2
         });
-    });
+    };
     setInterval(() => {
         lockCore.forEach((v, i) => {
             //clear board
@@ -152,20 +131,22 @@ function startlockCore() {
             for (var i = 0; i < v.data.shapes.length; i++) {
                 s = v.data.shapes[i];
                 if (s.type == "ring") {
-                    s.theta += s.delta;
+                    s.theta = s.rend + (s.rstart - s.rend) * (s.duration / s.totalDuration);
                     s.duration -= 1;
                     if (s.duration < 0) {
                         if (Math.random() < 1 - lockCoreSettings.pauseChance) {
                             if (lockCoreSettings.rotationSegmentLock) {
-                                s.duration = (Math.random() * 0.5 + 0.5) * lockCoreSettings.maxRotationDuration;
-                                s.delta = Math.floor(Math.random() * 10 - 5) / lockCoreSettings.angularSlices * Math.PI * 2 / s.duration;
+                                s.duration = s.totalDuration = Math.floor((Math.random() * 0.5 + 0.5) * lockCoreSettings.maxRotationDuration);
+                                s.rstart = s.rend;
+                                s.rend = Math.floor(Math.random() * 10 - 5) / lockCoreSettings.angularSlices * Math.PI * 2;
                             } else {
-                                screenLeft.duration = Math.random() * lockCoreSettings.maxRotationDuration;
-                                s.delta = Math.random() * 0.2 - 0.1;
+                                s.duration = s.totalDuration = Math.floor((Math.random() * 0.5 + 0.5) * lockCoreSettings.maxRotationDuration);
+                                s.rstart = s.rend;
+                                s.rend = Math.random() * 2 * Math.PI;
                             }
                         } else {
-                            s.duration = Math.random() * lockCoreSettings.maxRotationDuration;
-                            s.delta = 0;
+                            s.duration =s.totalDuration= Math.random() * lockCoreSettings.maxRotationDuration;
+                            s.rstart=s.rend;
                         }
                     }
                 } else /*if (s.type=="sectorFlash")*/ {
@@ -192,8 +173,8 @@ function startlockCore() {
                 for (let i = 0; i < sh.segments.length; i++) {
                     s = sh.segments[i];
                     v.ctx.beginPath();
-                    v.ctx.arc(v.e.width / 2, v.e.height / 2, v.radius * s.tierStart / lockCoreSettings.tiers, sh.theta + s.angleStart * 2 * Math.PI / lockCoreSettings.angularSlices, sh.theta + s.angleEnd * 2 * Math.PI / lockCoreSettings.angularSlices);
-                    v.ctx.arc(v.e.width / 2, v.e.height / 2, v.radius * s.tierEnd / lockCoreSettings.tiers, sh.theta + s.angleEnd * 2 * Math.PI / lockCoreSettings.angularSlices, sh.theta + s.angleStart * 2 * Math.PI / lockCoreSettings.angularSlices, true);
+                    v.ctx.arc(v.e.width / 2, v.e.height / 2, v.radius * s.tierStart / (lockCoreSettings.tiers - 1), sh.theta + s.angleStart * 2 * Math.PI / lockCoreSettings.angularSlices, sh.theta + s.angleEnd * 2 * Math.PI / lockCoreSettings.angularSlices);
+                    v.ctx.arc(v.e.width / 2, v.e.height / 2, v.radius * s.tierEnd / (lockCoreSettings.tiers - 1), sh.theta + s.angleEnd * 2 * Math.PI / lockCoreSettings.angularSlices, sh.theta + s.angleStart * 2 * Math.PI / lockCoreSettings.angularSlices, true);
 
                     v.ctx.closePath();
                     v.ctx.fill();
@@ -204,3 +185,6 @@ function startlockCore() {
         });
     }, 100);
 }
+
+if (document.readyState != "loading") startlockCore();
+else document.addEventListener("DOMContentLoaded", startlockCore);

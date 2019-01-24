@@ -1,34 +1,19 @@
-function JQInit(_f){
-    if (typeof jQuery == 'undefined') {
-        // preinject jquery so that noone else after us is going to
-        //inject jquery
-        scr = document.createElement("script");
-        scr.src = src = "https://code.jquery.com/jquery-3.3.1.slim.min.js";
-        document.getElementsByTagName("head")[0].appendChild(scr);
-        jQuery = "";
-    }
-    if (typeof jQuery == 'string') {
-        function tryStartJQ(f) {
-            if (typeof jQuery != 'string' && typeof jQuery != 'undefined') f();
-            else setTimeout(()=>{tryStartJQ(f)}, 1000);
-        }
-        document.addEventListener("ready", tryStartJQ(_f));
-    } else {
-        $(_f);
-    }
-}
-JQInit(startTriflow);
-
-
 ////////triflow//////
 triflow = [];
 triflowsettings = {
-    flowrate: 1,
-    bitprob: 0.1
+    bitprob: 0.1,
+    delTheta: 0.1,
+    flowrate: 5,
+    genStep: 3,
+    innerRadius: 0.1,
+    outerRadius: 0.25
 }
-function startTriflow(){
-    $(".triflow").each((i, _e) => {
-        e=document.createElement("canvas");
+
+function startTriflow() {
+    let things = document.getElementsByClassName("triflow");
+    for (i = 0; i < things.length; i++) {
+        _e = things[i];
+        e = document.createElement("canvas");
         _e.append(e);
         e.width = _e.clientWidth;
         e.height = _e.clientHeight;
@@ -37,31 +22,35 @@ function startTriflow(){
                 bits: []
             },
             ctx: e.getContext('2d'),
-            h:e.height,
-            w:e.width,
-            tick:0
+            h: e.height,
+            w: e.width,
+            tick: 0
         });
-    });
+    };
     setInterval(() => {
         triflow.forEach((v, i) => {
             //Generate bit
-            if (Math.random() < triflowsettings.bitprob) {
+            if (!(v.tick % triflowsettings.genStep) || v.data.bits.length < 3) {
                 v.data.bits.push({
                     x: -2 / triflowsettings.bitprob,
                     //c: e.clientHeight*(0.4 + Math.random() * 0.1),
-                    c:e.clientHeight/2,
-                    a: e.clientHeight*(0.2 + Math.random() * 0.05),
+                    c: e.clientHeight / 2,
+                    a: (() => {
+                        if (v.tick % (triflowsettings.genStep * 2)) return e.clientHeight * triflowsettings.innerRadius;
+                        return e.clientHeight * triflowsettings.outerRadius
+                    })(), //*(0.2 + Math.random() * 0.05),
                     //a:e.clientHeight/4,
                     //omg: 0.02 + Math.random() * 0.1,
-                    omg:0.07,
-                    phi: Math.random() * 2 * Math.PI
+                    omg: triflowsettings.delTheta,
+                    phi: 0, //Math.random() * 2 * Math.PI
                     //phi: v.tick*0.01*Math.PI
                 })
                 //v.tick+=Math.random()*5;
             }
+            v.tick++;
             //clear screen
             v.ctx.fillStyle = "black";
-            v.ctx.fillRect(0, 0, v.w,v.h);
+            v.ctx.fillRect(0, 0, v.w, v.h);
             //Draw bits
             if (v.data.bits.length > 3) {
                 for (i = 2; i < v.data.bits.length; i++) {
@@ -84,10 +73,13 @@ function startTriflow(){
             //update all bits
             for (i = 0; i < v.data.bits.length; i++) {
                 v.data.bits[i].phi += v.data.bits[i].omg;
-                v.data.bits[i].x++;
+                v.data.bits[i].x += triflowsettings.flowrate;
             }
             while (v.data.bits.length && v.data.bits[0].x > v.w) v
                 .data.bits.shift();
         })
     }, 100)
 }
+
+if (document.readyState != "loading") startTriflow();
+else document.addEventListener("DOMContentLoaded", startTriflow);

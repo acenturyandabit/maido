@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
+    <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+    <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
+    <script>
+        document.addEventListener('init', function (event) {
+            var page = event.target;
+
+            if (page.id === 'welcome') {
+                page.querySelector('#push-button').onclick = function () {
+                    document.querySelector('#myNavigator').pushPage('page2.html', {
+                        data: {
+                            title: 'Page 2'
+                        }
+                    });
+                };
+            } else if (page.id === 'page2') {
+                page.querySelector('ons-toolbar .center').innerHTML = page.data.title;
+            }
+
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!(localStorage.getItem("__foodie__seen"))) {
+                showModal();
+                localStorage.setItem("__foodie__seen", true);
+            }
+        })
+
+        function showModal() {
+            var modal = document.querySelector('ons-modal');
+            modal.show();
+            setTimeout(function () {
+                modal.hide();
+            }, 2000);
+        }
+    </script>
+</head>
+
+<body>
+
+    <ons-modal direction="up">
+        <div style="text-align: center">
+            <h1>Hello from USYD Foodie!</h1>
+            <p>It's your list of all the free (or semi-free) ACCESS food all in one place!</p>
+            <em>Tap through to view up and coming events</em>
+        </div>
+    </ons-modal>
+
+
+    <ons-navigator swipeable id="myNavigator" page="selectedEvent.html"></ons-navigator>
+    <template id="list.html">
+        <ons-page id="list">
+            <ons-toolbar>
+                <div class="center">ACCESS Food events</div>
+            </ons-toolbar>
+            <p>Tap on any event for more info!</p>
+            <ons-list>
+                <ons-list-item modifier="chevron" tappable>Event name - event date</ons-list-item>
+            </ons-list>
+        </ons-page>
+    </template>
+
+    <template id="selectedEvent.html">
+        <ons-page id="selectedEvent">
+            <ons-toolbar>
+                <div class="left">
+                    <ons-back-button>Back to list</ons-back-button>
+                </div>
+                <div class="center">Event name</div>
+            </ons-toolbar>
+            <h3>Brought to you by:<em class="eventHost">PhySoc</em></h3>
+            <h3>Time:</h3>
+            <p class="eventDate">11th of Nopevember</p>
+            <h3>Location:</h3>
+            <p class="eventLocation">The Milky Way Bar</p>
+            <h3>Description:</h3>
+            <p class="eventDescription">The Milky Way Bar</p>
+            <button class="_rgst center">I'm going!</button><br>
+            <button class="_gvng vtk">View ticket</button><br>
+            <button class="_gvng cntmk">I can't make it :(</button>
+        </ons-page>
+    </template>
+</body>
+
+</html>

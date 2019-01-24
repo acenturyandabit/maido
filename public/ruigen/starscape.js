@@ -5,30 +5,6 @@ starscape settings{
 }
 */
 
-function JQInit(_f) {
-    if (typeof jQuery == "undefined") {
-        // preinject jquery so that noone else after us is going to
-        //inject jquery
-        scr = document.createElement("script");
-        scr.src = src = "https://code.jquery.com/jquery-3.3.1.slim.min.js";
-        document.getElementsByTagName("head")[0].appendChild(scr);
-        jQuery = "";
-    }
-    if (typeof jQuery == "string") {
-        function tryStartJQ(f) {
-            if (typeof jQuery != "string" && typeof jQuery != "undefined") f();
-            else
-                setTimeout(() => {
-                    tryStartJQ(f);
-                }, 1000);
-        }
-        document.addEventListener("ready", tryStartJQ(_f));
-    } else {
-        $(_f);
-    }
-}
-
-JQInit(startstarscape);
 var starscapeDefaultSettings = {
     randcol: function () {
         var output = "#00";
@@ -61,7 +37,9 @@ starscape = [];
 
 ///////Kaleiocore
 function startstarscape() {
-    $(".starscape").each((i, e) => {
+    let things=document.getElementsByClassName("starscape");
+     for (i=0;i<things.length;i++){
+         e=things[i];
         let starscapeCanvas = document.createElement("canvas");
         starscapeCanvas.width = e.clientWidth;
         starscapeCanvas.height = e.clientHeight;
@@ -80,7 +58,7 @@ function startstarscape() {
             bt:0
         };
         starscape.push(stro);
-    });
+    };
     setInterval(() => {
         starscape.forEach((v, i) => {
             //clear the canvas
@@ -118,3 +96,5 @@ function startstarscape() {
         });
     }, 100);
 }
+
+if (document.readyState != "loading") startstarscape(); else document.addEventListener("DOMContentLoaded", startstarscape);

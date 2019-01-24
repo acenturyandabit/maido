@@ -1,0 +1,29 @@
+<html>
+
+<head>
+    <script>
+    function bind(base, el, varname) {
+        Object.defineProperty(base, varname, {
+            get: () => {
+                return el.value;
+            },
+            set: (value) => {
+                el.value = value;
+            }
+        })
+    }
+
+        function thing() {
+            bind(this,document.getElementById("toBind"), "potato");
+        }
+        var p;
+        document.addEventListener("DOMContentLoaded",()=>{p=new thing()});
+        
+    </script>
+</head>
+
+<body>
+    <input id="toBind"></input>
+</body>
+
+</html>

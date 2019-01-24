@@ -19,28 +19,7 @@ kaleidoCoreSettings{
 
 
 */
-function JQInit(_f) {
-  if (typeof jQuery == "undefined") {
-    // preinject jquery so that noone else after us is going to
-    //inject jquery
-    scr = document.createElement("script");
-    scr.src = src = "https://code.jquery.com/jquery-3.3.1.slim.min.js";
-    document.getElementsByTagName("head")[0].appendChild(scr);
-    jQuery = "";
-  }
-  if (typeof jQuery == "string") {
-    function tryStartJQ(f) {
-      if (typeof jQuery != "string" && typeof jQuery != "undefined") f();
-      else
-        setTimeout(() => {
-          tryStartJQ(f);
-        }, 1000);
-    }
-    document.addEventListener("ready", tryStartJQ(_f));
-  } else {
-    $(_f);
-  }
-}
+
 function randcol() {
   var output = "#00";
   var ac_char = [
@@ -68,15 +47,14 @@ function randcol() {
   output += "00";
   return output;
 }
-JQInit(startKaleidoCore);
 var kaleidoCoreDefaultSettings = {
   factor: 8,
   angularAmplitude: 0.1,
   colorGenerator: randcol,
-  radialScalingFactor:0,
-  backgroundFillColor:"black",
-  maxVertices:8,
-  radialAmplitude:1
+  radialScalingFactor: 0,
+  backgroundFillColor: "black",
+  maxVertices: 8,
+  radialAmplitude: 1
 };
 var kaleidoCoreSettings;
 if (!kaleidoCoreSettings) kaleidoCoreSettings = kaleidoCoreDefaultSettings;
@@ -101,11 +79,11 @@ function shape(maxR, ramR) {
   this.r = 0; //radius
   this.t = Math.random() * Math.PI; //theta
   this.color = kaleidoCoreSettings.colorGenerator(); //this color
-  var p = Math.floor(Math.random() * (kaleidoCoreSettings.maxVertices-3) + 3);
+  var p = Math.floor(Math.random() * (kaleidoCoreSettings.maxVertices - 3) + 3);
   this.bits = [];
   for (var i = 0; i < p; i++) this.bits.push(new bit(maxR));
-  this.bitT=0;
-  this.bitDt=(Math.random()*2-1)*0.01;
+  this.bitT = 0;
+  this.bitDt = (Math.random() * 2 - 1) * 0.01;
 }
 
 function bit(maxR) {
@@ -115,7 +93,9 @@ function bit(maxR) {
 
 ///////Kaleiocore
 function startKaleidoCore() {
-  $(".kaleidocore").each((i, e) => {
+  let things = document.getElementsByClassName("kaleidocore");
+  for (i = 0; i < things.length; i++) {
+    e = things[i];
     kaleidoCanvas = document.createElement("canvas");
     kaleidoCanvas.width = e.clientWidth;
     kaleidoCanvas.height = e.clientHeight;
@@ -129,9 +109,9 @@ function startKaleidoCore() {
         predisp: [],
         shapes: []
       },
-      radius:Math.min(kaleidoCanvas.width, kaleidoCanvas.height)/2
+      radius: Math.min(kaleidoCanvas.width, kaleidoCanvas.height) / 2
     });
-  });
+  };
   setInterval(() => {
     kaleidoCore.forEach((v, i) => {
       v.ctx.fillStyle = kaleidoCoreSettings.backgroundFillColor;
@@ -159,8 +139,8 @@ function startKaleidoCore() {
           s.r += s.rRate;
         }
         s.t += (s.tRate / Math.log(s.r + 1 + 1000)) * 3;
-		if (s.r > v.e.width * 0.7 || s.r < -0.1) v.data.shapes.splice(i, 1);
-		s.bitT+=s.bitDt;
+        if (s.r > v.e.width * 0.7 || s.r < -0.1) v.data.shapes.splice(i, 1);
+        s.bitT += s.bitDt;
       }
       //draw everything
       for (var k = 0; k < v.data.shapes.length; k++) {
@@ -170,8 +150,8 @@ function startKaleidoCore() {
           var ist = true;
           for (var j = 0; j < s.bits.length; j++) {
             b = s.bits[j];
-			kr = b.dr* (1 + s.r / v.e.height * kaleidoCoreSettings.radialScalingFactor);
-			kd=b.dt+s.bitT;
+            kr = b.dr * (1 + s.r / v.e.height * kaleidoCoreSettings.radialScalingFactor);
+            kd = b.dt + s.bitT;
             xx =
               s.r * Math.cos(s.t + (i * Math.PI * 2) / s.factor) +
               kr * Math.cos(kd + (i * Math.PI * 2) / s.factor) +
@@ -205,3 +185,5 @@ function startKaleidoCore() {
     });
   }, 100);
 }
+
+if (document.readyState != "loading") startKaleidoCore(); else document.addEventListener("DOMContentLoaded", startKaleidoCore);

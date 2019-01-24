@@ -1,30 +1,13 @@
-function JQInit(_f){
-    if (typeof jQuery == 'undefined') {
-        // preinject jquery so that noone else after us is going to
-        //inject jquery
-        scr = document.createElement("script");
-        scr.src = src = "https://code.jquery.com/jquery-3.3.1.slim.min.js";
-        document.getElementsByTagName("head")[0].appendChild(scr);
-        jQuery = "";
-    }
-    if (typeof jQuery == 'string') {
-        function tryStartJQ(f) {
-            if (typeof jQuery != 'string' && typeof jQuery != 'undefined') f();
-            else setTimeout(()=>{tryStartJQ(f)}, 1000);
-        }
-        document.addEventListener("ready", tryStartJQ(_f));
-    } else {
-        $(_f);
-    }
-}
-JQInit(startAnniPairs);
 ///////annihilation-pairs/////
 annipair = [];
 annipairSettings = {
-    r: 2
+    r: 2,
+    bitprob:0.5
 }
 function startAnniPairs(){
-    $(".annipairs").each((i, _e) => {
+    let things=document.getElementsByClassName("annipairs");
+    for (i=0;i<things.length;i++){
+        _e=things[i];
         e=document.createElement("canvas");
         _e.append(e);
         e.width = _e.clientWidth;
@@ -37,24 +20,26 @@ function startAnniPairs(){
             w: e.width,
             h: e.height
         });
-    });
+    }
     setInterval(() => {
         annipair.forEach((v, i) => {
             //Generate bit
-            if (Math.random() < triflowsettings.bitprob) {
+            if (Math.random() > (1-annipairSettings.bitprob)*Math.min((v.data.bits.length-5)/5,1)) {
                 v.data.bits.push({
                     cx: v.w*0.2 + Math.random() * v.w*0.8,
                     cy: v.h*0.2 + Math.random() * v.h*0.8,
-                    dist: v.w
+                    dist: v.w,
+                    dead:false
                 })
             }
             //clear screen
             v.ctx.fillStyle = "rgba(0,0,0,0.3)";
             v.ctx.fillRect(0, 0, v.w, v.h);
             //update and draw all bits
-            v.ctx.fillStyle = "rgb(0,255,0)";
+            
             for (i = 0; i < v.data.bits.length; i++) {
                 if (v.data.bits[i].dist > 0) {
+                    v.ctx.fillStyle = "rgb(0,100,0)";
                     v.ctx.fillRect(v.data.bits[i].cx - annipairSettings.r + v.data.bits[
                             i].dist, v.data.bits[i].cy - annipairSettings.r,
                         2 * annipairSettings.r, 2 * annipairSettings.r);
@@ -62,7 +47,13 @@ function startAnniPairs(){
                             i].dist, v.data.bits[i].cy - annipairSettings.r,
                         2 * annipairSettings.r, 2 * annipairSettings.r);
                     v.data.bits[i].dist = v.w - (v.w - v.data.bits[i].dist) * 1.02 - 1;
-                } else {
+                } 
+                if (v.data.bits[i].dist<=0){
+                    v.ctx.fillStyle = "rgb(0,255,0)";
+                    if (!v.data.bits[i].dead){
+                        v.data.bits[i].dead=true;
+                        v.data.bits[i].dist=-1;
+                    }
                     v.ctx.fillRect(v.data.bits[i].cx + v.data.bits[
                             i].dist / 2, v.data.bits[i].cy + v
                         .data
@@ -77,3 +68,5 @@ function startAnniPairs(){
         })
     }, 100)
 }
+if (document.readyState != "loading") startAnniPairs(); 
+else document.addEventListener("DOMContentLoaded", startAnniPairs);

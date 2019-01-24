@@ -6,29 +6,7 @@ function getRand(arr) {
     // The undefined will be returned if the empty array was passed
 }
 
-function JQInit(_f) {
-    if (typeof jQuery == 'undefined') {
-        // preinject jquery so that noone else after us is going to
-        //inject jquery
-        scr = document.createElement("script");
-        scr.src = src = "https://code.jquery.com/jquery-3.3.1.slim.min.js";
-        document.getElementsByTagName("head")[0].appendChild(scr);
-        jQuery = "";
-    }
-    if (typeof jQuery == 'string') {
-        function tryStartJQ(f) {
-            if (typeof jQuery != 'string' && typeof jQuery != 'undefined') f();
-            else setTimeout(() => {
-                tryStartJQ(f)
-            }, 1000);
-        }
-        document.addEventListener("ready", tryStartJQ(_f));
-    } else {
-        $(_f);
-    }
-}
 
-JQInit(startHackerText)
 //////////fakeCode//////
 fakeCode = [];
 fakeCodeSettings = {
@@ -171,6 +149,8 @@ function startHackerText() {
             overflow: hidden;
             position: relative;
             background-color:black;
+            text-align: left;
+            width: 100%;
         }
 
         .hackertext>div {
@@ -199,7 +179,9 @@ function startHackerText() {
 
         
 </style>`)
-    $(".hackertext").each((i, e) => {
+    let things = document.getElementsByClassName("hackertext");
+    for (i = 0; i < things.length; i++) {
+        e = things[i];
         dv = document.createElement("div");
         e.append(dv);
         fakeCode.push({
@@ -210,7 +192,7 @@ function startHackerText() {
                 identifiers: [],
             }
         });
-    })
+    }
     fakeCode.forEach(propagateHack);
 }
 
@@ -227,5 +209,9 @@ function propagateHack(v, i) {
     while ($(v.div).children().length > 60) {
         $(v.div).find("span:lt(1)").remove();
     }
-    setTimeout(()=>{propagateHack(v,i)},Math.log(k.innerHTML.length)*200+200);
+    setTimeout(() => {
+        propagateHack(v, i)
+    }, Math.log(k.innerHTML.length) * 200 + 200);
 }
+
+if (document.readyState != "loading") startHackerText(); else document.addEventListener("DOMContentLoaded", startHackerText);

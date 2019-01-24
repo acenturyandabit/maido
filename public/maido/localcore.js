@@ -1,3 +1,9 @@
+function _loadFromString(str){
+    data=JSON.parse(str);
+    loadFromString(JSON.stringify(JSON.parse(data.data).items));
+    $("#title")[0].innerText = data.name;
+}
+
 function loadFromString(str) {
     data = JSON.parse(str);
     $("#todolist span:not(.pintotop)").remove()
@@ -37,6 +43,10 @@ function loadSingleEntry(id, data) {
     for (p in data) {
         e = $("[data-taskgroup='" + id + "'][data-role*='" + p + "']")[0];
         if (e) e.value = data[p];
+        if(e &&e.dataset && e.dataset.role=="date" && data[p].v){
+            e.value=data[p].v;
+            e.dataset.date=data[p].d;
+        }
         else if (editors[p]){
             $(dbdiv).append(`<div data-editortype='`+p+`'>
             <p>`+p+`</p>
@@ -96,6 +106,7 @@ function getSaveString() {
     $("[data-taskgroup][data-role]").each((i, e) => {
         if (savedata[e.dataset.taskgroup] == undefined) savedata[e.dataset.taskgroup] = {};
         savedata[e.dataset.taskgroup][e.dataset.role] = e.value;
+        if (e.dataset.role=="date")savedata[e.dataset.taskgroup][e.dataset.role] = {v:e.value,d:e.dataset.date};
     });
     $("#todolist_db>div[data-taskgroup]>div").each((i, e) => {
         savedata[e.parentElement.dataset.taskgroup][e.dataset.editortype]=editors[e.dataset.editortype].toData($(e).find(".innerbox")[0]);

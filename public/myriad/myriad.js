@@ -17,7 +17,7 @@ var rootoptions = {
             }
             div.appendChild(btn);
         },
-        to: ["root"]
+        to: []
     },
     custom: {
         title: "Custom dataset",
@@ -39,7 +39,7 @@ var rootoptions = {
                 k.readAsText(e.currentTarget.files[0]);
             }
         },
-        to: ['root']
+        to: []
     }
 }
 var wikidata = {};

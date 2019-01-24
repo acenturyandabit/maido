@@ -1,0 +1,16 @@
+{
+    "short_name": "Maido",
+    "name": "Maido",
+    "icons": [
+        {
+            "src": "resources/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+          }
+    ],
+    "start_url": "/maido/",
+    "background_color": "#3367f6",
+    "display": "standalone",
+    "scope": "/maido/",
+    "theme_color": "#3367f6"
+  }

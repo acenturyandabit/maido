@@ -313,6 +313,7 @@ function itemComparer(a, b) {
     }
     return result;
 }
+
 $(() => {
     var dateContextedTarget;
     contextMenuManager.registerContextMenu(`

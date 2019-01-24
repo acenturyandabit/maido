@@ -196,48 +196,37 @@ Vector.angleBetween = function (a, b) {
   return a.angleTo(b);
 };
 
-function JQInit(_f) {
-  if (typeof jQuery == "undefined") {
-    // preinject jquery so that noone else after us is going to
-    //inject jquery
-    scr = document.createElement("script");
-    scr.src = src = "https://code.jquery.com/jquery-3.3.1.slim.min.js";
-    document.getElementsByTagName("head")[0].appendChild(scr);
-    jQuery = "";
-  }
-  if (typeof jQuery == "string") {
-    function tryStartJQ(f) {
-      if (typeof jQuery != "string" && typeof jQuery != "undefined") f();
-      else
-        setTimeout(() => {
-          tryStartJQ(f);
-        }, 1000);
-    }
-    document.addEventListener("ready", tryStartJQ(_f));
-  } else {
-    $(_f);
-  }
-}
 
-function randcol() {
-  var output = "#00";
-  var ac_char = "0123456789abcdef";
-  for (var i = 0; i < 2; i++) {
-    output += ac_char[Math.floor(Math.random() * 17)];
-  }
-  output += "00";
-  return output;
-}
-JQInit(startOrbit3d);
 var orbit3dDefaultSettings = {
   factor: 8,
   angularAmplitude: 5,
-  colorGenerator: randcol,
+  shapeCount:3,
+  colorGenerator: function () {
+    var output = "#00";
+    var ac_char = [
+      "6",
+      "7",
+      "8",
+      "9",
+      "0",
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f"
+    ];
+    for (var i = 0; i < 2; i++) {
+      output += ac_char[Math.floor(Math.random() * 17)];
+    }
+    output += "00";
+    return output;
+  },
   radialScalingFactor: 0,
-  axialRotationFactor:0.03,
+  axialRotationFactor: 0.03,
   backgroundFillColor: "black",
   maxVertices: 8,
-  forceOrthogonality:true,
+  forceOrthogonality: true,
   radialAmplitude: 1,
   shape: function (maxR, ramR) {
     //for sinusoidal radius
@@ -247,15 +236,15 @@ var orbit3dDefaultSettings = {
     }
     //end sinusoidal radius
     //axis theta and phi
-    this.at=Math.random() * Math.PI;
-    this.ap=Math.random() * Math.PI;
-    this.axis=Vector.fromAngles(this.at,this.ap);
-    this.dat=Math.random() * orbit3dSettings.axialRotationFactor;
-    this.dap=Math.random() * orbit3dSettings.axialRotationFactor;
+    this.at = Math.random() * Math.PI;
+    this.ap = Math.random() * Math.PI;
+    this.axis = Vector.fromAngles(this.at, this.ap);
+    this.dat = Math.random() * orbit3dSettings.axialRotationFactor;
+    this.dap = Math.random() * orbit3dSettings.axialRotationFactor;
     //end axis theta and phi
     this.rvector = new Vector(1, 0, 0); //change to random vector and then cross and normalise
-    if (orbit3dSettings.forceOrthogonality){
-      this.rvector=this.rvector.cross(this.axis).scaleTo(1);
+    if (orbit3dSettings.forceOrthogonality) {
+      this.rvector = this.rvector.cross(this.axis).scaleTo(1);
     }
     this.r = Math.random() * ramR; //radius
     this.dt = Math.random() * orbit3dSettings.angularAmplitude; //theta
@@ -263,7 +252,7 @@ var orbit3dDefaultSettings = {
     this.factor = orbit3dSettings.factor;
     var vt = Math.floor(Math.random() * (orbit3dSettings.maxVertices - 3) + 3); //number of vertices
     this.bits = [];
-    for (var i = 0; i < vt; i++) this.bits.push(new bit(maxR/3));
+    for (var i = 0; i < vt; i++) this.bits.push(new bit(maxR / 3));
     this.bitT = 0; //bit theta for rotation
     //this.bitDt = (Math.random() * 2 - 1) * 0.01; // bit d theta
     this.bitDt = 0; // bit d theta
@@ -282,7 +271,9 @@ function bit(maxR) {
 
 ///////Kaleiocore
 function startOrbit3d() {
-  $(".orbit3d").each((i, e) => {
+  let things = document.getElementsByClassName("orbit3d");
+  for (i = 0; i < things.length; i++) {
+    e = things[i];
     let orbit3dCanvas = document.createElement("canvas");
     orbit3dCanvas.width = e.clientWidth;
     orbit3dCanvas.height = e.clientHeight;
@@ -298,11 +289,11 @@ function startOrbit3d() {
       },
       radius: Math.min(orbit3dCanvas.width, orbit3dCanvas.height) / 2
     };
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < orbit3dSettings.shapeCount; i++) {
       o3do.data.shapes.push(new orbit3dSettings.shape(o3do.radius, o3do.radius));
     }
     orbit3d.push(o3do);
-  });
+  };
   setInterval(() => {
     orbit3d.forEach((v, i) => {
       v.ctx.fillStyle = orbit3dSettings.backgroundFillColor;
@@ -315,10 +306,10 @@ function startOrbit3d() {
         }
         s.bitT += s.bitDt;
         // rotate the vector about the axis
-        s.at+=s.dat;
-        s.ap+=s.dap;
-        s.axis=Vector.fromAngles(s.at,s.ap);
-        s.rvector = Vector.rotate(s.axis, s.rvector, s.dt*Math.PI / 180).scaleTo(
+        s.at += s.dat;
+        s.ap += s.dap;
+        s.axis = Vector.fromAngles(s.at, s.ap);
+        s.rvector = Vector.rotate(s.axis, s.rvector, s.dt * Math.PI / 180).scaleTo(
           s.r
         );
       }
@@ -337,19 +328,19 @@ function startOrbit3d() {
             b = s.bits[j];
             kr = b.dr;
             kd = b.dt + s.bitT;
-            pos = cnt.add(Vector.rotate(s.axis, s.rvector, kd+(i * Math.PI * 2) / s.factor).scaleTo(kr));
+            pos = cnt.add(Vector.rotate(s.axis, s.rvector, kd + (i * Math.PI * 2) / s.factor).scaleTo(kr));
             posxy = pos.toXY();
             if (ist) {
-              v.ctx.moveTo(posxy[0]+v.e.width/2, posxy[1]+v.e.height/2);
+              v.ctx.moveTo(posxy[0] + v.e.width / 2, posxy[1] + v.e.height / 2);
               ist = false;
-            } else v.ctx.lineTo(posxy[0]+v.e.width/2, posxy[1]+v.e.height/2);
+            } else v.ctx.lineTo(posxy[0] + v.e.width / 2, posxy[1] + v.e.height / 2);
           }
           b = s.bits[0];
-          kr = b.dr/5;
+          kr = b.dr / 5;
           kd = b.dt + s.bitT;
-          pos = cnt.add(Vector.rotate(s.axis, s.rvector, kd+(i * Math.PI * 2) / s.factor).scaleTo(kr));
+          pos = cnt.add(Vector.rotate(s.axis, s.rvector, kd + (i * Math.PI * 2) / s.factor).scaleTo(kr));
           posxy = pos.toXY();
-          v.ctx.lineTo(posxy[0]+v.e.width/2, posxy[1]+v.e.height/2);
+          v.ctx.lineTo(posxy[0] + v.e.width / 2, posxy[1] + v.e.height / 2);
           v.ctx.fillStyle = s.color;
           v.ctx.closePath();
           v.ctx.fill();
@@ -358,3 +349,5 @@ function startOrbit3d() {
     });
   }, 100);
 }
+
+if (document.readyState != "loading") startOrbit3d(); else document.addEventListener("DOMContentLoaded", startOrbit3d);

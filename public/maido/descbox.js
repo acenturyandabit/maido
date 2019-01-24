@@ -26,6 +26,7 @@ editors['description'] = {
             .description textarea{
                 width: 100%;
                 height: 90vh;
+                word-wrap: break-word;
             }
             </style>`
         )

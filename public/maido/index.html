@@ -32,7 +32,7 @@ Cheers!
   <!-- external libraries (Credits where due)-->
   <script src="resources/moment.min.js"></script>
   <script src="resources/fullcalendar.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="resources/fullcalendar.min.css"/>
+  <link rel="stylesheet" type="text/css" href="resources/fullcalendar.min.css" />
 
 
   <script src="datesort.js"></script>
@@ -78,6 +78,14 @@ Cheers!
       `<link rel="stylesheet" type="text/css" href="` + cssPath + `">`
     );
   </script>
+
+  <script src="resources/pwa.js">
+  </script>
+  <script>
+    var pwaManager=new _pwaManager({
+      serviceWorkerURL:"resources/pwa.js"
+    });
+  </script>
 </head>
 
 <body>
@@ -105,7 +113,7 @@ Cheers!
         <a onclick="showAddins()">Addins</a>
         <a onclick="reverseSort()">Reverse sorting order</a>
       </div>
-      
+
     </li>
     <li>
       <a>Help</a>
@@ -142,7 +150,7 @@ Cheers!
     </div>
     <div id="desc_sidebar">
       <div id="calendarView">
-        
+
       </div>
       <div id="todolist_db">
         <div></div>
@@ -175,24 +183,24 @@ Cheers!
     <h1>Loading web room...</h1>
   </div>
   <div class="dialog loader_dialog">
-      <h2>Available save sessions:</h2>
-      <div id="loader_dialog_panel_container">
-        <div id="loader_dialog_list"></div>
-      </div>
-      <p>Or load from a string...</p>
-      <textarea class="stringLoadJSON"></textarea><br />
-      <button onclick="loadFromString($('.loader_dialog textarea.stringLoadJSON')[0].value);$('.loader_dialog').hide();$('.dialog').hide()">
-        Load from string
-      </button>
-      <p>Or load from a URL (JSON data)</p>
-      <input class="urlLoadLocation"><br />
-      <button onclick="loadFromURL($('.loader_dialog input.urlLoadLocation')[0].value);$('.loader_dialog').hide();$('.dialog').hide()">
-        Load from URL
-      </button>
-      <button onclick="$('#loader_dialog').hide();$('#dialog_box').hide()">
-        Cancel
-      </button>
+    <h2>Available save sessions:</h2>
+    <div id="loader_dialog_panel_container">
+      <div id="loader_dialog_list"></div>
     </div>
+    <p>Or load from a string...</p>
+    <textarea class="stringLoadJSON"></textarea><br />
+    <button onclick="_loadFromString($('.loader_dialog textarea.stringLoadJSON')[0].value);$('.loader_dialog').hide();$('.dialog').hide()">
+      Load from string
+    </button>
+    <p>Or load from a URL (JSON data)</p>
+    <input class="urlLoadLocation"><br />
+    <button onclick="loadFromURL($('.loader_dialog input.urlLoadLocation')[0].value);$('.loader_dialog').hide();$('.dialog').hide()">
+      Load from URL
+    </button>
+    <button onclick="$('#loader_dialog').hide();$('#dialog_box').hide()">
+      Cancel
+    </button>
+  </div>
 
   </div>
   <div class="dialog" id="dnfDialog">
